@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
-import { ShieldCheck, Menu, X, ArrowUpRight } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { ShieldCheck, Menu, X, ArrowRight, UserCheck } from 'lucide-react';
+import { useAuth } from '../../contexts/AuthContext';
 
 interface NavbarProps {
   onGetStartedClick: () => void;
@@ -7,6 +9,7 @@ interface NavbarProps {
 
 export const Navbar: React.FC<NavbarProps> = ({ onGetStartedClick }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { user } = useAuth();
 
   const navItems = [
     { label: 'Overview', href: '#overview' },
@@ -47,15 +50,34 @@ export const Navbar: React.FC<NavbarProps> = ({ onGetStartedClick }) => {
             ))}
           </nav>
 
-          {/* Desktop CTA Action */}
-          <div className="hidden md:flex items-center space-x-4">
-            <button
-              type="button"
-              onClick={onGetStartedClick}
-              className="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg text-white bg-teal-700 hover:bg-teal-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-600 shadow-sm transition-colors"
-            >
-              Get Started
-            </button>
+          {/* Desktop Auth / CTA Action */}
+          <div className="hidden md:flex items-center space-x-3">
+            {user ? (
+              <Link
+                to="/dashboard"
+                className="inline-flex items-center gap-2 px-4 py-2 border border-teal-700 text-sm font-semibold rounded-lg text-white bg-teal-700 hover:bg-teal-800 shadow-sm transition-colors"
+              >
+                <UserCheck className="w-4 h-4" />
+                <span>Go to Dashboard</span>
+                <ArrowRight className="w-4 h-4" />
+              </Link>
+            ) : (
+              <>
+                <Link
+                  to="/login"
+                  className="px-3 py-2 text-sm font-semibold text-slate-700 hover:text-teal-700 transition-colors"
+                >
+                  Sign In
+                </Link>
+                <button
+                  type="button"
+                  onClick={onGetStartedClick}
+                  className="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-semibold rounded-lg text-white bg-teal-700 hover:bg-teal-800 shadow-sm transition-colors"
+                >
+                  Get Started
+                </button>
+              </>
+            )}
           </div>
 
           {/* Mobile Menu Button */}
@@ -88,18 +110,37 @@ export const Navbar: React.FC<NavbarProps> = ({ onGetStartedClick }) => {
               </a>
             ))}
           </div>
-          <div className="pt-2 border-t border-slate-100">
-            <button
-              type="button"
-              onClick={() => {
-                setMobileMenuOpen(false);
-                onGetStartedClick();
-              }}
-              className="w-full flex items-center justify-center gap-2 px-4 py-2.5 text-base font-medium rounded-lg text-white bg-teal-700 hover:bg-teal-800 focus:outline-none focus:ring-2 focus:ring-teal-600 shadow-sm transition-colors"
-            >
-              Get Started
-              <ArrowUpRight className="w-4 h-4" />
-            </button>
+          <div className="pt-2 border-t border-slate-100 space-y-2">
+            {user ? (
+              <Link
+                to="/dashboard"
+                onClick={() => setMobileMenuOpen(false)}
+                className="w-full flex items-center justify-center gap-2 px-4 py-2.5 text-base font-semibold rounded-lg text-white bg-teal-700 hover:bg-teal-800 shadow-sm transition-colors"
+              >
+                <span>Go to Dashboard</span>
+                <ArrowRight className="w-4 h-4" />
+              </Link>
+            ) : (
+              <>
+                <Link
+                  to="/login"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="w-full flex items-center justify-center px-4 py-2 text-base font-medium text-slate-700 hover:bg-slate-50 rounded-lg transition-colors border border-slate-200"
+                >
+                  Sign In
+                </Link>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    onGetStartedClick();
+                  }}
+                  className="w-full flex items-center justify-center gap-2 px-4 py-2.5 text-base font-semibold rounded-lg text-white bg-teal-700 hover:bg-teal-800 shadow-sm transition-colors"
+                >
+                  Get Started
+                </button>
+              </>
+            )}
           </div>
         </div>
       )}
