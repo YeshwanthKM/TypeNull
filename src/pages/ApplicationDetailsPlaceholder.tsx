@@ -1,41 +1,65 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, FileText, Camera, ShieldAlert, FileCheck, Layers, Info, Calendar, Building, Globe } from 'lucide-react';
+import {
+  ArrowLeft,
+  FileText,
+  Camera,
+  ShieldAlert,
+  FileCheck,
+  Layers,
+  Info,
+  Calendar,
+  Building,
+  Globe,
+  UploadCloud,
+  Lock,
+} from 'lucide-react';
 import { PageHeader } from '../components/ui/PageHeader';
 import { Button } from '../components/ui/Button';
 import { StatusBadge } from '../components/ui/StatusBadge';
 import { LoadingState } from '../components/ui/LoadingState';
+import { DocumentList } from '../components/documents/DocumentList';
+import { DocumentUploadModal } from '../components/documents/DocumentUploadModal';
+import { DocumentPreviewModal } from '../components/documents/DocumentPreviewModal';
 import { useAuth } from '../contexts/AuthContext';
 import { fetchApplicationById } from '../services/applications';
-import { DbApplication } from '../types';
+import { fetchApplicationDocuments } from '../services/documents';
+import { DbApplication, ApplicationDocument } from '../types';
 
 export const ApplicationDetailsPlaceholder: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { isConfigured } = useAuth();
+  const { user, isConfigured } = useAuth();
 
   const [application, setApplication] = useState<DbApplication | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [documents, setDocuments] = useState<ApplicationDocument[]>([]);
+  const [isLoadingApp, setIsLoadingApp] = useState<boolean>(true);
+  const [isLoadingDocs, setIsLoadingDocs] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
+  // Modals state
+  const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
+  const [previewingDoc, setPreviewingDoc] = useState<ApplicationDocument | null>(null);
+
+  // Load application details
   const loadApplication = useCallback(async () => {
     if (!id) {
       setError('Invalid application ID.');
-      setIsLoading(false);
+      setIsLoadingApp(false);
       return;
     }
 
     if (!isConfigured) {
-      setIsLoading(false);
+      setIsLoadingApp(false);
       return;
     }
 
-    setIsLoading(true);
+    setIsLoadingApp(true);
     setError(null);
 
     const { data, error: fetchErr } = await fetchApplicationById(id);
 
-    setIsLoading(false);
+    setIsLoadingApp(false);
 
     if (fetchErr || !data) {
       setError(
@@ -47,11 +71,38 @@ export const ApplicationDetailsPlaceholder: React.FC = () => {
     }
   }, [id, isConfigured]);
 
+  // Load application documents
+  const loadDocuments = useCallback(async () => {
+    if (!id || !isConfigured) {
+      setIsLoadingDocs(false);
+      return;
+    }
+
+    setIsLoadingDocs(true);
+    const { data, error: docErr } = await fetchApplicationDocuments(id);
+    setIsLoadingDocs(false);
+
+    if (!docErr) {
+      setDocuments(data);
+    }
+  }, [id, isConfigured]);
+
   useEffect(() => {
     loadApplication();
-  }, [loadApplication]);
+    loadDocuments();
+  }, [loadApplication, loadDocuments]);
 
-  if (isLoading) {
+  // Handler when new document upload completes
+  const handleDocumentUploaded = (newDoc: ApplicationDocument) => {
+    setDocuments((prev) => [newDoc, ...prev]);
+  };
+
+  // Handler when document is deleted
+  const handleDocumentDeleted = (deletedId: string) => {
+    setDocuments((prev) => prev.filter((d) => d.id !== deletedId));
+  };
+
+  if (isLoadingApp) {
     return (
       <div className="max-w-5xl mx-auto py-8">
         <LoadingState message="Fetching application record from Supabase PostgreSQL..." rows={4} />
@@ -70,9 +121,7 @@ export const ApplicationDetailsPlaceholder: React.FC = () => {
           <h2 className="text-xl font-bold text-slate-900">
             Dossier Not Found or Access Restricted
           </h2>
-          <p className="text-xs text-slate-500 max-w-md mx-auto">
-            {error}
-          </p>
+          <p className="text-xs text-slate-500 max-w-md mx-auto">{error}</p>
         </div>
         <div className="pt-2">
           <Button
@@ -88,10 +137,9 @@ export const ApplicationDetailsPlaceholder: React.FC = () => {
     );
   }
 
-  // Fallback for preview mode or when viewing with Supabase unconfigured
   const displayTitle = application?.title || `Application Dossier: ${id || 'PREVIEW'}`;
   const displayCategory = application?.category?.replace(/_/g, ' ') || 'Institutional Registration';
-  const displayOrg = application?.organisation_name || 'Designated Institution (Preview)';
+  const displayOrg = application?.organisation_name || 'Designated Entity (Preview)';
   const displayReg = application?.registration_number || 'N/A';
   const displayJurisdiction = application?.jurisdiction || 'India';
   const displayDesc = application?.description || 'No additional scope notes recorded.';
@@ -102,7 +150,7 @@ export const ApplicationDetailsPlaceholder: React.FC = () => {
         month: 'long',
         day: 'numeric',
       })
-    : 'Phase 2 Staging';
+    : 'Phase 3 Ingestion';
 
   return (
     <div className="space-y-6 max-w-5xl mx-auto">
@@ -117,46 +165,44 @@ export const ApplicationDetailsPlaceholder: React.FC = () => {
           { label: id ? `${id.slice(0, 8)}...` : 'Dossier' },
         ]}
         action={
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => navigate('/dashboard')}
-            leftIcon={<ArrowLeft className="w-4 h-4" />}
-          >
-            Back to Dashboard
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => navigate('/dashboard')}
+              leftIcon={<ArrowLeft className="w-4 h-4" />}
+            >
+              Back
+            </Button>
+            <Button
+              variant="primary"
+              size="sm"
+              onClick={() => setIsUploadModalOpen(true)}
+              leftIcon={<UploadCloud className="w-4 h-4" />}
+            >
+              Upload Document
+            </Button>
+          </div>
         }
       />
 
-      {/* Database Persistence Verified Banner */}
-      {application ? (
-        <div className="flex items-start gap-3 p-4 rounded-xl border border-teal-200 bg-teal-50/70 text-xs text-teal-900">
-          <FileCheck className="w-5 h-5 text-teal-700 flex-shrink-0 mt-0.5" />
-          <div className="space-y-1">
-            <p className="font-semibold text-teal-950">
-              Database Record Verified (PostgreSQL)
-            </p>
-            <p className="leading-relaxed text-teal-800">
-              This dossier is persisted in Supabase and secured under your authenticated user ID. In Phase 3, document uploads and OCR text extraction will link directly to this record.
-            </p>
-          </div>
-        </div>
-      ) : (
+      {/* Supabase Unconfigured Warning */}
+      {!isConfigured && (
         <div className="flex items-start gap-3 p-4 rounded-xl border border-amber-200 bg-amber-50 text-xs text-amber-900">
           <Info className="w-5 h-5 text-amber-700 flex-shrink-0 mt-0.5" />
           <div className="space-y-1">
             <p className="font-semibold text-amber-950">
-              Preview Mode (Supabase Unconfigured)
+              Supabase Storage Connection Pending
             </p>
             <p className="leading-relaxed text-amber-800">
-              Configure Supabase credentials in <code className="font-mono bg-amber-100 px-1 py-0.5 rounded">.env</code> to view live PostgreSQL dossier records.
+              Document uploads interact directly with your private Supabase Storage bucket (<code className="font-mono bg-amber-100 px-1 py-0.5 rounded">application-documents</code>). Ensure your Supabase project is active with migration 002 applied.
             </p>
           </div>
         </div>
       )}
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Left Column: Application Information & Document Submission */}
+        {/* Left Column: Application Information & Document Management */}
         <div className="lg:col-span-2 space-y-6">
           {/* Real Application Info Card */}
           <div className="p-6 rounded-xl border border-slate-200 bg-white shadow-sm space-y-4">
@@ -166,7 +212,7 @@ export const ApplicationDetailsPlaceholder: React.FC = () => {
                 Dossier Metadata &amp; Claims
               </h3>
               <span className="text-[11px] font-mono text-slate-500 bg-slate-50 px-2 py-0.5 rounded border border-slate-200">
-                {application ? 'PostgreSQL Active' : 'Schema Preview'}
+                PostgreSQL Active
               </span>
             </div>
 
@@ -200,9 +246,7 @@ export const ApplicationDetailsPlaceholder: React.FC = () => {
                 <span className="text-slate-400 block font-medium uppercase tracking-wider text-[10px]">
                   Registration / Licence Number
                 </span>
-                <span className="text-slate-800 font-mono mt-0.5 block">
-                  {displayReg}
-                </span>
+                <span className="text-slate-800 font-mono mt-0.5 block">{displayReg}</span>
               </div>
               <div>
                 <span className="text-slate-400 block font-medium uppercase tracking-wider text-[10px]">
@@ -215,7 +259,7 @@ export const ApplicationDetailsPlaceholder: React.FC = () => {
               </div>
               <div>
                 <span className="text-slate-400 block font-medium uppercase tracking-wider text-[10px]">
-                  Submission Date
+                  Creation Date
                 </span>
                 <div className="flex items-center gap-1.5 mt-0.5 text-slate-800 font-medium">
                   <Calendar className="w-3.5 h-3.5 text-slate-400" />
@@ -234,83 +278,125 @@ export const ApplicationDetailsPlaceholder: React.FC = () => {
             </div>
           </div>
 
-          {/* Document Ingestion & Camera Capture Section Placeholder */}
+          {/* Document Management Section */}
           <div className="p-6 rounded-xl border border-slate-200 bg-white shadow-sm space-y-4">
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-              <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
-                <Camera className="w-4 h-4 text-teal-700" />
-                Document Intake &amp; Mobile Camera Capture
-              </h3>
-              <span className="text-[11px] text-teal-800 bg-teal-50 px-2 py-0.5 rounded font-medium border border-teal-200">
-                Phase 3 Engine
-              </span>
+              <div>
+                <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
+                  <Camera className="w-4 h-4 text-teal-700" />
+                  Uploaded Verification Documents
+                </h3>
+                <p className="text-xs text-slate-500 mt-0.5">
+                  Private storage vault &bull; Signed URL access only
+                </p>
+              </div>
+
+              <Button
+                variant="primary"
+                size="sm"
+                onClick={() => setIsUploadModalOpen(true)}
+                leftIcon={<UploadCloud className="w-3.5 h-3.5" />}
+              >
+                Add Document
+              </Button>
             </div>
 
-            <div className="p-8 border-2 border-dashed border-slate-200 rounded-lg text-center bg-slate-50/50">
-              <Camera className="w-8 h-8 text-slate-400 mx-auto mb-2" />
-              <h4 className="text-sm font-semibold text-slate-800">
-                Document Upload &amp; Scanner Module
-              </h4>
-              <p className="text-xs text-slate-500 max-w-md mx-auto mt-1 leading-relaxed">
-                Supabase Storage bucket integration and camera OCR extraction will connect to this dossier in Phase 3.
-              </p>
-              <div className="mt-4 flex flex-wrap justify-center gap-2">
-                <span className="text-[11px] px-2.5 py-1 bg-white rounded border border-slate-200 text-slate-600">
-                  Supabase Storage Buckets
-                </span>
-                <span className="text-[11px] px-2.5 py-1 bg-white rounded border border-slate-200 text-slate-600">
-                  Mobile Camera Capture
-                </span>
-                <span className="text-[11px] px-2.5 py-1 bg-white rounded border border-slate-200 text-slate-600">
-                  OCR Text Extraction
-                </span>
+            <DocumentList
+              documents={documents}
+              isLoading={isLoadingDocs}
+              onOpenUploadModal={() => setIsUploadModalOpen(true)}
+              onPreviewDocument={(doc) => setPreviewingDoc(doc)}
+              onDocumentDeleted={handleDocumentDeleted}
+            />
+          </div>
+        </div>
+
+        {/* Right Column: Vault Security & Upcoming Phase Capabilities */}
+        <div className="space-y-6">
+          {/* Vault Security Summary Card */}
+          <div className="p-6 rounded-xl border border-slate-200 bg-white shadow-sm space-y-3">
+            <div className="flex items-center gap-2 font-bold text-slate-900 text-sm border-b border-slate-100 pb-2.5">
+              <Lock className="w-4 h-4 text-teal-700" />
+              <span>Storage Vault Status</span>
+            </div>
+            <div className="space-y-2 text-xs text-slate-600">
+              <div className="flex justify-between items-center py-1 border-b border-slate-50">
+                <span className="text-slate-500">Total Uploaded Files</span>
+                <span className="font-semibold text-slate-900 font-mono">{documents.length}</span>
+              </div>
+              <div className="flex justify-between items-center py-1 border-b border-slate-50">
+                <span className="text-slate-500">Access Mode</span>
+                <span className="font-semibold text-teal-700">Private / Signed 15m</span>
+              </div>
+              <div className="flex justify-between items-center py-1 border-b border-slate-50">
+                <span className="text-slate-500">Max File Limit</span>
+                <span className="font-semibold text-slate-800">10 MB / file</span>
+              </div>
+              <div className="flex justify-between items-center py-1">
+                <span className="text-slate-500">Encryption</span>
+                <span className="font-semibold text-slate-800">AES-256 (At Rest)</span>
               </div>
             </div>
           </div>
-        </div>
 
-        {/* Right Column: Findings & Compliance Reports */}
-        <div className="space-y-6">
-          {/* Verification Findings Placeholder */}
-          <div className="p-6 rounded-xl border border-slate-200 bg-white shadow-sm space-y-4">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-              <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
+          {/* Upcoming Phase 4: Consistency Matrix Preview */}
+          <div className="p-6 rounded-xl border border-slate-200 bg-white shadow-sm space-y-3">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
+              <h4 className="text-sm font-bold text-slate-900 flex items-center gap-2">
                 <Layers className="w-4 h-4 text-teal-700" />
                 Cross-Document Findings
-              </h3>
-              <ShieldAlert className="w-4 h-4 text-slate-400" />
+              </h4>
+              <span className="text-[10px] uppercase font-mono text-slate-400 bg-slate-50 px-2 py-0.5 rounded border border-slate-200">
+                Phase 4
+              </span>
             </div>
 
             <p className="text-xs text-slate-600 leading-relaxed">
-              When documents are uploaded, TypeNull will cross-reference claims against documentary proofs to identify discrepancies.
+              Once documents are uploaded, Phase 4 OCR extraction will parse dates, applicant names, and registration numbers across credentials to flag discrepancies automatically.
             </p>
 
-            <div className="p-3.5 rounded-lg bg-slate-50 border border-slate-100 text-xs text-slate-500">
-              <span className="font-semibold text-slate-700 block mb-1">Upcoming in Phase 4:</span>
-              Automated Discrepancy Matrix comparing names, registration numbers, and dates across multi-source evidence.
+            <div className="p-3 bg-slate-50 rounded-lg border border-slate-100 text-xs text-slate-500">
+              <span className="font-semibold text-slate-700 block mb-0.5">Automated Cross-Check:</span>
+              Name fuzzy matching, date alignment, and credential mismatch detection.
             </div>
           </div>
 
-          {/* Regulatory Compliance Reports Placeholder */}
-          <div className="p-6 rounded-xl border border-slate-200 bg-white shadow-sm space-y-4">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-              <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
+          {/* Upcoming Phase 5: Regulatory Compliance Preview */}
+          <div className="p-6 rounded-xl border border-slate-200 bg-white shadow-sm space-y-3">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
+              <h4 className="text-sm font-bold text-slate-900 flex items-center gap-2">
                 <FileCheck className="w-4 h-4 text-teal-700" />
-                Compliance Intelligence
-              </h3>
+                Compliance Audit Report
+              </h4>
+              <span className="text-[10px] uppercase font-mono text-slate-400 bg-slate-50 px-2 py-0.5 rounded border border-slate-200">
+                Phase 5
+              </span>
             </div>
 
             <p className="text-xs text-slate-600 leading-relaxed">
-              Evidence-linked evaluation against statutory policies and reference institutional datasets.
+              Generates cryptographic tamper-evident verification certificates mapping documentary proofs directly to statutory guidelines.
             </p>
-
-            <div className="p-3.5 rounded-lg bg-teal-50/60 border border-teal-100 text-xs text-teal-900">
-              <span className="font-semibold text-teal-950 block mb-1">Audit Report (Phase 5):</span>
-              Exportable verification certificates with cryptographic timestamps and audit trails will be downloadable here.
-            </div>
           </div>
         </div>
       </div>
+
+      {/* Upload Modal */}
+      {id && user && (
+        <DocumentUploadModal
+          isOpen={isUploadModalOpen}
+          onClose={() => setIsUploadModalOpen(false)}
+          applicationId={id}
+          userId={user.id}
+          onUploadSuccess={handleDocumentUploaded}
+        />
+      )}
+
+      {/* Preview Modal */}
+      <DocumentPreviewModal
+        isOpen={Boolean(previewingDoc)}
+        onClose={() => setPreviewingDoc(null)}
+        document={previewingDoc}
+      />
     </div>
   );
 };

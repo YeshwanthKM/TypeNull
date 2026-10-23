@@ -23,7 +23,8 @@ export type PhaseStatus =
   | 'Phase 0: Project Initialisation'
   | 'Phase 1: Frontend Foundation'
   | 'Phase 2: Supabase Integration'
-  | 'Phase 3: Document Intelligence';
+  | 'Phase 3: Secure Document Ingestion'
+  | 'Phase 4: OCR & Document Intelligence';
 
 export interface ProjectMetadata {
   name: string;
@@ -68,7 +69,7 @@ export type ApplicationStatus =
   | 'prototype';
 
 /**
- * Supabase Database Models (Phase 2)
+ * Supabase Database Models (Phase 2 & Phase 3)
  */
 export interface UserProfile {
   id: string;
@@ -102,4 +103,43 @@ export interface ApplicationRecord {
   status: ApplicationStatus;
   createdAt: string;
   updatedAt: string;
+}
+
+/**
+ * Phase 3: Document Ingestion, Metadata & Storage Types
+ */
+export type DocumentCategory =
+  | 'registration_certificate'
+  | 'identity_document'
+  | 'address_proof'
+  | 'tax_financial_document'
+  | 'application_form'
+  | 'supporting_evidence'
+  | 'other';
+
+export type DocumentProcessingStatus =
+  | 'uploaded'
+  | 'processing'
+  | 'extracted'
+  | 'failed';
+
+export interface ApplicationDocument {
+  id: string;
+  application_id: string;
+  user_id: string;
+  original_filename: string;
+  storage_path: string;
+  mime_type: string;
+  file_size_bytes: number;
+  document_type: DocumentCategory;
+  processing_status: DocumentProcessingStatus;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface DocumentUploadOptions {
+  applicationId: string;
+  userId: string;
+  file: File;
+  documentType: DocumentCategory;
 }

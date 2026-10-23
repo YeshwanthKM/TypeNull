@@ -1,8 +1,8 @@
 import React from 'react';
-import { ApplicationStatus } from '../../types';
+import { ApplicationStatus, DocumentProcessingStatus } from '../../types';
 
 export interface StatusBadgeProps {
-  status: ApplicationStatus | string;
+  status: ApplicationStatus | DocumentProcessingStatus | string;
   size?: 'sm' | 'md';
 }
 
@@ -10,6 +10,7 @@ const statusConfig: Record<
   string,
   { label: string; bg: string; text: string; border: string; dot: string }
 > = {
+  // Application statuses
   draft: {
     label: 'Draft',
     bg: 'bg-slate-100',
@@ -53,11 +54,41 @@ const statusConfig: Record<
     dot: 'bg-rose-500',
   },
   prototype: {
-    label: 'Phase 2 Staged',
+    label: 'Prototype Record',
     bg: 'bg-teal-50',
     text: 'text-teal-800',
     border: 'border-teal-200',
     dot: 'bg-teal-600',
+  },
+
+  // Document processing statuses
+  uploaded: {
+    label: 'Uploaded & Staged',
+    bg: 'bg-teal-50',
+    text: 'text-teal-800',
+    border: 'border-teal-200',
+    dot: 'bg-teal-600',
+  },
+  processing: {
+    label: 'Queued for OCR',
+    bg: 'bg-amber-50',
+    text: 'text-amber-800',
+    border: 'border-amber-200',
+    dot: 'bg-amber-500',
+  },
+  extracted: {
+    label: 'OCR Data Extracted',
+    bg: 'bg-blue-50',
+    text: 'text-blue-800',
+    border: 'border-blue-200',
+    dot: 'bg-blue-500',
+  },
+  failed: {
+    label: 'Upload Failed',
+    bg: 'bg-rose-50',
+    text: 'text-rose-800',
+    border: 'border-rose-200',
+    dot: 'bg-rose-500',
   },
 };
 

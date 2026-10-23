@@ -82,10 +82,10 @@ export const AppSidebar: React.FC = () => {
         <div className="mt-auto p-4 m-3 rounded-lg bg-slate-50 border border-slate-200 text-xs">
           <div className="flex items-center gap-2 mb-1.5 font-semibold text-slate-900">
             <span className="w-2 h-2 rounded-full bg-teal-600" />
-            Phase 2 Active
+            Phase 3 Active
           </div>
           <p className="text-slate-500 leading-normal text-[11px]">
-            Supabase Auth & persistent application records active with RLS policies.
+            Document intake, mobile camera capture &amp; private storage vault active.
           </p>
         </div>
       </div>
