@@ -119,7 +119,9 @@ export type DocumentCategory =
 
 export type DocumentProcessingStatus =
   | 'uploaded'
+  | 'queued'
   | 'processing'
+  | 'completed'
   | 'extracted'
   | 'failed';
 
@@ -142,4 +144,59 @@ export interface DocumentUploadOptions {
   userId: string;
   file: File;
   documentType: DocumentCategory;
+}
+
+/**
+ * Phase 4: Document Intelligence, Field Extraction & Human Review Types
+ */
+export type ExtractionStatus = 'queued' | 'processing' | 'completed' | 'failed';
+
+export type ExtractionMethod = 'pdf_text' | 'ocr' | 'hybrid' | 'manual';
+
+export type FieldReviewStatus = 'needs_review' | 'confirmed' | 'corrected';
+
+export type ExtractedFieldName =
+  | 'organisation_name'
+  | 'applicant_name'
+  | 'registration_number'
+  | 'issue_date'
+  | 'expiry_date'
+  | 'address'
+  | 'issuing_authority'
+  | 'document_title';
+
+export interface DocumentExtractionRecord {
+  id: string;
+  document_id: string;
+  application_id: string;
+  user_id: string;
+  extraction_status: ExtractionStatus;
+  extraction_method: ExtractionMethod;
+  raw_text: string | null;
+  page_count: number;
+  classified_type: DocumentCategory | null;
+  classification_confidence: number | null;
+  classification_reason: string | null;
+  error_message: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ExtractedFieldRecord {
+  id: string;
+  extraction_id: string;
+  document_id: string;
+  application_id: string;
+  user_id: string;
+  field_name: ExtractedFieldName | string;
+  field_label: string;
+  extracted_value: string | null;
+  reviewed_value: string | null;
+  page_number: number;
+  evidence_snippet: string | null;
+  extraction_method: ExtractionMethod | string;
+  confidence_score: number | null;
+  review_status: FieldReviewStatus;
+  created_at: string;
+  updated_at: string;
 }

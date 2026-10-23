@@ -21,6 +21,8 @@ import { LoadingState } from '../components/ui/LoadingState';
 import { DocumentList } from '../components/documents/DocumentList';
 import { DocumentUploadModal } from '../components/documents/DocumentUploadModal';
 import { DocumentPreviewModal } from '../components/documents/DocumentPreviewModal';
+import { DocumentExtractionModal } from '../components/extraction/DocumentExtractionModal';
+import { ExtractedDossierSection } from '../components/extraction/ExtractedDossierSection';
 import { useAuth } from '../contexts/AuthContext';
 import { fetchApplicationById } from '../services/applications';
 import { fetchApplicationDocuments } from '../services/documents';
@@ -40,6 +42,16 @@ export const ApplicationDetailsPlaceholder: React.FC = () => {
   // Modals state
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
   const [previewingDoc, setPreviewingDoc] = useState<ApplicationDocument | null>(null);
+  const [extractingDoc, setExtractingDoc] = useState<ApplicationDocument | null>(null);
+
+  const handleDocumentStatusChanged = (
+    docId: string,
+    newStatus: ApplicationDocument['processing_status']
+  ) => {
+    setDocuments((prev) =>
+      prev.map((d) => (d.id === docId ? { ...d, processing_status: newStatus } : d))
+    );
+  };
 
   // Load application details
   const loadApplication = useCallback(async () => {
@@ -306,12 +318,20 @@ export const ApplicationDetailsPlaceholder: React.FC = () => {
               isLoading={isLoadingDocs}
               onOpenUploadModal={() => setIsUploadModalOpen(true)}
               onPreviewDocument={(doc) => setPreviewingDoc(doc)}
+              onExtractDocument={(doc) => setExtractingDoc(doc)}
               onDocumentDeleted={handleDocumentDeleted}
             />
           </div>
+
+          {/* Extracted Intelligence & Human Review Dossier Section */}
+          <ExtractedDossierSection
+            applicationId={id || ''}
+            documents={documents}
+            onOpenExtractionModal={(doc) => setExtractingDoc(doc)}
+          />
         </div>
 
-        {/* Right Column: Vault Security & Upcoming Phase Capabilities */}
+        {/* Right Column: Vault Security & Pipeline Intelligence */}
         <div className="space-y-6">
           {/* Vault Security Summary Card */}
           <div className="p-6 rounded-xl border border-slate-200 bg-white shadow-sm space-y-3">
@@ -339,25 +359,27 @@ export const ApplicationDetailsPlaceholder: React.FC = () => {
             </div>
           </div>
 
-          {/* Upcoming Phase 4: Consistency Matrix Preview */}
-          <div className="p-6 rounded-xl border border-slate-200 bg-white shadow-sm space-y-3">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
+          {/* Active Phase 4: Document Intelligence Status */}
+          <div className="p-6 rounded-xl border border-teal-200 bg-teal-50/30 shadow-sm space-y-3">
+            <div className="flex items-center justify-between border-b border-teal-100 pb-2.5">
               <h4 className="text-sm font-bold text-slate-900 flex items-center gap-2">
                 <Layers className="w-4 h-4 text-teal-700" />
-                Cross-Document Findings
+                Document Intelligence
               </h4>
-              <span className="text-[10px] uppercase font-mono text-slate-400 bg-slate-50 px-2 py-0.5 rounded border border-slate-200">
-                Phase 4
+              <span className="text-[10px] uppercase font-mono text-teal-800 bg-teal-100 px-2 py-0.5 rounded border border-teal-300 font-semibold">
+                Active Phase 4
               </span>
             </div>
 
-            <p className="text-xs text-slate-600 leading-relaxed">
-              Once documents are uploaded, Phase 4 OCR extraction will parse dates, applicant names, and registration numbers across credentials to flag discrepancies automatically.
+            <p className="text-xs text-slate-700 leading-relaxed">
+              In-browser WebAssembly OCR (Tesseract.js) and PDF stream parsing identify candidate fields with document provenance snippets and human review tracking.
             </p>
 
-            <div className="p-3 bg-slate-50 rounded-lg border border-slate-100 text-xs text-slate-500">
-              <span className="font-semibold text-slate-700 block mb-0.5">Automated Cross-Check:</span>
-              Name fuzzy matching, date alignment, and credential mismatch detection.
+            <div className="p-3 bg-white rounded-lg border border-teal-100 text-xs text-slate-600 space-y-1">
+              <span className="font-semibold text-teal-900 block">Supported Fields:</span>
+              <p className="text-[11px] leading-relaxed text-slate-500">
+                GSTIN, PAN, CIN, Registration IDs, Entity Name, Issue/Expiry Dates, Address, and Issuing Authority.
+              </p>
             </div>
           </div>
 
@@ -397,6 +419,17 @@ export const ApplicationDetailsPlaceholder: React.FC = () => {
         onClose={() => setPreviewingDoc(null)}
         document={previewingDoc}
       />
+
+      {/* Extraction & Human Review Modal */}
+      {user && (
+        <DocumentExtractionModal
+          isOpen={Boolean(extractingDoc)}
+          onClose={() => setExtractingDoc(null)}
+          document={extractingDoc}
+          userId={user.id}
+          onDocumentStatusChanged={handleDocumentStatusChanged}
+        />
+      )}
     </div>
   );
 };

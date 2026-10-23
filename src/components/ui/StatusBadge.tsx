@@ -63,32 +63,69 @@ const statusConfig: Record<
 
   // Document processing statuses
   uploaded: {
-    label: 'Uploaded & Staged',
-    bg: 'bg-teal-50',
-    text: 'text-teal-800',
-    border: 'border-teal-200',
-    dot: 'bg-teal-600',
+    label: 'Uploaded',
+    bg: 'bg-slate-50',
+    text: 'text-slate-700',
+    border: 'border-slate-300',
+    dot: 'bg-slate-400',
+  },
+  queued: {
+    label: 'Queued',
+    bg: 'bg-purple-50',
+    text: 'text-purple-800',
+    border: 'border-purple-200',
+    dot: 'bg-purple-500',
   },
   processing: {
-    label: 'Queued for OCR',
+    label: 'Processing OCR...',
     bg: 'bg-amber-50',
     text: 'text-amber-800',
     border: 'border-amber-200',
-    dot: 'bg-amber-500',
+    dot: 'bg-amber-500 animate-pulse',
+  },
+  completed: {
+    label: 'Extracted',
+    bg: 'bg-emerald-50',
+    text: 'text-emerald-800',
+    border: 'border-emerald-200',
+    dot: 'bg-emerald-500',
   },
   extracted: {
-    label: 'OCR Data Extracted',
+    label: 'Extracted',
     bg: 'bg-blue-50',
     text: 'text-blue-800',
     border: 'border-blue-200',
     dot: 'bg-blue-500',
   },
   failed: {
-    label: 'Upload Failed',
+    label: 'Processing Failed',
     bg: 'bg-rose-50',
     text: 'text-rose-800',
     border: 'border-rose-200',
     dot: 'bg-rose-500',
+  },
+
+  // Field review statuses
+  needs_review: {
+    label: 'Needs Review',
+    bg: 'bg-amber-50',
+    text: 'text-amber-900',
+    border: 'border-amber-300',
+    dot: 'bg-amber-500',
+  },
+  confirmed: {
+    label: 'Confirmed',
+    bg: 'bg-emerald-50',
+    text: 'text-emerald-900',
+    border: 'border-emerald-300',
+    dot: 'bg-emerald-500',
+  },
+  corrected: {
+    label: 'Corrected',
+    bg: 'bg-sky-50',
+    text: 'text-sky-900',
+    border: 'border-sky-300',
+    dot: 'bg-sky-500',
   },
 };
 

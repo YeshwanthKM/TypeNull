@@ -14,12 +14,14 @@ import { Button } from '../ui/Button';
 import { EmptyState } from '../ui/EmptyState';
 import { LoadingState } from '../ui/LoadingState';
 import { formatBytes, deleteApplicationDocument } from '../../services/documents';
+import { Sparkles } from 'lucide-react';
 
 interface DocumentListProps {
   documents: ApplicationDocument[];
   isLoading: boolean;
   onOpenUploadModal: () => void;
   onPreviewDocument: (doc: ApplicationDocument) => void;
+  onExtractDocument?: (doc: ApplicationDocument) => void;
   onDocumentDeleted: (docId: string) => void;
 }
 
@@ -28,6 +30,7 @@ export const DocumentList: React.FC<DocumentListProps> = ({
   isLoading,
   onOpenUploadModal,
   onPreviewDocument,
+  onExtractDocument,
   onDocumentDeleted,
 }) => {
   const [deletingDoc, setDeletingDoc] = useState<ApplicationDocument | null>(null);
@@ -213,6 +216,22 @@ export const DocumentList: React.FC<DocumentListProps> = ({
                     {/* Actions */}
                     <td className="px-6 py-4 text-right">
                       <div className="flex items-center justify-end gap-1.5">
+                        {onExtractDocument && (
+                          <Button
+                            variant={doc.processing_status === 'completed' ? 'outline' : 'secondary'}
+                            size="sm"
+                            onClick={() => onExtractDocument(doc)}
+                            leftIcon={<Sparkles className="w-3.5 h-3.5 text-teal-600" />}
+                            title={
+                              doc.processing_status === 'completed'
+                                ? 'Review extracted fields and provenance'
+                                : 'Extract text and identify structured fields'
+                            }
+                          >
+                            {doc.processing_status === 'completed' ? 'Review Extraction' : 'Extract Data'}
+                          </Button>
+                        )}
+
                         <Button
                           variant="outline"
                           size="sm"
