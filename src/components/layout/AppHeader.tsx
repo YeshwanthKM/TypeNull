@@ -11,7 +11,8 @@ export const AppHeader: React.FC<AppHeaderProps> = ({ onToggleMobileMenu }) => {
   const { user, profile, signOut, isConfigured } = useAuth();
   const navigate = useNavigate();
 
-  const displayName = profile?.full_name || user?.email?.split('@')[0] || 'Verification Officer';
+  const displayName = profile?.full_name || user?.email?.split('@')[0] || 'Authenticated User';
+  const displayRole = profile?.role || 'applicant';
   const displayEmail = user?.email || (isConfigured ? 'Authenticated' : 'Offline Mode');
 
   const handleSignOut = async () => {
@@ -71,9 +72,14 @@ export const AppHeader: React.FC<AppHeaderProps> = ({ onToggleMobileMenu }) => {
                 <UserCheck className="w-4 h-4" />
               </div>
               <div className="hidden lg:flex flex-col">
-                <span className="text-xs font-semibold text-slate-800 leading-tight group-hover:text-teal-700">
-                  {displayName}
-                </span>
+                <div className="flex items-center gap-1.5">
+                  <span className="text-xs font-semibold text-slate-800 leading-tight group-hover:text-teal-700">
+                    {displayName}
+                  </span>
+                  <span className="text-[9px] font-mono uppercase font-bold px-1.5 py-0.2 rounded bg-slate-100 text-slate-600 border border-slate-200">
+                    {displayRole}
+                  </span>
+                </div>
                 <span className="text-[10px] text-slate-500 font-mono truncate max-w-[140px]">
                   {displayEmail}
                 </span>

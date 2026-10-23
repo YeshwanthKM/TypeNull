@@ -1,23 +1,48 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, FilePlus, Settings, Shield, ExternalLink } from 'lucide-react';
+import {
+  LayoutDashboard,
+  FilePlus,
+  Settings,
+  Shield,
+  Key,
+  ExternalLink,
+} from 'lucide-react';
+import { useAuth } from '../../contexts/AuthContext';
 
 export const AppSidebar: React.FC = () => {
+  const { role } = useAuth();
+
   const navItems = [
     {
       to: '/dashboard',
       label: 'Dashboard',
       icon: LayoutDashboard,
+      show: true,
     },
     {
       to: '/applications/new',
       label: 'New Application',
       icon: FilePlus,
+      show: role !== 'officer',
+    },
+    {
+      to: '/officer',
+      label: 'Officer Workspace',
+      icon: Shield,
+      show: role === 'officer' || role === 'administrator',
+    },
+    {
+      to: '/admin',
+      label: 'Administration',
+      icon: Key,
+      show: role === 'administrator',
     },
     {
       to: '/settings',
       label: 'Settings',
       icon: Settings,
+      show: true,
     },
   ];
 
@@ -30,34 +55,36 @@ export const AppSidebar: React.FC = () => {
             Verification Console
           </p>
           <nav className="space-y-1" aria-label="Portal Navigation">
-            {navItems.map((item) => {
-              const Icon = item.icon;
-              return (
-                <NavLink
-                  key={item.to}
-                  to={item.to}
-                  end={item.to === '/dashboard'}
-                  className={({ isActive }) =>
-                    `flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-lg transition-colors ${
-                      isActive
-                        ? 'bg-teal-50 text-teal-800 font-semibold'
-                        : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
-                    }`
-                  }
-                >
-                  {({ isActive }) => (
-                    <>
-                      <Icon
-                        className={`w-4 h-4 flex-shrink-0 ${
-                          isActive ? 'text-teal-700' : 'text-slate-400'
-                        }`}
-                      />
-                      <span>{item.label}</span>
-                    </>
-                  )}
-                </NavLink>
-              );
-            })}
+            {navItems
+              .filter((item) => item.show)
+              .map((item) => {
+                const Icon = item.icon;
+                return (
+                  <NavLink
+                    key={item.to}
+                    to={item.to}
+                    end={item.to === '/dashboard'}
+                    className={({ isActive }) =>
+                      `flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-lg transition-colors ${
+                        isActive
+                          ? 'bg-teal-50 text-teal-800 font-semibold'
+                          : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+                      }`
+                    }
+                  >
+                    {({ isActive }) => (
+                      <>
+                        <Icon
+                          className={`w-4 h-4 flex-shrink-0 ${
+                            isActive ? 'text-teal-700' : 'text-slate-400'
+                          }`}
+                        />
+                        <span>{item.label}</span>
+                      </>
+                    )}
+                  </NavLink>
+                );
+              })}
           </nav>
         </div>
 
@@ -82,10 +109,10 @@ export const AppSidebar: React.FC = () => {
         <div className="mt-auto p-4 m-3 rounded-lg bg-slate-50 border border-slate-200 text-xs">
           <div className="flex items-center gap-2 mb-1.5 font-semibold text-slate-900">
             <span className="w-2 h-2 rounded-full bg-teal-600" />
-            Phase 3 Active
+            Phase 4 Active
           </div>
           <p className="text-slate-500 leading-normal text-[11px]">
-            Document intake, mobile camera capture &amp; private storage vault active.
+            Document intelligence, client-side OCR &amp; human review active.
           </p>
         </div>
       </div>

@@ -1,28 +1,29 @@
 import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { ShieldCheck, LogIn, AlertCircle, Info, ArrowLeft } from 'lucide-react';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth, getRoleRedirectPath } from '../contexts/AuthContext';
 import { Button } from '../components/ui/Button';
 import { FormInput } from '../components/ui/FormInput';
 
 export const LoginPage: React.FC = () => {
-  const { signIn, isConfigured, user } = useAuth();
+  const { signIn, isConfigured, user, role, isLoading: isAuthLoading } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // If already logged in, redirect to dashboard or intended destination
-  const from = (location.state as { from?: { pathname: string } })?.from?.pathname || '/dashboard';
+  // If already logged in, redirect based on verified role
+  const from = (location.state as { from?: { pathname: string } })?.from?.pathname;
 
   React.useEffect(() => {
-    if (user) {
-      navigate(from, { replace: true });
+    if (user && !isAuthLoading) {
+      const destination = getRoleRedirectPath(role, from);
+      navigate(destination, { replace: true });
     }
-  }, [user, navigate, from]);
+  }, [user, isAuthLoading, role, navigate, from]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -38,16 +39,17 @@ export const LoginPage: React.FC = () => {
       return;
     }
 
-    setIsLoading(true);
+    setIsSubmitting(true);
 
-    const { error: signInError } = await signIn(email, password);
+    const { error: signInError, role: verifiedRole } = await signIn(email, password);
 
-    setIsLoading(false);
+    setIsSubmitting(false);
 
     if (signInError) {
       setError(signInError.message || 'Failed to authenticate. Please check your credentials.');
     } else {
-      navigate(from, { replace: true });
+      const destination = getRoleRedirectPath(verifiedRole, from);
+      navigate(destination, { replace: true });
     }
   };
 
@@ -68,15 +70,15 @@ export const LoginPage: React.FC = () => {
                 TypeNull
               </span>
               <span className="text-[10px] font-medium tracking-wider text-slate-500 uppercase">
-                Portal Authentication
+                Unified Portal Authentication
               </span>
             </div>
           </Link>
           <h1 className="mt-6 text-2xl font-bold tracking-tight text-slate-900">
-            Sign In to Officer Portal
+            Sign In to TypeNull
           </h1>
           <p className="mt-1.5 text-xs text-slate-600">
-            Access application validation dossiers and regulatory compliance records.
+            Access your authorized portal as an Applicant, Officer, or Administrator.
           </p>
         </div>
 
@@ -113,10 +115,10 @@ export const LoginPage: React.FC = () => {
               autoComplete="email"
               label="Email Address"
               isRequired
-              placeholder="officer@agency.gov.in"
+              placeholder="user@example.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              disabled={isLoading}
+              disabled={isSubmitting}
             />
 
             <FormInput
@@ -129,7 +131,7 @@ export const LoginPage: React.FC = () => {
               placeholder="••••••••"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              disabled={isLoading}
+              disabled={isSubmitting}
             />
 
             <div className="flex items-center justify-between text-xs">
@@ -147,21 +149,35 @@ export const LoginPage: React.FC = () => {
               variant="primary"
               fullWidth
               size="md"
-              isLoading={isLoading}
+              isLoading={isSubmitting}
               leftIcon={<LogIn className="w-4 h-4" />}
             >
               Sign In
             </Button>
           </form>
 
-          <div className="mt-6 pt-6 border-t border-slate-100 text-center">
+          {/* Role Redirection Overview */}
+          <div className="mt-6 pt-5 border-t border-slate-100">
+            <div className="rounded-lg bg-slate-50 border border-slate-200/70 p-2.5 text-[11px] text-slate-500 space-y-1">
+              <span className="font-semibold text-slate-700 block text-[10px] uppercase tracking-wider">
+                Automatic Role Routing
+              </span>
+              <p>
+                &bull; <strong className="text-slate-700">Applicants</strong> &rarr; Application Management Dashboard<br />
+                &bull; <strong className="text-slate-700">Officers</strong> &rarr; Dossier Review Workspace<br />
+                &bull; <strong className="text-slate-700">Administrators</strong> &rarr; System Console
+              </p>
+            </div>
+          </div>
+
+          <div className="mt-4 pt-4 border-t border-slate-100 text-center">
             <p className="text-xs text-slate-600">
-              Don&apos;t have an officer account?{' '}
+              Need an applicant account?{' '}
               <Link
                 to="/register"
                 className="font-semibold text-teal-700 hover:text-teal-800 transition-colors"
               >
-                Register here
+                Register as Applicant
               </Link>
             </p>
           </div>

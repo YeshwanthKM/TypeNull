@@ -91,10 +91,10 @@ export const RegisterPage: React.FC = () => {
             </div>
           </Link>
           <h1 className="mt-6 text-2xl font-bold tracking-tight text-slate-900">
-            Create Verification Account
+            Create Applicant Account
           </h1>
           <p className="mt-1.5 text-xs text-slate-600">
-            Register for access to application validation and regulatory compliance tools.
+            Register as an applicant to submit dossiers, upload documents, and track compliance intelligence.
           </p>
         </div>
 
@@ -212,7 +212,12 @@ export const RegisterPage: React.FC = () => {
               </div>
             </form>
 
-            <div className="mt-6 pt-6 border-t border-slate-100 text-center">
+            <div className="mt-5 p-3 rounded-lg bg-slate-50 border border-slate-200/80 text-[11px] text-slate-500 leading-relaxed text-left">
+              <span className="font-semibold text-slate-700 block mb-0.5">Role Provisioning Policy:</span>
+              Public registration creates standard Applicant accounts. Officer and Administrator clearances are provisioned through trusted institutional processes.
+            </div>
+
+            <div className="mt-5 pt-5 border-t border-slate-100 text-center">
               <p className="text-xs text-slate-600">
                 Already registered?{' '}
                 <Link

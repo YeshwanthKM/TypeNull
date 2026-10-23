@@ -69,13 +69,34 @@ export type ApplicationStatus =
   | 'prototype';
 
 /**
- * Supabase Database Models (Phase 2 & Phase 3)
+ * Supabase Database Models (Authentication & Roles)
  */
+export type UserRole = 'applicant' | 'officer' | 'administrator';
+
 export interface UserProfile {
   id: string;
   full_name: string | null;
+  role: UserRole;
   created_at: string;
   updated_at: string;
+}
+
+export interface Organisation {
+  id: string;
+  name: string;
+  code: string;
+  category?: string;
+  description?: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface OrganisationMember {
+  id: string;
+  organisation_id: string;
+  user_id: string;
+  member_role: 'officer' | 'lead_officer' | 'admin';
+  created_at: string;
 }
 
 export interface DbApplication {
@@ -88,6 +109,7 @@ export interface DbApplication {
   jurisdiction: string;
   description: string | null;
   status: 'draft' | 'submitted' | 'under_review';
+  assigned_organisation_id?: string | null;
   created_at: string;
   updated_at: string;
 }

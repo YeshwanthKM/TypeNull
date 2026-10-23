@@ -120,7 +120,7 @@ export const SettingsPage: React.FC = () => {
               <FormInput
                 id="fullName"
                 name="fullName"
-                label="Officer Full Name"
+                label="Full Name / Display Identity"
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
                 placeholder="e.g., Rajesh Sharma"
@@ -139,6 +139,19 @@ export const SettingsPage: React.FC = () => {
                   className="w-full px-3.5 py-2.5 rounded-lg border border-slate-200 bg-slate-50 text-slate-600 text-sm cursor-not-allowed font-mono"
                 />
                 <p className="text-xs text-slate-400 mt-1">Managed via Supabase Auth.</p>
+              </div>
+
+              <div>
+                <label className="block text-[11px] font-semibold text-slate-700 uppercase tracking-wider mb-1">
+                  Assigned Application Role
+                </label>
+                <div className="flex items-center gap-2 px-3.5 py-2.5 rounded-lg border border-slate-200 bg-slate-50 text-slate-800 text-sm font-mono capitalize">
+                  <span className="w-2 h-2 rounded-full bg-teal-600" />
+                  <span className="font-semibold">{profile?.role || 'applicant'}</span>
+                </div>
+                <p className="text-xs text-slate-400 mt-1">
+                  Enforced via PostgreSQL RLS &amp; triggers. Non-modifiable by client.
+                </p>
               </div>
             </div>
 

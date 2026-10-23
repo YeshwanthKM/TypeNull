@@ -9,6 +9,8 @@ import { DashboardPage } from './pages/DashboardPage';
 import { NewApplicationPage } from './pages/NewApplicationPage';
 import { ApplicationDetailsPlaceholder } from './pages/ApplicationDetailsPlaceholder';
 import { SettingsPage } from './pages/SettingsPage';
+import { OfficerWorkspacePlaceholder } from './pages/OfficerWorkspacePlaceholder';
+import { AdminWorkspacePlaceholder } from './pages/AdminWorkspacePlaceholder';
 import { LoginPage } from './pages/LoginPage';
 import { RegisterPage } from './pages/RegisterPage';
 import { ForgotPasswordPage } from './pages/ForgotPasswordPage';
@@ -41,11 +43,11 @@ export const App: React.FC = () => {
           <Route path="/forgot-password" element={<ForgotPasswordPage />} />
           <Route path="/reset-password" element={<ResetPasswordPage />} />
 
-          {/* Protected Application Routes */}
+          {/* Applicant & Shared Application Routes */}
           <Route
             path="/dashboard"
             element={
-              <ProtectedRoute>
+              <ProtectedRoute allowedRoles={['applicant', 'officer', 'administrator']}>
                 <AppLayout>
                   <DashboardPage />
                 </AppLayout>
@@ -56,7 +58,7 @@ export const App: React.FC = () => {
           <Route
             path="/applications/new"
             element={
-              <ProtectedRoute>
+              <ProtectedRoute allowedRoles={['applicant', 'administrator']}>
                 <AppLayout>
                   <NewApplicationPage />
                 </AppLayout>
@@ -67,7 +69,7 @@ export const App: React.FC = () => {
           <Route
             path="/applications/:id"
             element={
-              <ProtectedRoute>
+              <ProtectedRoute allowedRoles={['applicant', 'officer', 'administrator']}>
                 <AppLayout>
                   <ApplicationDetailsPlaceholder />
                 </AppLayout>
@@ -78,9 +80,33 @@ export const App: React.FC = () => {
           <Route
             path="/settings"
             element={
-              <ProtectedRoute>
+              <ProtectedRoute allowedRoles={['applicant', 'officer', 'administrator']}>
                 <AppLayout>
                   <SettingsPage />
+                </AppLayout>
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Officer Workspace */}
+          <Route
+            path="/officer"
+            element={
+              <ProtectedRoute allowedRoles={['officer', 'administrator']}>
+                <AppLayout>
+                  <OfficerWorkspacePlaceholder />
+                </AppLayout>
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Administrator Workspace */}
+          <Route
+            path="/admin"
+            element={
+              <ProtectedRoute allowedRoles={['administrator']}>
+                <AppLayout>
+                  <AdminWorkspacePlaceholder />
                 </AppLayout>
               </ProtectedRoute>
             }

@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, FilePlus, Settings, ShieldCheck, X, Globe } from 'lucide-react';
+import { LayoutDashboard, FilePlus, Settings, ShieldCheck, X, Globe, Shield, Key } from 'lucide-react';
+import { useAuth } from '../../contexts/AuthContext';
 
 export interface MobileNavigationProps {
   isOpen: boolean;
@@ -8,6 +9,8 @@ export interface MobileNavigationProps {
 }
 
 export const MobileNavigation: React.FC<MobileNavigationProps> = ({ isOpen, onClose }) => {
+  const { role } = useAuth();
+
   // Lock body scroll when mobile drawer is open
   useEffect(() => {
     if (isOpen) {
@@ -36,21 +39,37 @@ export const MobileNavigation: React.FC<MobileNavigationProps> = ({ isOpen, onCl
       to: '/dashboard',
       label: 'Dashboard',
       icon: LayoutDashboard,
+      show: true,
     },
     {
       to: '/applications/new',
       label: 'New Application',
       icon: FilePlus,
+      show: role !== 'officer',
+    },
+    {
+      to: '/officer',
+      label: 'Officer Workspace',
+      icon: Shield,
+      show: role === 'officer' || role === 'administrator',
+    },
+    {
+      to: '/admin',
+      label: 'Administration',
+      icon: Key,
+      show: role === 'administrator',
     },
     {
       to: '/settings',
       label: 'Settings',
       icon: Settings,
+      show: true,
     },
     {
       to: '/',
       label: 'Landing Page',
       icon: Globe,
+      show: true,
     },
   ];
 
@@ -100,42 +119,44 @@ export const MobileNavigation: React.FC<MobileNavigationProps> = ({ isOpen, onCl
           <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider px-3 mb-2">
             Navigation
           </p>
-          {navItems.map((item) => {
-            const Icon = item.icon;
-            return (
-              <NavLink
-                key={item.to}
-                to={item.to}
-                end={item.to === '/dashboard' || item.to === '/'}
-                onClick={onClose}
-                className={({ isActive }) =>
-                  `flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-lg transition-colors ${
-                    isActive
-                      ? 'bg-teal-50 text-teal-800 font-semibold'
-                      : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
-                  }`
-                }
-              >
-                {({ isActive }) => (
-                  <>
-                    <Icon
-                      className={`w-5 h-5 flex-shrink-0 ${
-                        isActive ? 'text-teal-700' : 'text-slate-400'
-                      }`}
-                    />
-                    <span>{item.label}</span>
-                  </>
-                )}
-              </NavLink>
-            );
-          })}
+          {navItems
+            .filter((item) => item.show)
+            .map((item) => {
+              const Icon = item.icon;
+              return (
+                <NavLink
+                  key={item.to}
+                  to={item.to}
+                  end={item.to === '/dashboard' || item.to === '/'}
+                  onClick={onClose}
+                  className={({ isActive }) =>
+                    `flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-lg transition-colors ${
+                      isActive
+                        ? 'bg-teal-50 text-teal-800 font-semibold'
+                        : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+                    }`
+                  }
+                >
+                  {({ isActive }) => (
+                    <>
+                      <Icon
+                        className={`w-5 h-5 flex-shrink-0 ${
+                          isActive ? 'text-teal-700' : 'text-slate-400'
+                        }`}
+                      />
+                      <span>{item.label}</span>
+                    </>
+                  )}
+                </NavLink>
+              );
+            })}
         </div>
 
         {/* Phase note in mobile menu */}
         <div className="p-4 m-4 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-500">
-          <p className="font-semibold text-slate-800 mb-1">Phase 3: Document Ingestion</p>
+          <p className="font-semibold text-slate-800 mb-1">Phase 4: Document Intelligence</p>
           <p className="text-[11px]">
-            Mobile camera capture, private storage vault, and signed preview tokens active.
+            In-browser OCR, PDF text extraction, structured field parsing, and RBAC active.
           </p>
         </div>
       </div>

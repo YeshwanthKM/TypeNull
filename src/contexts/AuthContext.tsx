@@ -1,15 +1,38 @@
 import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import { User, Session, AuthError } from '@supabase/supabase-js';
 import { supabase, isSupabaseConfigured } from '../lib/supabase';
-import { UserProfile } from '../types';
+import { UserProfile, UserRole } from '../types';
+
+export function getRoleRedirectPath(role?: UserRole | null, intendedPath?: string): string {
+  if (role === 'officer') {
+    if (intendedPath && intendedPath.startsWith('/officer')) return intendedPath;
+    return '/officer';
+  }
+  if (role === 'administrator') {
+    if (intendedPath && intendedPath.startsWith('/admin')) return intendedPath;
+    return '/admin';
+  }
+  // Default for applicant
+  if (
+    intendedPath &&
+    intendedPath !== '/login' &&
+    intendedPath !== '/register' &&
+    !intendedPath.startsWith('/officer') &&
+    !intendedPath.startsWith('/admin')
+  ) {
+    return intendedPath;
+  }
+  return '/dashboard';
+}
 
 interface AuthContextType {
   user: User | null;
   session: Session | null;
   profile: UserProfile | null;
+  role: UserRole | null;
   isLoading: boolean;
   isConfigured: boolean;
-  signIn: (email: string, password: string) => Promise<{ error: AuthError | Error | null }>;
+  signIn: (email: string, password: string) => Promise<{ error: AuthError | Error | null; role?: UserRole | null }>;
   signUp: (
     email: string,
     password: string,
@@ -20,6 +43,7 @@ interface AuthContextType {
   updatePassword: (newPassword: string) => Promise<{ error: AuthError | Error | null }>;
   updateProfile: (fullName: string) => Promise<{ error: Error | null }>;
   refreshProfile: () => Promise<void>;
+  fetchProfile: (userId: string) => Promise<UserProfile | null>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -30,8 +54,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
-  const fetchProfile = useCallback(async (userId: string) => {
-    if (!supabase || !isSupabaseConfigured) return;
+  const fetchProfile = useCallback(async (userId: string): Promise<UserProfile | null> => {
+    if (!supabase || !isSupabaseConfigured) return null;
     try {
       const { data, error } = await supabase
         .from('profiles')
@@ -40,13 +64,30 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         .maybeSingle();
 
       if (!error && data) {
-        setProfile(data as UserProfile);
+        const userProfile: UserProfile = {
+          id: data.id,
+          full_name: data.full_name,
+          role: (data.role as UserRole) || 'applicant',
+          created_at: data.created_at,
+          updated_at: data.updated_at,
+        };
+        setProfile(userProfile);
+        return userProfile;
       } else {
-        setProfile(null);
+        // Fallback default applicant profile if record was not found
+        const fallbackProfile: UserProfile = {
+          id: userId,
+          full_name: '',
+          role: 'applicant',
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        };
+        setProfile(fallbackProfile);
+        return fallbackProfile;
       }
     } catch (err) {
       console.error('[TypeNull] Error fetching profile:', err);
-      setProfile(null);
+      return null;
     }
   }, []);
 
@@ -58,15 +99,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       return;
     }
 
-    // 1. Check existing session on boot
+    // 1. Check existing session on boot & await verified profile role
     supabase.auth
       .getSession()
-      .then(({ data: { session: existingSession } }) => {
+      .then(async ({ data: { session: existingSession } }) => {
         if (!mounted) return;
         setSession(existingSession);
         setUser(existingSession?.user ?? null);
         if (existingSession?.user) {
-          fetchProfile(existingSession.user.id);
+          await fetchProfile(existingSession.user.id);
         }
       })
       .catch((err) => {
@@ -106,17 +147,31 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         error: new Error(
           'Supabase is not configured. Please supply VITE_SUPABASE_URL and VITE_SUPABASE_PUBLISHABLE_KEY.'
         ),
+        role: null,
       };
     }
 
     try {
-      const { error } = await supabase.auth.signInWithPassword({
+      const { data, error } = await supabase.auth.signInWithPassword({
         email: email.trim(),
         password,
       });
-      return { error };
+
+      if (error) {
+        return { error, role: null };
+      }
+
+      let userRole: UserRole = 'applicant';
+      if (data.user) {
+        const fetched = await fetchProfile(data.user.id);
+        if (fetched?.role) {
+          userRole = fetched.role;
+        }
+      }
+
+      return { error: null, role: userRole };
     } catch (err) {
-      return { error: err as Error };
+      return { error: err as Error, role: null };
     }
   };
 
@@ -250,6 +305,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         user,
         session,
         profile,
+        role: profile?.role ?? null,
         isLoading,
         isConfigured: isSupabaseConfigured,
         signIn,
@@ -259,6 +315,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         updatePassword,
         updateProfile,
         refreshProfile,
+        fetchProfile,
       }}
     >
       {children}
