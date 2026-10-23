@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ShieldAlert, ArrowLeft } from 'lucide-react';
+import { ShieldAlert, ArrowLeft, LayoutDashboard } from 'lucide-react';
 
 export const NotFoundPage: React.FC = () => {
   return (
@@ -13,15 +13,22 @@ export const NotFoundPage: React.FC = () => {
           Page Not Found
         </h1>
         <p className="text-sm text-slate-600">
-          The requested route is not available in the TypeNull Phase 0 build.
+          The requested route was not found in the TypeNull application.
         </p>
-        <div>
+        <div className="flex flex-wrap items-center justify-center gap-3">
+          <Link
+            to="/dashboard"
+            className="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-semibold text-white bg-teal-700 hover:bg-teal-800 rounded-lg shadow-sm transition-colors"
+          >
+            <LayoutDashboard className="w-4 h-4" />
+            Go to Dashboard
+          </Link>
           <Link
             to="/"
-            className="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white bg-teal-700 hover:bg-teal-800 rounded-lg shadow-sm transition-colors"
+            className="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-semibold text-slate-700 bg-white border border-slate-300 hover:bg-slate-50 rounded-lg shadow-sm transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />
-            Back to Home
+            Home
           </Link>
         </div>
       </div>

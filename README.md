@@ -14,17 +14,28 @@ TypeNull is a responsive, AI-assisted document and application verification plat
 
 ---
 
-## Phase 0: Safe Project Initialisation (Current Status)
+## Phase Status Summary
 
-This initial phase establishes the foundational codebase, build infrastructure, responsive frontend shell, and deployment configuration:
-
-- [x] Modern React 18 + TypeScript + Vite architecture.
-- [x] Tailwind CSS styling tailored for mobile-first responsiveness, high contrast, and accessibility.
-- [x] React Router setup with SPA fallback.
-- [x] Clean directory structure prepared for modular expansion.
-- [x] Supabase integration architecture prepared (`.env.example` and `src/lib/supabase.ts`) without hardcoded or mock credentials.
-- [x] Vercel deployment configuration (`vercel.json`).
-- [x] Initial Git checkpoint created.
+- [x] **Phase 0: Safe Project Initialisation**
+  - Modern React 18 + TypeScript + Vite architecture.
+  - Tailwind CSS styling tailored for mobile-first responsiveness, high contrast, and accessibility.
+  - Vercel deployment configuration (`vercel.json`).
+  - Safe Supabase integration template (`.env.example` and `src/lib/supabase.ts`).
+- [x] **Phase 1: Frontend Foundation and Responsive UI** *(Current)*
+  - Reusable application layout (`AppLayout`) with desktop sidebar, mobile drawer, and bottom quick-bar.
+  - Comprehensive design system components (`Button`, `FormInput`, `FormSelect`, `FormTextarea`, `StatusBadge`, `EmptyState`, `LoadingState`, `ErrorMessage`, `PageHeader`).
+  - Active routes:
+    - `/`: Landing page (with direct "Get Started" navigation to Dashboard).
+    - `/dashboard`: Verification Dashboard with honest summary cards, empty states, and action triggers.
+    - `/applications/new`: New Application Intake Form with client-side validation and prototype persistence notice.
+    - `/applications/:id`: Application Details Review placeholder layout.
+    - `/settings`: Settings and System Governance placeholder layout.
+  - Verified responsive design across 360px, 390px, 768px, 1024px, and 1440px viewports.
+- [ ] **Phase 2: Supabase Integration & Authentication** *(Next)*
+  - PostgreSQL schema creation, Supabase Auth user sessions, and Supabase Storage buckets.
+- [ ] **Phase 3: Document Ingestion, Camera Capture & OCR Extraction**
+- [ ] **Phase 4: Cross-Document Validation Engine & Discrepancy Matrix**
+- [ ] **Phase 5: Regulatory Compliance Intelligence & Evidence Reports**
 
 ---
 
@@ -50,39 +61,59 @@ This initial phase establishes the foundational codebase, build infrastructure, 
 TypeNull/
 ├── public/
 │   └── icons/
-│       └── shield-check.svg     # SVG Favicon & platform emblem
+│       └── shield-check.svg         # SVG Favicon & platform emblem
 ├── src/
 │   ├── components/
 │   │   ├── common/
-│   │   │   ├── Navbar.tsx       # Accessible responsive navbar with mobile drawer
-│   │   │   ├── Footer.tsx       # SIH metadata and platform information
-│   │   │   └── PhaseModal.tsx   # Interactive Phase status modal
-│   │   └── landing/
-│   │       ├── Hero.tsx         # Hero section with primary & secondary CTAs
-│   │       └── FeaturesOverview.tsx # 3-Pillar capability breakdown & pipeline
+│   │   │   ├── Navbar.tsx           # Public landing navigation with mobile drawer
+│   │   │   ├── Footer.tsx           # SIH metadata and platform information
+│   │   │   └── PhaseModal.tsx       # Phase informational modal
+│   │   ├── landing/
+│   │   │   ├── Hero.tsx             # Hero section with primary & secondary CTAs
+│   │   │   └── FeaturesOverview.tsx # 3-Pillar capability breakdown & pipeline
+│   │   ├── layout/
+│   │   │   ├── AppHeader.tsx        # Application console top navigation bar
+│   │   │   ├── AppSidebar.tsx       # Desktop sidebar with active route highlights
+│   │   │   └── MobileNavigation.tsx # Slide-out drawer and bottom quick-bar
+│   │   └── ui/
+│   │       ├── Button.tsx           # Accessible button (variants, sizes, loading)
+│   │       ├── FormInput.tsx        # Accessible text input with error states
+│   │       ├── FormSelect.tsx       # Accessible select with option mapping
+│   │       ├── FormTextarea.tsx     # Accessible multi-line input
+│   │       ├── StatusBadge.tsx      # Lifecycle status pill badges
+│   │       ├── EmptyState.tsx       # Reusable empty list / zero-data placeholder
+│   │       ├── LoadingState.tsx     # Reusable loading spinner & skeleton rows
+│   │       ├── ErrorMessage.tsx     # Reusable error banner with retry support
+│   │       └── PageHeader.tsx       # Standardized header with breadcrumb navigation
 │   ├── layouts/
-│   │   └── MainLayout.tsx       # Root layout coordinator
+│   │   ├── MainLayout.tsx           # Public website layout shell
+│   │   └── AppLayout.tsx            # Authenticated console layout shell
 │   ├── lib/
-│   │   └── supabase.ts          # Safe Supabase client initialiser (Phase 2 ready)
+│   │   └── supabase.ts              # Safe Supabase client initialiser (Phase 2 ready)
 │   ├── pages/
-│   │   ├── LandingPage.tsx      # Main landing presentation
-│   │   └── NotFoundPage.tsx     # 404 client-side route fallback
+│   │   ├── LandingPage.tsx          # Public landing presentation
+│   │   ├── DashboardPage.tsx        # Application console dashboard
+│   │   ├── NewApplicationPage.tsx   # New application form with client validation
+│   │   ├── ApplicationDetailsPlaceholder.tsx # Dossier inspection placeholder
+│   │   ├── SettingsPage.tsx         # Operator settings & governance placeholder
+│   │   └── NotFoundPage.tsx         # 404 client-side route fallback
 │   ├── styles/
-│   │   └── index.css            # Tailwind directives and base typography
+│   │   └── index.css                # Tailwind directives and base typography
 │   ├── types/
-│   │   └── index.ts             # Domain interfaces and type definitions
-│   ├── App.tsx                  # Router configuration
-│   └── main.tsx                 # Application DOM entry point
-├── .env.example                 # Environment configuration template
-├── .gitignore                   # Ignored files (node_modules, dist, envs)
-├── index.html                   # HTML template
-├── package.json                 # Project dependencies and npm scripts
-├── postcss.config.js            # PostCSS configuration
-├── tailwind.config.js           # Tailwind design tokens and theme extensions
-├── tsconfig.json                # TypeScript compiler configuration
-├── vercel.json                  # Vercel deployment and SPA routing rewrite rules
-├── vite.config.ts               # Vite configuration with path aliases
-└── README.md                    # Project documentation
+│   │   └── index.ts                 # Domain interfaces and type definitions
+│   ├── vite-env.d.ts                # Vite client type declarations
+│   ├── App.tsx                      # Application routing matrix
+│   └── main.tsx                     # Application DOM entry point
+├── .env.example                     # Environment configuration template
+├── .gitignore                       # Ignored files (node_modules, dist, envs)
+├── index.html                       # HTML template
+├── package.json                     # Project dependencies and npm scripts
+├── postcss.config.js                # PostCSS configuration
+├── tailwind.config.js               # Tailwind design tokens and theme extensions
+├── tsconfig.json                    # TypeScript compiler configuration
+├── vercel.json                      # Vercel deployment and SPA routing rewrite rules
+├── vite.config.ts                   # Vite configuration with path aliases
+└── README.md                        # Project documentation
 ```
 
 ---
@@ -92,36 +123,32 @@ TypeNull/
 ### Prerequisites
 - **Node.js**: `v18.0.0` or higher (verified on Node `v24.13.0`)
 - **npm**: `v9.0.0` or higher (verified on npm `11.6.2`)
-- **Git**
 
-### Installation
+### Installation & Execution
 
 1. Navigate to the project root directory:
    ```bash
    cd /Users/yeshwanth/Documents/Projects/TypeNull
    ```
 
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
-
-3. Start the local development server:
+2. Start the local development server:
    ```bash
    npm run dev
    ```
    Open your browser at `http://localhost:5173`.
+
+3. Test routes:
+   - Landing Page: `http://localhost:5173/`
+   - Dashboard: `http://localhost:5173/dashboard`
+   - New Application Form: `http://localhost:5173/applications/new`
+   - Application Review Preview: `http://localhost:5173/applications/preview-01`
+   - Settings: `http://localhost:5173/settings`
 
 4. Build for production:
    ```bash
    npm run build
    ```
    The production-ready assets will be compiled into the `dist/` directory.
-
-5. Preview the production build locally:
-   ```bash
-   npm run preview
-   ```
 
 ---
 
@@ -146,13 +173,11 @@ The project includes a ready `vercel.json` file ensuring single-page application
 ### Steps to Deploy via Vercel Dashboard
 
 1. **Push to Git Provider (GitHub / GitLab / Bitbucket)**:
-   - Create a new remote repository for `TypeNull`.
-   - Add the remote and push your code:
-     ```bash
-     git remote add origin https://github.com/<your-username>/TypeNull.git
-     git branch -M main
-     git push -u origin main
-     ```
+   ```bash
+   git remote add origin https://github.com/<your-username>/TypeNull.git
+   git branch -M main
+   git push -u origin main
+   ```
 
 2. **Import into Vercel**:
    - Log in to [vercel.com](https://vercel.com).
@@ -166,21 +191,5 @@ The project includes a ready `vercel.json` file ensuring single-page application
    - **Output Directory**: `dist`
    - **Install Command**: `npm install`
 
-4. **Environment Variables**:
-   - For Phase 0, no environment variables are strictly required to build and run the landing page.
-   - For Phase 2 (Supabase integration), add the following under **Project Settings &rarr; Environment Variables**:
-     - `VITE_SUPABASE_URL`: Your Supabase project URL.
-     - `VITE_SUPABASE_PUBLISHABLE_KEY`: Your Supabase anon / publishable key.
-
-5. **Deploy**:
+4. **Deploy**:
    - Click **Deploy**. Vercel will build the project and output a live preview URL.
-
----
-
-## Upcoming Phases
-
-- **Phase 1**: Application Form & Document Capture Architecture (File uploader, camera capture, applicant intake schemas).
-- **Phase 2**: Supabase Integration (PostgreSQL schemas, Supabase Auth, Row Level Security, Supabase Storage buckets).
-- **Phase 3**: OCR Extraction & Field Normalisation.
-- **Phase 4**: Cross-Document Validation Engine & Discrepancy Matrix.
-- **Phase 5**: Regulatory Rule Engine & Evidence-Linked Audit Reports.

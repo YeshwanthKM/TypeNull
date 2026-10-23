@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Navbar } from '../components/common/Navbar';
 import { Footer } from '../components/common/Footer';
 import { PhaseModal } from '../components/common/PhaseModal';
@@ -11,6 +12,7 @@ interface MainLayoutProps {
 }
 
 export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
+  const navigate = useNavigate();
   const [modalOpen, setModalOpen] = useState(false);
 
   const scrollToFeatures = () => {
@@ -20,16 +22,16 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
     }
   };
 
-  const openGetStartedModal = () => {
-    setModalOpen(true);
+  const handleGetStarted = () => {
+    navigate('/dashboard');
   };
 
   return (
     <div className="min-h-screen flex flex-col bg-slate-50 text-slate-900 font-sans">
-      <Navbar onGetStartedClick={openGetStartedModal} />
+      <Navbar onGetStartedClick={handleGetStarted} />
       
       <main className="flex-grow">
-        {children({ openGetStartedModal, scrollToFeatures })}
+        {children({ openGetStartedModal: handleGetStarted, scrollToFeatures })}
       </main>
 
       <Footer />
