@@ -2,12 +2,12 @@ import React from 'react';
 import { ApplicationStatus } from '../../types';
 
 export interface StatusBadgeProps {
-  status: ApplicationStatus;
+  status: ApplicationStatus | string;
   size?: 'sm' | 'md';
 }
 
 const statusConfig: Record<
-  ApplicationStatus,
+  string,
   { label: string; bg: string; text: string; border: string; dot: string }
 > = {
   draft: {
@@ -16,6 +16,13 @@ const statusConfig: Record<
     text: 'text-slate-700',
     border: 'border-slate-300',
     dot: 'bg-slate-500',
+  },
+  submitted: {
+    label: 'Submitted for Verification',
+    bg: 'bg-indigo-50',
+    text: 'text-indigo-800',
+    border: 'border-indigo-200',
+    dot: 'bg-indigo-500',
   },
   pending_documents: {
     label: 'Pending Documents',
@@ -46,7 +53,7 @@ const statusConfig: Record<
     dot: 'bg-rose-500',
   },
   prototype: {
-    label: 'Phase 1 Prototype',
+    label: 'Phase 2 Staged',
     bg: 'bg-teal-50',
     text: 'text-teal-800',
     border: 'border-teal-200',
@@ -58,7 +65,7 @@ export const StatusBadge: React.FC<StatusBadgeProps> = ({
   status,
   size = 'md',
 }) => {
-  const config = statusConfig[status] || statusConfig.prototype;
+  const config = statusConfig[status] || statusConfig.draft;
 
   const sizeClasses =
     size === 'sm'

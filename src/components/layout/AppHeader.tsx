@@ -1,12 +1,24 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
-import { ShieldCheck, Menu, Globe, UserCheck } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { ShieldCheck, Menu, Globe, UserCheck, LogOut, LogIn } from 'lucide-react';
+import { useAuth } from '../../contexts/AuthContext';
 
 export interface AppHeaderProps {
   onToggleMobileMenu: () => void;
 }
 
 export const AppHeader: React.FC<AppHeaderProps> = ({ onToggleMobileMenu }) => {
+  const { user, profile, signOut, isConfigured } = useAuth();
+  const navigate = useNavigate();
+
+  const displayName = profile?.full_name || user?.email?.split('@')[0] || 'Verification Officer';
+  const displayEmail = user?.email || (isConfigured ? 'Authenticated' : 'Offline Mode');
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate('/login');
+  };
+
   return (
     <header className="sticky top-0 z-30 flex h-16 w-full items-center justify-between border-b border-slate-200 bg-white px-4 sm:px-6 lg:px-8">
       {/* Left side: Mobile Toggle & Brand */}
@@ -38,7 +50,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({ onToggleMobileMenu }) => {
         </Link>
       </div>
 
-      {/* Right side: Navigation to Public Landing & Prototype User Pill */}
+      {/* Right side: Navigation & Auth State */}
       <div className="flex items-center gap-3">
         <Link
           to="/"
@@ -48,20 +60,47 @@ export const AppHeader: React.FC<AppHeaderProps> = ({ onToggleMobileMenu }) => {
           <span className="hidden sm:inline">Landing Page</span>
         </Link>
 
-        {/* Prototype User Pill */}
-        <div className="flex items-center gap-2 pl-3 border-l border-slate-200">
-          <div className="w-8 h-8 rounded-full bg-teal-100 text-teal-800 flex items-center justify-center font-bold text-xs border border-teal-200">
-            <UserCheck className="w-4 h-4" />
+        {user ? (
+          <div className="flex items-center gap-3 pl-3 border-l border-slate-200">
+            <Link
+              to="/settings"
+              className="flex items-center gap-2 text-left group hover:opacity-90 transition-opacity focus:outline-none focus:ring-2 focus:ring-teal-600 rounded"
+              title="View settings & profile"
+            >
+              <div className="w-8 h-8 rounded-full bg-teal-100 text-teal-800 flex items-center justify-center font-bold text-xs border border-teal-200">
+                <UserCheck className="w-4 h-4" />
+              </div>
+              <div className="hidden lg:flex flex-col">
+                <span className="text-xs font-semibold text-slate-800 leading-tight group-hover:text-teal-700">
+                  {displayName}
+                </span>
+                <span className="text-[10px] text-slate-500 font-mono truncate max-w-[140px]">
+                  {displayEmail}
+                </span>
+              </div>
+            </Link>
+
+            <button
+              type="button"
+              onClick={handleSignOut}
+              className="p-1.5 text-slate-500 hover:text-red-700 hover:bg-red-50 rounded-md transition-colors"
+              title="Sign Out"
+              aria-label="Sign out"
+            >
+              <LogOut className="w-4 h-4" />
+            </button>
           </div>
-          <div className="hidden lg:flex flex-col text-left">
-            <span className="text-xs font-semibold text-slate-800 leading-tight">
-              Review Officer
-            </span>
-            <span className="text-[10px] text-slate-400 font-mono">
-              Phase 1 Preview
-            </span>
+        ) : (
+          <div className="flex items-center gap-2 pl-3 border-l border-slate-200">
+            <Link
+              to="/login"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg text-white bg-teal-700 hover:bg-teal-800 shadow-sm transition-colors"
+            >
+              <LogIn className="w-3.5 h-3.5" />
+              Sign In
+            </Link>
           </div>
-        </div>
+        )}
       </div>
     </header>
   );

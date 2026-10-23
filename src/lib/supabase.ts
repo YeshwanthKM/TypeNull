@@ -1,27 +1,50 @@
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 
 /**
- * Supabase Client Initialisation (Phase 2 Readiness)
+ * Reusable Supabase Client for TypeNull
  * 
- * Note: Actual database connection, authentication, and storage operations
- * will be implemented in Phase 2 once environment credentials are provided.
+ * Configured using public client-safe environment variables:
+ * - VITE_SUPABASE_URL
+ * - VITE_SUPABASE_PUBLISHABLE_KEY
  * 
- * Under no circumstances should service-role keys or database passwords
- * be exposed here or in client-side bundles.
+ * NEVER expose service-role keys or database passwords in frontend code.
  */
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string | undefined;
-const supabasePublishableKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY as string | undefined;
+const supabaseUrl = (import.meta.env.VITE_SUPABASE_URL as string | undefined)?.trim();
+const supabasePublishableKey = (import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY as string | undefined)?.trim();
 
-export const isSupabaseConfigured = Boolean(supabaseUrl && supabasePublishableKey);
+export const isSupabaseConfigured = Boolean(
+  supabaseUrl &&
+  supabasePublishableKey &&
+  supabaseUrl.length > 0 &&
+  supabasePublishableKey.length > 0 &&
+  !supabaseUrl.includes('placeholder')
+);
 
 export const supabase: SupabaseClient | null = isSupabaseConfigured
-  ? createClient(supabaseUrl!, supabasePublishableKey!)
+  ? createClient(supabaseUrl!, supabasePublishableKey!, {
+      auth: {
+        persistSession: true,
+        autoRefreshToken: true,
+        detectSessionInUrl: true,
+      },
+    })
   : null;
 
+/**
+ * Helper to retrieve the active Supabase client or throw a descriptive error
+ */
+export function getSupabase(): SupabaseClient {
+  if (!supabase || !isSupabaseConfigured) {
+    throw new Error(
+      'Supabase is not configured. Please supply VITE_SUPABASE_URL and VITE_SUPABASE_PUBLISHABLE_KEY in your .env file or deployment settings.'
+    );
+  }
+  return supabase;
+}
+
 if (!isSupabaseConfigured && import.meta.env.DEV) {
-  // Helpful developmental notice without throwing runtime exceptions
-  console.info(
-    '[TypeNull: Phase 0] Supabase client is uninitialised. Credentials will be connected in Phase 2.'
+  console.warn(
+    '[TypeNull: Phase 2] Supabase is unconfigured. Real authentication and persistence require VITE_SUPABASE_URL and VITE_SUPABASE_PUBLISHABLE_KEY in .env.'
   );
 }

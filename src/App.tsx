@@ -1,5 +1,7 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { AuthProvider } from './contexts/AuthContext';
+import { ProtectedRoute } from './components/common/ProtectedRoute';
 import { MainLayout } from './layouts/MainLayout';
 import { AppLayout } from './layouts/AppLayout';
 import { LandingPage } from './pages/LandingPage';
@@ -7,78 +9,95 @@ import { DashboardPage } from './pages/DashboardPage';
 import { NewApplicationPage } from './pages/NewApplicationPage';
 import { ApplicationDetailsPlaceholder } from './pages/ApplicationDetailsPlaceholder';
 import { SettingsPage } from './pages/SettingsPage';
+import { LoginPage } from './pages/LoginPage';
+import { RegisterPage } from './pages/RegisterPage';
+import { ForgotPasswordPage } from './pages/ForgotPasswordPage';
+import { ResetPasswordPage } from './pages/ResetPasswordPage';
 import { NotFoundPage } from './pages/NotFoundPage';
 
 export const App: React.FC = () => {
   return (
-    <BrowserRouter>
-      <Routes>
-        {/* Public Landing Presentation */}
-        <Route
-          path="/"
-          element={
-            <MainLayout>
-              {({ openGetStartedModal, scrollToFeatures }) => (
-                <LandingPage
-                  onGetStartedClick={openGetStartedModal}
-                  onExploreFeaturesClick={scrollToFeatures}
-                />
-              )}
-            </MainLayout>
-          }
-        />
+    <AuthProvider>
+      <BrowserRouter>
+        <Routes>
+          {/* Public Landing Presentation */}
+          <Route
+            path="/"
+            element={
+              <MainLayout>
+                {({ openGetStartedModal, scrollToFeatures }) => (
+                  <LandingPage
+                    onGetStartedClick={openGetStartedModal}
+                    onExploreFeaturesClick={scrollToFeatures}
+                  />
+                )}
+              </MainLayout>
+            }
+          />
 
-        {/* Dashboard Console */}
-        <Route
-          path="/dashboard"
-          element={
-            <AppLayout>
-              <DashboardPage />
-            </AppLayout>
-          }
-        />
+          {/* Authentication Pages */}
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
+          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+          <Route path="/reset-password" element={<ResetPasswordPage />} />
 
-        {/* New Application Intake Form */}
-        <Route
-          path="/applications/new"
-          element={
-            <AppLayout>
-              <NewApplicationPage />
-            </AppLayout>
-          }
-        />
+          {/* Protected Application Routes */}
+          <Route
+            path="/dashboard"
+            element={
+              <ProtectedRoute>
+                <AppLayout>
+                  <DashboardPage />
+                </AppLayout>
+              </ProtectedRoute>
+            }
+          />
 
-        {/* Application Details & Review Placeholder */}
-        <Route
-          path="/applications/:id"
-          element={
-            <AppLayout>
-              <ApplicationDetailsPlaceholder />
-            </AppLayout>
-          }
-        />
+          <Route
+            path="/applications/new"
+            element={
+              <ProtectedRoute>
+                <AppLayout>
+                  <NewApplicationPage />
+                </AppLayout>
+              </ProtectedRoute>
+            }
+          />
 
-        {/* Settings & System Governance Placeholder */}
-        <Route
-          path="/settings"
-          element={
-            <AppLayout>
-              <SettingsPage />
-            </AppLayout>
-          }
-        />
+          <Route
+            path="/applications/:id"
+            element={
+              <ProtectedRoute>
+                <AppLayout>
+                  <ApplicationDetailsPlaceholder />
+                </AppLayout>
+              </ProtectedRoute>
+            }
+          />
 
-        {/* 404 Route Fallback */}
-        <Route
-          path="*"
-          element={
-            <AppLayout>
-              <NotFoundPage />
-            </AppLayout>
-          }
-        />
-      </Routes>
-    </BrowserRouter>
+          <Route
+            path="/settings"
+            element={
+              <ProtectedRoute>
+                <AppLayout>
+                  <SettingsPage />
+                </AppLayout>
+              </ProtectedRoute>
+            }
+          />
+
+          {/* 404 Route Fallback */}
+          <Route
+            path="*"
+            element={
+              <AppLayout>
+                <NotFoundPage />
+              </AppLayout>
+            }
+          />
+        </Routes>
+      </BrowserRouter>
+    </AuthProvider>
   );
 };
 

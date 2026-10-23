@@ -1,128 +1,172 @@
-import React from 'react';
-import { User, Sliders, Shield, Info, Lock } from 'lucide-react';
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { User, Shield, Info, Lock, LogOut, CheckCircle2, AlertCircle, Save } from 'lucide-react';
 import { PageHeader } from '../components/ui/PageHeader';
 import { Button } from '../components/ui/Button';
+import { FormInput } from '../components/ui/FormInput';
+import { useAuth } from '../contexts/AuthContext';
 
 export const SettingsPage: React.FC = () => {
+  const { user, profile, updateProfile, signOut, isConfigured } = useAuth();
+  const navigate = useNavigate();
+
+  const [fullName, setFullName] = useState(profile?.full_name || '');
+  const [isUpdating, setIsUpdating] = useState(false);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  // Sync state if profile loads asynchronously
+  React.useEffect(() => {
+    if (profile?.full_name && !fullName) {
+      setFullName(profile.full_name);
+    }
+  }, [profile, fullName]);
+
+  const handleUpdateProfile = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSuccessMessage(null);
+    setErrorMessage(null);
+
+    if (!user) return;
+
+    setIsUpdating(true);
+    const { error } = await updateProfile(fullName);
+    setIsUpdating(false);
+
+    if (error) {
+      setErrorMessage(error.message || 'Failed to update profile.');
+    } else {
+      setSuccessMessage('Profile name updated successfully.');
+      setTimeout(() => setSuccessMessage(null), 4000);
+    }
+  };
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate('/login');
+  };
+
   return (
     <div className="max-w-4xl mx-auto space-y-6">
       <PageHeader
-        title="Settings & System Governance"
-        description="Review operator preferences, audit log configurations, and institutional privacy standards."
+        title="Settings & Account"
+        description="Manage your officer profile credentials, inspect session parameters, and configure audit preferences."
         breadcrumbs={[
           { label: 'Dashboard', href: '/dashboard' },
           { label: 'Settings' },
         ]}
       />
 
-      {/* Honest Prototype Notice */}
-      <div className="flex items-start gap-3 p-4 rounded-xl border border-slate-200 bg-white shadow-sm text-xs text-slate-700">
-        <Info className="w-5 h-5 text-teal-700 flex-shrink-0 mt-0.5" />
-        <div className="space-y-1">
-          <p className="font-semibold text-slate-900">
-            Phase 1 Settings Prototype
-          </p>
-          <p className="leading-relaxed text-slate-600">
-            Settings persistence and authenticated officer profiles will be connected to Supabase Auth and PostgreSQL profile tables in Phase 2. No persistent preferences are stored yet.
-          </p>
+      {/* Supabase Notice */}
+      {!isConfigured && (
+        <div className="flex items-start gap-3 p-4 rounded-xl border border-amber-200 bg-amber-50 text-xs text-amber-900">
+          <Info className="w-5 h-5 text-amber-700 flex-shrink-0 mt-0.5" />
+          <div className="space-y-1">
+            <p className="font-semibold text-amber-950">
+              Supabase Configuration Notice
+            </p>
+            <p className="leading-relaxed text-amber-800">
+              Profile updates and session persistence will sync to Supabase once <code className="font-mono bg-amber-100 px-1 py-0.5 rounded">VITE_SUPABASE_URL</code> is supplied in your environment configuration.
+            </p>
+          </div>
         </div>
-      </div>
+      )}
+
+      {successMessage && (
+        <div className="p-3.5 rounded-lg border border-emerald-200 bg-emerald-50 text-emerald-800 text-xs flex items-center gap-2.5">
+          <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0" />
+          <span>{successMessage}</span>
+        </div>
+      )}
+
+      {errorMessage && (
+        <div className="p-3.5 rounded-lg border border-red-200 bg-red-50 text-red-800 text-xs flex items-center gap-2.5">
+          <AlertCircle className="w-4 h-4 text-red-600 flex-shrink-0" />
+          <span>{errorMessage}</span>
+        </div>
+      )}
 
       <div className="space-y-6">
-        {/* Section 1: Account */}
+        {/* Section 1: Officer Account */}
         <section
           aria-labelledby="account-settings-heading"
           className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm space-y-4"
         >
-          <div className="flex items-center gap-2.5 border-b border-slate-100 pb-3">
-            <User className="w-5 h-5 text-teal-700" />
-            <div>
-              <h2 id="account-settings-heading" className="text-sm font-bold text-slate-900">
-                Officer Account Information
-              </h2>
-              <p className="text-xs text-slate-500">
-                Credentials and role assignments for verification personnel.
-              </p>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
-            <div>
-              <label className="block text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-1">
-                Officer Name
-              </label>
-              <input
-                type="text"
-                disabled
-                value="Evaluation Officer (Phase 1 Demo)"
-                className="w-full px-3.5 py-2.5 rounded-lg border border-slate-200 bg-slate-50 text-slate-700 cursor-not-allowed"
-              />
-            </div>
-
-            <div>
-              <label className="block text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-1">
-                Institutional Role
-              </label>
-              <input
-                type="text"
-                disabled
-                value="Lead Document Verification Auditor"
-                className="w-full px-3.5 py-2.5 rounded-lg border border-slate-200 bg-slate-50 text-slate-700 cursor-not-allowed"
-              />
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2 text-xs text-slate-500 pt-1">
-            <Lock className="w-3.5 h-3.5 text-slate-400" />
-            <span>Supabase Auth session binding will be established in Phase 2.</span>
-          </div>
-        </section>
-
-        {/* Section 2: Preferences */}
-        <section
-          aria-labelledby="preferences-heading"
-          className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm space-y-4"
-        >
-          <div className="flex items-center gap-2.5 border-b border-slate-100 pb-3">
-            <Sliders className="w-5 h-5 text-teal-700" />
-            <div>
-              <h2 id="preferences-heading" className="text-sm font-bold text-slate-900">
-                Inspection Preferences
-              </h2>
-              <p className="text-xs text-slate-500">
-                Default display modes and sensitivity thresholds for consistency checks.
-              </p>
-            </div>
-          </div>
-
-          <div className="space-y-3 text-xs">
-            <div className="flex items-center justify-between p-3 rounded-lg bg-slate-50 border border-slate-100">
+          <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+            <div className="flex items-center gap-2.5">
+              <User className="w-5 h-5 text-teal-700" />
               <div>
-                <p className="font-semibold text-slate-900">Discrepancy Sensitivity Threshold</p>
-                <p className="text-slate-500 text-[11px]">
-                  Controls tolerance for name spelling variations and alias matching.
+                <h2 id="account-settings-heading" className="text-sm font-bold text-slate-900">
+                  Officer Account &amp; Profile
+                </h2>
+                <p className="text-xs text-slate-500">
+                  Manage your display name and review authenticated Supabase session details.
                 </p>
               </div>
-              <span className="text-[11px] font-mono font-medium text-slate-700 bg-white px-2.5 py-1 rounded border border-slate-200">
-                Standard (85% Fuzzy Match)
-              </span>
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleSignOut}
+              leftIcon={<LogOut className="w-3.5 h-3.5 text-red-600" />}
+              className="text-red-700 hover:bg-red-50 hover:border-red-200"
+            >
+              Sign Out
+            </Button>
+          </div>
+
+          <form onSubmit={handleUpdateProfile} className="space-y-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+              <FormInput
+                id="fullName"
+                name="fullName"
+                label="Officer Full Name"
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
+                placeholder="e.g., Rajesh Sharma"
+                disabled={isUpdating || !isConfigured}
+                helperText="Stored in public.profiles table."
+              />
+
+              <div>
+                <label className="block text-[11px] font-semibold text-slate-700 uppercase tracking-wider mb-1">
+                  Authenticated Email
+                </label>
+                <input
+                  type="text"
+                  disabled
+                  value={user?.email || 'unauthenticated@portal'}
+                  className="w-full px-3.5 py-2.5 rounded-lg border border-slate-200 bg-slate-50 text-slate-600 text-sm cursor-not-allowed font-mono"
+                />
+                <p className="text-xs text-slate-400 mt-1">Managed via Supabase Auth.</p>
+              </div>
             </div>
 
-            <div className="flex items-center justify-between p-3 rounded-lg bg-slate-50 border border-slate-100">
-              <div>
-                <p className="font-semibold text-slate-900">Review Viewport Density</p>
-                <p className="text-slate-500 text-[11px]">
-                  Optimized for multi-document split-screen comparison.
-                </p>
-              </div>
-              <span className="text-[11px] font-mono font-medium text-slate-700 bg-white px-2.5 py-1 rounded border border-slate-200">
-                Comfortable Responsive
+            <div className="pt-2 flex justify-end">
+              <Button
+                type="submit"
+                variant="primary"
+                size="sm"
+                isLoading={isUpdating}
+                disabled={!isConfigured || !user}
+                leftIcon={<Save className="w-3.5 h-3.5" />}
+              >
+                Save Profile Name
+              </Button>
+            </div>
+          </form>
+
+          <div className="pt-3 border-t border-slate-100 text-xs text-slate-500 space-y-1">
+            <div className="flex items-center gap-2">
+              <Lock className="w-3.5 h-3.5 text-slate-400" />
+              <span>
+                User UUID: <code className="font-mono bg-slate-100 px-1 py-0.5 rounded text-[11px]">{user?.id || 'N/A'}</code>
               </span>
             </div>
           </div>
         </section>
 
-        {/* Section 3: Privacy & Compliance */}
+        {/* Section 2: Privacy & Regulatory Standards */}
         <section
           aria-labelledby="privacy-heading"
           className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm space-y-4"
@@ -131,28 +175,22 @@ export const SettingsPage: React.FC = () => {
             <Shield className="w-5 h-5 text-teal-700" />
             <div>
               <h2 id="privacy-heading" className="text-sm font-bold text-slate-900">
-                Data Privacy & Regulatory Audit Standards
+                Data Privacy &amp; Audit Governance
               </h2>
               <p className="text-xs text-slate-500">
-                Compliance policies governing uploaded citizen credentials and audit trails.
+                Compliance safeguards applied to institutional verification dossiers.
               </p>
             </div>
           </div>
 
           <div className="p-4 rounded-lg bg-slate-50 border border-slate-200 text-xs text-slate-600 space-y-2">
-            <p className="font-semibold text-slate-900">Governance Framework:</p>
+            <p className="font-semibold text-slate-900">Security Architecture:</p>
             <p className="leading-relaxed">
-              TypeNull enforces zero unverified claims. All document extractions retain evidence bounding boxes and timestamped cryptographic hashes for tamper detection.
+              Every database query enforces Row-Level Security (RLS) linked strictly to your authenticated Supabase user identity (<code className="font-mono bg-slate-100 px-1 py-0.5 rounded">auth.uid() = user_id</code>). Applications and profiles cannot be accessed or altered by unauthorized users.
             </p>
             <p className="text-slate-500 text-[11px]">
-              Complies with Digital Personal Data Protection (DPDP) principles and government audit trail guidelines.
+              Complies with Digital Personal Data Protection (DPDP) principles and auditable governance guidelines.
             </p>
-          </div>
-
-          <div className="pt-2 flex justify-end">
-            <Button variant="outline" size="sm" disabled>
-              Save Changes (Phase 2)
-            </Button>
           </div>
         </section>
       </div>

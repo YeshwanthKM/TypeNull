@@ -133,9 +133,9 @@ export const MobileNavigation: React.FC<MobileNavigationProps> = ({ isOpen, onCl
 
         {/* Phase note in mobile menu */}
         <div className="p-4 m-4 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-500">
-          <p className="font-semibold text-slate-800 mb-1">Phase 1: UI Foundation</p>
+          <p className="font-semibold text-slate-800 mb-1">Phase 2: Auth & Database</p>
           <p className="text-[11px]">
-            Responsive layout verification active. Authentication connects in Phase 2.
+            Supabase session verification & persistent application storage active.
           </p>
         </div>
       </div>

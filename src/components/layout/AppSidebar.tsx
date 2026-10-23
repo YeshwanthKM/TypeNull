@@ -82,10 +82,10 @@ export const AppSidebar: React.FC = () => {
         <div className="mt-auto p-4 m-3 rounded-lg bg-slate-50 border border-slate-200 text-xs">
           <div className="flex items-center gap-2 mb-1.5 font-semibold text-slate-900">
             <span className="w-2 h-2 rounded-full bg-teal-600" />
-            Phase 1 Active
+            Phase 2 Active
           </div>
           <p className="text-slate-500 leading-normal text-[11px]">
-            Frontend foundation and responsive layouts. Supabase auth and storage will connect in Phase 2.
+            Supabase Auth & persistent application records active with RLS policies.
           </p>
         </div>
       </div>

@@ -1,15 +1,18 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, CheckCircle2, Info, Send, FileCheck } from 'lucide-react';
+import { ArrowLeft, AlertCircle, Send, Info } from 'lucide-react';
 import { PageHeader } from '../components/ui/PageHeader';
 import { Button } from '../components/ui/Button';
 import { FormInput } from '../components/ui/FormInput';
 import { FormSelect } from '../components/ui/FormSelect';
 import { FormTextarea } from '../components/ui/FormTextarea';
 import { NewApplicationFormData } from '../types';
+import { useAuth } from '../contexts/AuthContext';
+import { createApplication } from '../services/applications';
 
 export const NewApplicationPage: React.FC = () => {
   const navigate = useNavigate();
+  const { user, isConfigured } = useAuth();
 
   const [formData, setFormData] = useState<NewApplicationFormData>({
     title: '',
@@ -21,8 +24,8 @@ export const NewApplicationPage: React.FC = () => {
   });
 
   const [errors, setErrors] = useState<Partial<Record<keyof NewApplicationFormData, string>>>({});
+  const [submitError, setSubmitError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submissionSuccess, setSubmissionSuccess] = useState(false);
 
   const categoryOptions = [
     { value: 'general_registration', label: 'General Registration' },
@@ -37,7 +40,6 @@ export const NewApplicationPage: React.FC = () => {
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
-    // Clear error for field once user types
     if (errors[name as keyof NewApplicationFormData]) {
       setErrors((prev) => ({ ...prev, [name]: undefined }));
     }
@@ -68,20 +70,38 @@ export const NewApplicationPage: React.FC = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setSubmitError(null);
 
     if (!validateForm()) {
       return;
     }
 
+    if (!user) {
+      setSubmitError('Authentication required. Please sign in to create and persist an application.');
+      return;
+    }
+
+    if (!isConfigured) {
+      setSubmitError(
+        'Supabase is not configured in this environment. Please configure VITE_SUPABASE_URL and VITE_SUPABASE_PUBLISHABLE_KEY to persist records.'
+      );
+      return;
+    }
+
     setIsSubmitting(true);
 
-    // Simulate instant client-side validation check
-    setTimeout(() => {
-      setIsSubmitting(false);
-      setSubmissionSuccess(true);
-    }, 400);
+    const { data, error } = await createApplication(formData, user.id);
+
+    setIsSubmitting(false);
+
+    if (error || !data) {
+      setSubmitError(error?.message || 'Failed to create application. Please try again.');
+    } else {
+      // Navigate to details page of the newly created application
+      navigate(`/applications/${data.id}`);
+    }
   };
 
   return (
@@ -106,68 +126,31 @@ export const NewApplicationPage: React.FC = () => {
         }
       />
 
-      {/* Prototype Category Notice */}
-      <div className="flex items-start gap-3 p-4 rounded-xl border border-teal-200 bg-teal-50/70 text-teal-900 text-xs leading-relaxed">
-        <Info className="w-5 h-5 text-teal-700 flex-shrink-0 mt-0.5" />
-        <div>
-          <p className="font-semibold text-teal-950">
-            Phase 1 Prototype Notice
-          </p>
-          <p className="mt-0.5 text-teal-800">
-            These application categories represent prototype workflow schemas. Official verification rules and automated compliance tests will be linked in upcoming phases.
-          </p>
-        </div>
-      </div>
-
-      {/* Submission Success Dialog / Modal */}
-      {submissionSuccess && (
-        <div
-          role="dialog"
-          aria-modal="true"
-          className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4"
-        >
-          <div className="relative bg-white rounded-xl max-w-lg w-full p-6 sm:p-8 shadow-2xl border border-slate-200">
-            <div className="w-12 h-12 rounded-full bg-emerald-50 border border-emerald-200 flex items-center justify-center text-emerald-600 mb-4">
-              <CheckCircle2 className="w-6 h-6" />
-            </div>
-
-            <h3 className="text-lg font-bold text-slate-900">
-              Client-Side Validation Passed
-            </h3>
-
-            <p className="text-xs font-semibold text-teal-700 uppercase tracking-wider mt-1 mb-3">
-              Application Intake Staged: &ldquo;{formData.title}&rdquo;
+      {/* Supabase Unconfigured Warning */}
+      {!isConfigured && (
+        <div className="flex items-start gap-3 p-4 rounded-xl border border-amber-200 bg-amber-50 text-amber-900 text-xs leading-relaxed">
+          <Info className="w-5 h-5 text-amber-700 flex-shrink-0 mt-0.5" />
+          <div>
+            <p className="font-semibold text-amber-950">
+              Database Persistence Notice (Phase 2)
             </p>
+            <p className="mt-0.5 text-amber-800">
+              Real application storage requires configuring your Supabase project in <code className="font-mono bg-amber-100 px-1 py-0.5 rounded">.env</code>. Submissions will validate client-side contracts and require Supabase credentials for persistence.
+            </p>
+          </div>
+        </div>
+      )}
 
-            <div className="p-4 rounded-lg bg-slate-50 border border-slate-200 text-xs text-slate-700 space-y-2 mb-6">
-              <p className="font-semibold text-slate-900">Persistence Status Notice:</p>
-              <p className="leading-relaxed">
-                In accordance with Phase 1 development rules, this application was validated completely on the client side. Database persistence and file storage will be connected in Phase 2 with Supabase.
-              </p>
-              <p className="text-slate-500 text-[11px]">
-                No mock data or fake records have been written to Supabase.
-              </p>
-            </div>
-
-            <div className="flex flex-col sm:flex-row items-center justify-end gap-3">
-              <Button
-                variant="outline"
-                size="md"
-                onClick={() => navigate('/dashboard')}
-                className="w-full sm:w-auto"
-              >
-                Return to Dashboard
-              </Button>
-              <Button
-                variant="primary"
-                size="md"
-                onClick={() => navigate('/applications/preview-prototype-01')}
-                leftIcon={<FileCheck className="w-4 h-4" />}
-                className="w-full sm:w-auto"
-              >
-                Inspect Details Placeholder
-              </Button>
-            </div>
+      {/* Error alert if submission failed */}
+      {submitError && (
+        <div
+          role="alert"
+          className="p-4 rounded-xl border border-red-200 bg-red-50 text-red-900 text-xs flex items-start gap-3"
+        >
+          <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
+          <div className="space-y-1">
+            <p className="font-semibold text-red-950">Submission Error</p>
+            <p className="text-red-800 leading-relaxed">{submitError}</p>
           </div>
         </div>
       )}
@@ -189,6 +172,7 @@ export const NewApplicationPage: React.FC = () => {
             onChange={handleInputChange}
             error={errors.title}
             helperText="A descriptive title summarizing this validation dossier."
+            disabled={isSubmitting}
           />
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -203,6 +187,7 @@ export const NewApplicationPage: React.FC = () => {
               error={errors.category}
               placeholder="Select application category"
               helperText="Determines the target regulatory checklist."
+              disabled={isSubmitting}
             />
 
             <FormInput
@@ -215,6 +200,7 @@ export const NewApplicationPage: React.FC = () => {
               onChange={handleInputChange}
               error={errors.institutionName}
               helperText="Entity making the claims or submitting proofs."
+              disabled={isSubmitting}
             />
           </div>
 
@@ -227,6 +213,7 @@ export const NewApplicationPage: React.FC = () => {
               value={formData.registrationNumber}
               onChange={handleInputChange}
               helperText="Government or institutional reference code if applicable."
+              disabled={isSubmitting}
             />
 
             <FormInput
@@ -239,6 +226,7 @@ export const NewApplicationPage: React.FC = () => {
               onChange={handleInputChange}
               error={errors.jurisdiction}
               helperText="Applicable legal framework for compliance verification."
+              disabled={isSubmitting}
             />
           </div>
 
@@ -251,6 +239,7 @@ export const NewApplicationPage: React.FC = () => {
             value={formData.description}
             onChange={handleInputChange}
             helperText="Optional context to assist verification officers during inspection."
+            disabled={isSubmitting}
           />
         </div>
 
@@ -260,6 +249,7 @@ export const NewApplicationPage: React.FC = () => {
             type="button"
             variant="ghost"
             onClick={() => navigate('/dashboard')}
+            disabled={isSubmitting}
             className="w-full sm:w-auto"
           >
             Cancel
@@ -273,7 +263,7 @@ export const NewApplicationPage: React.FC = () => {
             leftIcon={<Send className="w-4 h-4" />}
             className="w-full sm:w-auto"
           >
-            Validate & Submit Intake
+            Create & Persist Application
           </Button>
         </div>
       </form>

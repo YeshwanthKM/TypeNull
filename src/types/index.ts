@@ -34,7 +34,7 @@ export interface ProjectMetadata {
 }
 
 /**
- * Phase 1 Application & Verification Schema Types
+ * Application & Verification Schema Types
  */
 export type ApplicationCategory =
   | 'general_registration'
@@ -60,16 +60,41 @@ export interface NewApplicationFormData {
 
 export type ApplicationStatus =
   | 'draft'
-  | 'pending_documents'
+  | 'submitted'
   | 'under_review'
+  | 'pending_documents'
   | 'verified'
   | 'flagged_inconsistency'
   | 'prototype';
 
+/**
+ * Supabase Database Models (Phase 2)
+ */
+export interface UserProfile {
+  id: string;
+  full_name: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface DbApplication {
+  id: string;
+  user_id: string;
+  title: string;
+  category: string;
+  organisation_name: string;
+  registration_number: string | null;
+  jurisdiction: string;
+  description: string | null;
+  status: 'draft' | 'submitted' | 'under_review';
+  created_at: string;
+  updated_at: string;
+}
+
 export interface ApplicationRecord {
   id: string;
   title: string;
-  category: ApplicationCategory;
+  category: string;
   institutionName: string;
   registrationNumber?: string;
   jurisdiction: string;
