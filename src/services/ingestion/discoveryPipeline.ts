@@ -411,7 +411,7 @@ export async function runGovernmentDiscoveryPipeline(
         catalogEntries.push(...extracted.officialDocuments);
       }
 
-      // Phase 5: Controlled Intra-Domain Official Link Discovery (Depth 1)
+      // Pipeline Step 5: Controlled Intra-Domain Official Link Discovery (Depth 1)
       const candidateLinks = discoverCandidateLinksFromHtml(
         seed.rawGuidanceText,
         seed.officialUrl,

@@ -302,7 +302,7 @@ export const AdminWorkspacePage: React.FC = () => {
           <Globe className="w-4 h-4" />
           <span>Form Ingestion &amp; Review</span>
           <span className="text-[10px] bg-indigo-100 text-indigo-800 font-mono px-1.5 py-0.5 rounded-full font-bold">
-            SIH
+            Active
           </span>
         </button>
 
@@ -764,7 +764,7 @@ export const AdminWorkspacePage: React.FC = () => {
         </div>
       )}
 
-      {/* TAB 4: FORM INGESTION & DISCOVERY (SIH 2026) */}
+      {/* TAB 4: FORM INGESTION & DISCOVERY */}
       {activeTab === 'ingestion' && <FormIngestionWorkspace />}
 
       {/* TAB 5: SECURITY & AUDIT STATUS */}

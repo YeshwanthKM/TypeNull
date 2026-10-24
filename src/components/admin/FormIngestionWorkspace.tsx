@@ -336,7 +336,7 @@ export const FormIngestionWorkspace: React.FC = () => {
               Government Service Discovery &amp; Form Knowledge Base
             </h2>
             <span className="text-[10px] uppercase font-mono font-bold bg-indigo-100 text-indigo-900 px-2 py-0.5 rounded-full border border-indigo-200">
-              SIH 2026 Ingestion System
+              Automated Ingestion Pipeline
             </span>
           </div>
           <p className="text-xs text-slate-600 max-w-3xl leading-relaxed">
@@ -989,7 +989,7 @@ export const FormIngestionWorkspace: React.FC = () => {
           <div className="p-5 rounded-2xl border border-teal-200 bg-teal-50/50 text-xs text-teal-950 space-y-2">
             <div className="flex items-center gap-2 font-bold text-sm text-teal-900">
               <ShieldCheck className="w-4 h-4 text-teal-700" />
-              <span>Transparent Coverage Statement — SIH 2026 Problem Statement</span>
+              <span>Official Service Coverage &amp; Transparency Statement</span>
             </div>
             <p className="leading-relaxed text-teal-900/90">
               TypeNull <strong>does not claim</strong> to cover every government form in India. India comprises thousands of Central, State, and Municipal application workflows. TypeNull provides an audited, scalable architecture that indexes accessible official sources, measures actual coverage accurately, and expands verified requirements incrementally.

@@ -196,7 +196,7 @@ export const ApplicationDetailsPlaceholder: React.FC = () => {
         month: 'long',
         day: 'numeric',
       })
-    : 'Phase 3 Ingestion';
+    : 'Initial Intake';
 
   return (
     <div className="space-y-6 max-w-5xl mx-auto">
@@ -405,7 +405,7 @@ export const ApplicationDetailsPlaceholder: React.FC = () => {
             </div>
           </div>
 
-          {/* Active Phase 4: Document Intelligence Status */}
+          {/* Document Intelligence Status */}
           <div className="p-4 sm:p-6 rounded-xl border border-teal-200 bg-teal-50/30 shadow-sm space-y-3">
             <div className="flex items-center justify-between border-b border-teal-100 pb-2.5">
               <h4 className="text-sm font-bold text-slate-900 flex items-center gap-2">
@@ -413,7 +413,7 @@ export const ApplicationDetailsPlaceholder: React.FC = () => {
                 Document Intelligence
               </h4>
               <span className="text-[10px] uppercase font-mono text-teal-800 bg-teal-100 px-2 py-0.5 rounded border border-teal-300 font-semibold">
-                Active Phase 4
+                Automated OCR
               </span>
             </div>
 
@@ -429,15 +429,15 @@ export const ApplicationDetailsPlaceholder: React.FC = () => {
             </div>
           </div>
 
-          {/* Upcoming Phase 5: Regulatory Compliance Preview */}
+          {/* Compliance Audit Report */}
           <div className="p-4 sm:p-6 rounded-xl border border-slate-200 bg-white shadow-sm space-y-3">
             <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
               <h4 className="text-sm font-bold text-slate-900 flex items-center gap-2">
                 <FileCheck className="w-4 h-4 text-teal-700" />
                 Compliance Audit Report
               </h4>
-              <span className="text-[10px] uppercase font-mono text-slate-400 bg-slate-50 px-2 py-0.5 rounded border border-slate-200">
-                Phase 5
+              <span className="text-[10px] uppercase font-mono text-teal-800 bg-teal-50 px-2 py-0.5 rounded border border-teal-200 font-semibold">
+                Audit Engine
               </span>
             </div>
 

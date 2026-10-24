@@ -16,6 +16,7 @@ import { LoginPage } from './pages/LoginPage';
 import { RegisterPage } from './pages/RegisterPage';
 import { ForgotPasswordPage } from './pages/ForgotPasswordPage';
 import { ResetPasswordPage } from './pages/ResetPasswordPage';
+import { GuidesPage } from './pages/GuidesPage';
 import { NotFoundPage } from './pages/NotFoundPage';
 
 export const App: React.FC = () => {
@@ -34,6 +35,16 @@ export const App: React.FC = () => {
                     onExploreFeaturesClick={scrollToFeatures}
                   />
                 )}
+              </MainLayout>
+            }
+          />
+
+          {/* User Guides & Help */}
+          <Route
+            path="/guides"
+            element={
+              <MainLayout>
+                {() => <GuidesPage />}
               </MainLayout>
             }
           />

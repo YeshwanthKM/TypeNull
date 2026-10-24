@@ -81,7 +81,7 @@ export const FINDING_CATEGORIES: Record<FindingCategoryKey, FindingCategoryMeta>
 };
 
 /**
- * Classifies a validation finding into an understandable SIH 2026 demonstration category.
+ * Classifies a validation finding into a structured statutory category.
  */
 export function categorizeFinding(finding: ValidationFinding): FindingCategoryKey {
   const ruleId = (finding.ruleId || '').toUpperCase();
@@ -180,7 +180,7 @@ export interface GroupedCategoryFindings {
 }
 
 /**
- * Groups a collection of validation findings into SIH demonstration categories.
+ * Groups a collection of validation findings into statutory categories.
  */
 export function groupFindingsByCategory(
   findings: ValidationFinding[],

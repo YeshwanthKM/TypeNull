@@ -246,7 +246,7 @@ export const PreValidationSection: React.FC<PreValidationSectionProps> = ({
     }
   };
 
-  // Grouped findings by SIH demonstration categories
+  // Grouped findings by statutory category
   const groupedCategories: GroupedCategoryFindings[] = useMemo(() => {
     if (!currentRun) return [];
     return groupFindingsByCategory(currentRun.findings, filter);
@@ -667,7 +667,7 @@ export const PreValidationSection: React.FC<PreValidationSectionProps> = ({
             </div>
           </div>
 
-          {/* Grouped Category View (Primary SIH Demonstration View) */}
+          {/* Grouped Category View (Structured Statutory Inspection) */}
           {viewMode === 'grouped' ? (
             <div className="space-y-4">
               {groupedCategories.map((group) => {

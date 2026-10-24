@@ -325,7 +325,7 @@ export const NewApplicationPage: React.FC = () => {
             </h3>
           </div>
           <span className="self-start sm:self-auto text-[10px] font-mono font-bold bg-indigo-100 text-indigo-900 px-2 py-0.5 rounded-full border border-indigo-200">
-            SIH 2026 Engine
+            Compliance Engine
           </span>
         </div>
 

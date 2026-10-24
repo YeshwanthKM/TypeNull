@@ -19,18 +19,16 @@ export interface FeaturePillar {
   badge: string;
 }
 
-export type PhaseStatus =
-  | 'Phase 0: Project Initialisation'
-  | 'Phase 1: Frontend Foundation'
-  | 'Phase 2: Supabase Integration'
-  | 'Phase 3: Secure Document Ingestion'
-  | 'Phase 4: OCR & Document Intelligence';
+export type ProductTier =
+  | 'applicant_prevalidation'
+  | 'organisation_bulk_screening'
+  | 'admin_governance';
 
 export interface ProjectMetadata {
   name: string;
   tagline: string;
   description: string;
-  sihTrack: string;
+  complianceDomain?: string;
   version: string;
 }
 
@@ -128,7 +126,7 @@ export interface ApplicationRecord {
 }
 
 /**
- * Phase 3: Document Ingestion, Metadata & Storage Types
+ * Document Ingestion, Metadata & Storage Types
  */
 export type DocumentCategory =
   | 'registration_certificate'
@@ -169,7 +167,7 @@ export interface DocumentUploadOptions {
 }
 
 /**
- * Phase 4: Document Intelligence, Field Extraction & Human Review Types
+ * Document Intelligence, Field Extraction & Human Review Types
  */
 export type ExtractionStatus = 'queued' | 'processing' | 'completed' | 'failed';
 

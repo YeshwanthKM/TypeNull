@@ -54,7 +54,7 @@ const statusConfig: Record<
     dot: 'bg-rose-500',
   },
   prototype: {
-    label: 'Prototype Record',
+    label: 'Demo Dossier',
     bg: 'bg-teal-50',
     text: 'text-teal-800',
     border: 'border-teal-200',

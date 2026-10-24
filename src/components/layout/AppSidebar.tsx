@@ -8,6 +8,7 @@ import {
   Shield,
   Key,
   ExternalLink,
+  BookOpen,
 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 
@@ -44,6 +45,12 @@ export const AppSidebar: React.FC = () => {
       label: 'Administration Console',
       icon: Key,
       show: role === 'administrator',
+    },
+    {
+      to: '/guides',
+      label: 'Help & User Guides',
+      icon: BookOpen,
+      show: true,
     },
     {
       to: '/settings',
@@ -112,17 +119,24 @@ export const AppSidebar: React.FC = () => {
           </NavLink>
         </div>
 
-        {/* Bottom Status Card */}
-        <div className="mt-auto p-4 m-3 rounded-lg bg-slate-50 border border-slate-200 text-xs">
-          <div className="flex items-center gap-2 mb-1.5 font-semibold text-slate-900">
-            <span className="w-2 h-2 rounded-full bg-teal-600" />
-            Phase 4 Active
+        {/* Guidance Support Card */}
+        <div className="mt-auto p-4 m-3 rounded-xl bg-slate-50 border border-slate-200 text-xs space-y-2">
+          <div className="flex items-center gap-2 font-semibold text-slate-900">
+            <BookOpen className="w-4 h-4 text-teal-700" />
+            Product Guidance
           </div>
           <p className="text-slate-500 leading-normal text-[11px]">
-            Document intelligence, client-side OCR &amp; human review active.
+            Review official filing checklists, conditional rules, and screening workflows in the User Guides.
           </p>
+          <NavLink
+            to="/guides"
+            className="inline-flex items-center gap-1 text-teal-700 font-semibold hover:underline text-[11px]"
+          >
+            Explore Guides &rarr;
+          </NavLink>
         </div>
       </div>
     </aside>
   );
 };
+export default AppSidebar;

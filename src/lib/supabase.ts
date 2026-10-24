@@ -63,6 +63,6 @@ export function getSupabase(): SupabaseClient {
 
 if (!isSupabaseConfigured && (import.meta as any)?.env?.DEV) {
   console.warn(
-    '[TypeNull: Phase 2] Supabase is unconfigured. Real authentication and persistence require Supabase environment variables.'
+    '[TypeNull] Supabase is unconfigured. Real authentication and persistence require Supabase environment variables.'
   );
 }

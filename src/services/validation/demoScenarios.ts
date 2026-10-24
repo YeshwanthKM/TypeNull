@@ -9,7 +9,7 @@ import { CANDIDATE_GOVERNMENT_SERVICES } from '../ingestion/ingestionService';
 import { evaluateConditionalChecklist } from '../conditionalEvaluator';
 
 /**
- * Synthetic Test Fixture Helpers for SIH 2026 Demonstration
+ * Synthetic Test Fixture Helpers for Pre-Validation Demonstration
  * These fixtures use strictly synthetic, fictional entity data to demonstrate
  * the end-to-end pre-validation lifecycle without touching production user records.
  */
@@ -30,10 +30,10 @@ export const createSyntheticDoc = (
   fileSize = 450000
 ): ApplicationDocument => ({
   id,
-  application_id: 'demo-app-sih-2026',
+  application_id: 'demo-app-validation-2026',
   user_id: 'demo-applicant-uid',
   original_filename: filename,
-  storage_path: `applications/demo-app-sih-2026/${filename}`,
+  storage_path: `applications/demo-app-validation-2026/${filename}`,
   mime_type: filename.endsWith('.pdf') ? 'application/pdf' : 'image/jpeg',
   file_size_bytes: fileSize,
   document_type: type as any,
@@ -53,7 +53,7 @@ export const createSyntheticField = (
   id,
   extraction_id: `ext-${docId}`,
   document_id: docId,
-  application_id: 'demo-app-sih-2026',
+  application_id: 'demo-app-validation-2026',
   user_id: 'demo-applicant-uid',
   field_name: fieldName,
   field_label: fieldLabel,

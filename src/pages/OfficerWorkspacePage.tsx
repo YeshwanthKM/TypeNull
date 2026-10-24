@@ -241,7 +241,7 @@ export const OfficerWorkspacePage: React.FC = () => {
       },
     ]);
 
-    setBatchTitle(`SIH 2026 Canonical 4-Scenario Screening — ${new Date().toLocaleTimeString()}`);
+    setBatchTitle(`Canonical 4-Scenario Demonstration Batch — ${new Date().toLocaleTimeString()}`);
     setIntakeMode('builder');
   };
 
@@ -1275,7 +1275,7 @@ export const OfficerWorkspacePage: React.FC = () => {
                   </p>
                 </div>
 
-                <div className="flex items-center gap-2">
+                <div className="flex flex-wrap items-center gap-2">
                   <Button
                     variant="outline"
                     size="sm"
@@ -1623,7 +1623,7 @@ export const OfficerWorkspacePage: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="flex items-center gap-2">
+                <div className="flex flex-wrap items-center gap-2">
                   <Button
                     variant="outline"
                     size="sm"

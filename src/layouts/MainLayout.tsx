@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Navbar } from '../components/common/Navbar';
 import { Footer } from '../components/common/Footer';
-import { PhaseModal } from '../components/common/PhaseModal';
+import { InteractiveWalkthrough } from '../components/guides/InteractiveWalkthrough';
 
 interface MainLayoutProps {
   children: (props: {
@@ -13,34 +13,37 @@ interface MainLayoutProps {
 
 export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
   const navigate = useNavigate();
-  const [modalOpen, setModalOpen] = useState(false);
+  const [walkthroughOpen, setWalkthroughOpen] = useState(false);
 
   const scrollToFeatures = () => {
-    const featuresElement = document.getElementById('features');
+    const featuresElement = document.getElementById('capabilities');
     if (featuresElement) {
       featuresElement.scrollIntoView({ behavior: 'smooth' });
     }
   };
 
   const handleGetStarted = () => {
-    navigate('/dashboard');
+    navigate('/applications/explore');
   };
 
   return (
     <div className="min-h-screen flex flex-col bg-slate-50 text-slate-900 font-sans">
-      <Navbar onGetStartedClick={handleGetStarted} />
-      
+      <Navbar
+        onGetStartedClick={handleGetStarted}
+        onStartTourClick={() => setWalkthroughOpen(true)}
+      />
+
       <main className="flex-grow">
         {children({ openGetStartedModal: handleGetStarted, scrollToFeatures })}
       </main>
 
       <Footer />
 
-      <PhaseModal
-        isOpen={modalOpen}
-        onClose={() => setModalOpen(false)}
-        onExploreFeatures={scrollToFeatures}
+      <InteractiveWalkthrough
+        isOpen={walkthroughOpen}
+        onClose={() => setWalkthroughOpen(false)}
       />
     </div>
   );
 };
+export default MainLayout;

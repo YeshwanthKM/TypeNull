@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, Compass, FilePlus, Settings, ShieldCheck, X, Globe, Shield, Key } from 'lucide-react';
+import { LayoutDashboard, Compass, FilePlus, Settings, ShieldCheck, X, Globe, Shield, Key, BookOpen } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 
 export interface MobileNavigationProps {
@@ -66,6 +66,12 @@ export const MobileNavigation: React.FC<MobileNavigationProps> = ({ isOpen, onCl
       show: role === 'administrator',
     },
     {
+      to: '/guides',
+      label: 'Help & User Guides',
+      icon: BookOpen,
+      show: true,
+    },
+    {
       to: '/settings',
       label: 'Account Settings',
       icon: Settings,
@@ -106,8 +112,8 @@ export const MobileNavigation: React.FC<MobileNavigationProps> = ({ isOpen, onCl
             </div>
             <div className="flex flex-col">
               <span className="font-bold text-base text-slate-900">TypeNull</span>
-              <span className="text-[10px] text-slate-500 uppercase font-mono">
-                SIH 2026 Portal
+              <span className="text-[10px] text-teal-700 uppercase font-mono font-semibold">
+                Regulatory Platform
               </span>
             </div>
           </div>
@@ -158,12 +164,22 @@ export const MobileNavigation: React.FC<MobileNavigationProps> = ({ isOpen, onCl
             })}
         </div>
 
-        {/* Phase note in mobile menu */}
-        <div className="p-4 m-4 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-500">
-          <p className="font-semibold text-slate-800 mb-1">Phase 4: Document Intelligence</p>
-          <p className="text-[11px]">
-            In-browser OCR, PDF text extraction, structured field parsing, and RBAC active.
+        {/* User Guides link card */}
+        <div className="p-4 m-4 bg-teal-50/60 border border-teal-200/70 rounded-lg text-xs text-slate-600">
+          <p className="font-semibold text-teal-900 mb-1 flex items-center gap-1.5">
+            <BookOpen className="w-3.5 h-3.5 text-teal-700" />
+            Product Documentation
           </p>
+          <p className="text-[11px] text-slate-600 mb-2">
+            Access complete walkthroughs for pre-validation, organisation screening, and statutory checklists.
+          </p>
+          <NavLink
+            to="/guides"
+            onClick={onClose}
+            className="inline-block text-[11px] font-semibold text-teal-800 hover:text-teal-950 underline underline-offset-2"
+          >
+            Open User Guides &rarr;
+          </NavLink>
         </div>
       </div>
 
