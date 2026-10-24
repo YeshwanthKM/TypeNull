@@ -87,6 +87,9 @@ export async function fetchValidationRuns(
   }
 }
 
+// In-memory fallback cache for offline evaluation and testing
+const IN_MEMORY_SCREENING_BATCHES: ScreeningBatch[] = [];
+
 /**
  * Persist an organisation bulk screening batch and its applicant items
  */
@@ -95,6 +98,19 @@ export async function saveScreeningBatch(
   batch: ScreeningBatch
 ): Promise<{ data: ScreeningBatch | null; error: Error | null }> {
   if (!isSupabaseConfigured || !supabase) {
+    const existingIdx = IN_MEMORY_SCREENING_BATCHES.findIndex((b) => b.id === batch.id);
+    if (existingIdx >= 0) {
+      IN_MEMORY_SCREENING_BATCHES[existingIdx] = {
+        ...batch,
+        updatedAt: new Date().toISOString(),
+      };
+    } else {
+      IN_MEMORY_SCREENING_BATCHES.unshift({
+        ...batch,
+        createdAt: batch.createdAt || new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      });
+    }
     return { data: batch, error: null };
   }
 
@@ -106,9 +122,11 @@ export async function saveScreeningBatch(
         user_id: userId,
         title: batch.title,
         target_category: batch.targetCategory,
+        service_code: batch.serviceCode || null,
+        variant_code: batch.variantCode || null,
         total_applications: batch.totalApplications,
         outcome_counts: batch.outcomeCounts,
-        status: 'completed',
+        status: batch.status || 'completed',
       })
       .select()
       .single();
@@ -124,11 +142,15 @@ export async function saveScreeningBatch(
         batch_id: batchRow.id,
         applicant_identifier: item.applicantIdentifier,
         target_category: item.targetCategory,
+        service_code: item.serviceCode || batch.serviceCode || null,
+        variant_code: item.variantCode || batch.variantCode || null,
+        status: item.status || 'completed',
         outcome: item.outcome,
         document_count: item.documentCount,
         counts: item.counts,
         findings: item.findings,
         extracted_fields: item.extractedFields,
+        error_message: item.errorMessage || null,
       }));
 
       await supabase.from('screening_batch_items').insert(itemsToInsert);
@@ -139,6 +161,7 @@ export async function saveScreeningBatch(
         ...batch,
         id: batchRow.id,
         createdAt: batchRow.created_at,
+        updatedAt: batchRow.updated_at || batchRow.created_at,
       },
       error: null,
     };
@@ -155,7 +178,11 @@ export async function fetchScreeningBatches(
   organisationId?: string
 ): Promise<{ data: ScreeningBatch[]; error: Error | null }> {
   if (!isSupabaseConfigured || !supabase) {
-    return { data: [], error: null };
+    let list = [...IN_MEMORY_SCREENING_BATCHES];
+    if (organisationId) {
+      list = list.filter((b) => !b.organisationId || b.organisationId === organisationId);
+    }
+    return { data: list, error: null };
   }
 
   try {
@@ -178,18 +205,27 @@ export async function fetchScreeningBatches(
       title: row.title,
       organisationId: row.organisation_id,
       targetCategory: row.target_category,
+      serviceCode: row.service_code || undefined,
+      variantCode: row.variant_code || undefined,
       totalApplications: row.total_applications,
       outcomeCounts: row.outcome_counts,
+      status: row.status || 'completed',
       createdAt: row.created_at,
+      updatedAt: row.updated_at,
       items: (row.screening_batch_items || []).map((itemRow: any) => ({
         id: itemRow.id,
+        batchId: itemRow.batch_id,
         applicantIdentifier: itemRow.applicant_identifier,
         targetCategory: itemRow.target_category,
+        serviceCode: itemRow.service_code,
+        variantCode: itemRow.variant_code,
+        status: itemRow.status || 'completed',
         outcome: itemRow.outcome,
         documentCount: itemRow.document_count,
         counts: itemRow.counts,
         findings: itemRow.findings,
         extractedFields: itemRow.extracted_fields,
+        errorMessage: itemRow.error_message || undefined,
         sourceFiles: [],
         processedAt: itemRow.created_at,
       })),
@@ -208,6 +244,9 @@ export function generateScreeningCsvReport(batch: ScreeningBatch): string {
   const headers = [
     'Applicant Identifier',
     'Category',
+    'Service Code',
+    'Variant Code',
+    'Status',
     'Screening Outcome',
     'Document Count',
     'Passed Checks',
@@ -218,7 +257,7 @@ export function generateScreeningCsvReport(batch: ScreeningBatch): string {
   ];
 
   const rows = batch.items.map((item) => {
-    const topFindings = item.findings
+    const topFindings = (item.findings || [])
       .filter((f) => f.status === 'failed' || f.status === 'unable_to_check')
       .slice(0, 3)
       .map((f) => `[${f.ruleId}] ${f.title}`)
@@ -227,12 +266,15 @@ export function generateScreeningCsvReport(batch: ScreeningBatch): string {
     return [
       `"${item.applicantIdentifier.replace(/"/g, '""')}"`,
       `"${item.targetCategory}"`,
+      `"${item.serviceCode || batch.serviceCode || 'N/A'}"`,
+      `"${item.variantCode || batch.variantCode || 'N/A'}"`,
+      `"${item.status || 'completed'}"`,
       `"${item.outcome}"`,
       item.documentCount,
-      item.counts.passed,
-      item.counts.minorIssues,
-      item.counts.majorIssues,
-      item.counts.unableToAssess,
+      item.counts?.passed ?? 0,
+      item.counts?.minorIssues ?? 0,
+      item.counts?.majorIssues ?? 0,
+      item.counts?.unableToAssess ?? 0,
       `"${(topFindings || 'All automated statutory checks passed').replace(/"/g, '""')}"`,
     ].join(',');
   });

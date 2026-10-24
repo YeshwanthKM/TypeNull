@@ -279,16 +279,26 @@ export interface ValidationRun {
   validatedAt: string;
 }
 
+export type BatchProcessingStatus = 'pending' | 'processing' | 'completed' | 'failed';
+
 export interface ScreeningBatchItem {
   id: string;
+  batchId?: string;
+  applicationId?: string;
   applicantIdentifier: string;
+  applicantName?: string;
   targetCategory: string;
+  serviceCode?: string;
+  variantCode?: string;
+  status?: BatchProcessingStatus;
   outcome: ScreeningOutcome;
   documentCount: number;
   findings: ValidationFinding[];
   counts: ValidationSummaryCounts;
   extractedFields: Record<string, string>;
   sourceFiles: Array<{ name: string; size: number; mimeType: string }>;
+  errorMessage?: string;
+  isStale?: boolean;
   processedAt: string;
 }
 
@@ -296,11 +306,15 @@ export interface ScreeningBatch {
   id: string;
   title: string;
   organisationId?: string;
+  serviceCode?: string;
+  variantCode?: string;
   targetCategory: string;
   totalApplications: number;
   outcomeCounts: Record<ScreeningOutcome, number>;
+  status?: BatchProcessingStatus;
   items: ScreeningBatchItem[];
   createdAt: string;
+  updatedAt?: string;
 }
 
 export interface StatutoryCitation {
