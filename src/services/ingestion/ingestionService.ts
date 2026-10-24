@@ -639,21 +639,217 @@ export async function updateRequirementClassification(
 }
 
 /**
- * Triggers an incremental automated discovery and ingestion scan
+ * Triggers an incremental automated discovery and ingestion scan, persisting runs,
+ * services, requirements, questions, and catalog entries while strictly preserving
+ * existing verified and published lifecycle statuses.
  */
 export async function triggerDiscoveryRun(
   config?: DiscoveryPipelineConfig
 ): Promise<IngestionPipelineResult> {
   const result = await runGovernmentDiscoveryPipeline(config);
 
-  // Merge discovered services into runtime
+  // 1. Merge discovered services into runtime state with strict lifecycle status preservation
   for (const newSrv of result.servicesDiscovered) {
     const existingIdx = runtimeServices.findIndex((s) => s.serviceCode === newSrv.serviceCode);
     if (existingIdx >= 0) {
-      runtimeServices[existingIdx] = newSrv;
+      const existingSrv = runtimeServices[existingIdx];
+      const mergedAppTypes = newSrv.applicationTypes.map((newApp) => {
+        const existingApp = existingSrv.applicationTypes.find(
+          (ea) => ea.variantCode === newApp.variantCode
+        );
+        // Do NOT overwrite or downgrade verified or published lifecycle states!
+        if (
+          existingApp &&
+          (existingApp.lifecycleStatus === 'verified' || existingApp.lifecycleStatus === 'published')
+        ) {
+          return {
+            ...newApp,
+            lifecycleStatus: existingApp.lifecycleStatus,
+            verifiedBy: existingApp.verifiedBy,
+            verifiedAt: existingApp.verifiedAt,
+            adminNotes: existingApp.adminNotes,
+            publishedAt: existingApp.publishedAt,
+            requirements: existingApp.requirements,
+            conditionalQuestions: existingApp.conditionalQuestions,
+          };
+        }
+        return newApp;
+      });
+
+      runtimeServices[existingIdx] = {
+        ...newSrv,
+        applicationTypes: mergedAppTypes,
+      };
     } else {
       runtimeServices.unshift(newSrv);
     }
+  }
+
+  // 2. Persist to Supabase if configured; provide explicit fallback if unconfigured
+  if (!isSupabaseConfigured || !supabase) {
+    result.isPersisted = false;
+    result.persistenceNote =
+      'Database unconfigured or offline. Ingestion run and discovered records retained in durable in-memory state.';
+    return result;
+  }
+
+  try {
+    // Record ingestion run in public.ingestion_runs
+    const { data: runRecord } = await supabase
+      .from('ingestion_runs')
+      .insert({
+        run_type: 'manual',
+        sources_scanned: result.runSummary.sourcesScanned,
+        resources_discovered: result.runSummary.resourcesDiscovered,
+        resources_downloaded: result.runSummary.resourcesDownloaded,
+        resources_parsed: result.runSummary.resourcesParsed,
+        errors_count: result.runSummary.errorsCount,
+        report_summary: result.runSummary,
+        status: 'completed',
+        completed_at: result.completedAt,
+        is_simulated: false,
+      })
+      .select()
+      .maybeSingle();
+
+    // Persist discovered government services & application types
+    for (const srv of result.servicesDiscovered) {
+      const { data: savedSrv } = await supabase
+        .from('government_services')
+        .upsert(
+          {
+            source_id: srv.sourceId,
+            service_name: srv.serviceName,
+            service_code: srv.serviceCode,
+            department: srv.department,
+            jurisdiction: srv.jurisdiction,
+            official_url: srv.officialUrl,
+            description: srv.description,
+            category: srv.category,
+            status: srv.status,
+            updated_at: new Date().toISOString(),
+          },
+          { onConflict: 'service_code' }
+        )
+        .select()
+        .maybeSingle();
+
+      const serviceDbId = savedSrv?.id || srv.id;
+
+      for (const appType of srv.applicationTypes) {
+        // Check if application type already exists in Supabase
+        const { data: existingAppType } = await supabase
+          .from('service_application_types')
+          .select('id, lifecycle_status, verified_by, verified_at, admin_notes, published_at')
+          .eq('service_id', serviceDbId)
+          .eq('variant_code', appType.variantCode)
+          .eq('requirements_version', appType.requirementsVersion)
+          .maybeSingle();
+
+        let finalLifecycleStatus = appType.lifecycleStatus;
+        let finalVerifiedBy = appType.verifiedBy;
+        let finalVerifiedAt = appType.verifiedAt;
+        let finalAdminNotes = appType.adminNotes;
+        let finalPublishedAt = appType.publishedAt;
+
+        // Retain verified or published lifecycle states
+        if (
+          existingAppType &&
+          (existingAppType.lifecycle_status === 'verified' ||
+            existingAppType.lifecycle_status === 'published')
+        ) {
+          finalLifecycleStatus = existingAppType.lifecycle_status;
+          finalVerifiedBy = existingAppType.verified_by;
+          finalVerifiedAt = existingAppType.verified_at;
+          finalAdminNotes = existingAppType.admin_notes;
+          finalPublishedAt = existingAppType.published_at;
+        }
+
+        const { data: savedAppType } = await supabase
+          .from('service_application_types')
+          .upsert(
+            {
+              service_id: serviceDbId,
+              application_name: appType.applicationName,
+              variant_code: appType.variantCode,
+              applicant_category: appType.applicantCategory,
+              requirements_version: appType.requirementsVersion,
+              lifecycle_status: finalLifecycleStatus,
+              verified_by: finalVerifiedBy,
+              verified_at: finalVerifiedAt,
+              admin_notes: finalAdminNotes,
+              published_at: finalPublishedAt,
+              updated_at: new Date().toISOString(),
+            },
+            { onConflict: 'service_id,variant_code,requirements_version' }
+          )
+          .select()
+          .maybeSingle();
+
+        const appTypeDbId = savedAppType?.id || appType.id;
+
+        // Only persist newly extracted requirements if the record wasn't already verified
+        if (!existingAppType || (existingAppType.lifecycle_status !== 'verified' && existingAppType.lifecycle_status !== 'published')) {
+          for (const req of appType.requirements || []) {
+            await supabase.from('application_document_requirements').upsert(
+              {
+                application_type_id: appTypeDbId,
+                document_name: req.documentName,
+                document_type: req.canonicalDocumentKey,
+                requirement_classification: req.classification,
+                condition_expression: req.conditionExpression || null,
+                accepted_alternatives: req.acceptedAlternatives || [],
+                source_evidence: req.sourceEvidenceSnippet || null,
+                source_url: srv.officialUrl,
+                verification_status: req.verificationStatus || 'extracted',
+              }
+            );
+          }
+
+          for (const q of appType.conditionalQuestions || []) {
+            await supabase.from('application_conditional_questions').upsert(
+              {
+                application_type_id: appTypeDbId,
+                question_key: q.questionCode || q.questionKey,
+                question_text: q.questionText,
+                response_type: q.questionType || 'boolean',
+                options: q.options || [],
+                default_value: q.defaultValue || null,
+                help_text: q.helpText || null,
+                activates_document_types: q.triggeredRequirementKeys || q.activatesDocumentTypes || [],
+              },
+              { onConflict: 'application_type_id,question_key' }
+            );
+          }
+        }
+      }
+    }
+
+    // Persist discovered catalog entries
+    for (const doc of result.catalogEntries) {
+      await supabase.from('official_documents_catalog').upsert(
+        {
+          source_id: doc.sourceId,
+          form_identifier: doc.formIdentifier,
+          title: doc.title,
+          source_url: doc.sourceUrl,
+          file_format: doc.fileFormat,
+          content_hash_sha256: doc.contentHashSha256,
+          file_size_bytes: doc.fileSizeBytes,
+          extraction_status: doc.extractionStatus,
+          extraction_metadata: doc.extractionMetadata || {},
+          last_checked_at: new Date().toISOString(),
+        },
+        { onConflict: 'content_hash_sha256' }
+      );
+    }
+
+    result.isPersisted = true;
+    result.persistenceNote = `Persisted run ${runRecord?.id || 'recorded'} to Supabase successfully.`;
+  } catch (dbErr: any) {
+    console.warn('[TypeNull] Ingestion persistence warning:', dbErr.message);
+    result.isPersisted = false;
+    result.persistenceNote = `Persistence note: ${dbErr.message}`;
   }
 
   return result;
