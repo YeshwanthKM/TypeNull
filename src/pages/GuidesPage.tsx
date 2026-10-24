@@ -33,6 +33,9 @@ export const GuidesPage: React.FC = () => {
     if (param && PRODUCT_GUIDES.some((g) => g.id === param)) {
       setSelectedGuideId(param);
     }
+    if (searchParams.get('walkthrough') === 'true') {
+      setIsWalkthroughOpen(true);
+    }
   }, [searchParams]);
 
   const handleSelectGuide = (id: string) => {

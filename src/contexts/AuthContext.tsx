@@ -25,6 +25,7 @@ interface AuthContextType {
   updateProfile: (fullName: string) => Promise<{ error: Error | null }>;
   refreshProfile: () => Promise<void>;
   fetchProfile: (userId: string) => Promise<UserProfile | null>;
+  startDemoSession?: (role: UserRole) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -76,6 +77,27 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     let mounted = true;
 
     if (!isSupabaseConfigured || !supabase) {
+      if (typeof window !== 'undefined') {
+        const storedDemoRole = sessionStorage.getItem('typenull_demo_role') as UserRole | null;
+        if (storedDemoRole) {
+          const demoUser = {
+            id: `demo-${storedDemoRole}-user`,
+            email: `${storedDemoRole}.demo@typenull.local`,
+            app_metadata: {},
+            user_metadata: { full_name: `Demo ${storedDemoRole.charAt(0).toUpperCase() + storedDemoRole.slice(1)}` },
+            aud: 'authenticated',
+            created_at: new Date().toISOString(),
+          } as unknown as User;
+          setUser(demoUser);
+          setProfile({
+            id: `demo-${storedDemoRole}-user`,
+            full_name: `Demo ${storedDemoRole.charAt(0).toUpperCase() + storedDemoRole.slice(1)}`,
+            role: storedDemoRole,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+          });
+        }
+      }
       setIsLoading(false);
       return;
     }
@@ -193,6 +215,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const signOut = async () => {
+    if (typeof window !== 'undefined') {
+      sessionStorage.removeItem('typenull_demo_role');
+    }
     if (!supabase || !isSupabaseConfigured) {
       setUser(null);
       setSession(null);
@@ -280,6 +305,28 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  const startDemoSession = useCallback((demoRole: UserRole) => {
+    if (typeof window !== 'undefined') {
+      sessionStorage.setItem('typenull_demo_role', demoRole);
+    }
+    const demoUser = {
+      id: `demo-${demoRole}-user`,
+      email: `${demoRole}.demo@typenull.local`,
+      app_metadata: {},
+      user_metadata: { full_name: `Demo ${demoRole.charAt(0).toUpperCase() + demoRole.slice(1)}` },
+      aud: 'authenticated',
+      created_at: new Date().toISOString(),
+    } as unknown as User;
+    setUser(demoUser);
+    setProfile({
+      id: `demo-${demoRole}-user`,
+      full_name: `Demo ${demoRole.charAt(0).toUpperCase() + demoRole.slice(1)}`,
+      role: demoRole,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    });
+  }, []);
+
   return (
     <AuthContext.Provider
       value={{
@@ -297,6 +344,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         updateProfile,
         refreshProfile,
         fetchProfile,
+        startDemoSession,
       }}
     >
       {children}

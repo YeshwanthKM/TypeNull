@@ -46,7 +46,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onGetStartedClick, onStartTourCl
           </Link>
 
           {/* Desktop Navigation Links */}
-          <nav className="hidden md:flex items-center space-x-6" aria-label="Main Navigation">
+          <nav className="hidden lg:flex items-center space-x-6" aria-label="Main Navigation">
             {navItems.map((item) =>
               item.isRoute ? (
                 <Link
@@ -73,7 +73,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onGetStartedClick, onStartTourCl
           </nav>
 
           {/* Desktop Auth / Tour / CTA Actions */}
-          <div className="hidden md:flex items-center space-x-3">
+          <div className="hidden lg:flex items-center space-x-3">
             {onStartTourClick && (
               <button
                 type="button"
@@ -121,7 +121,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onGetStartedClick, onStartTourCl
           </div>
 
           {/* Mobile Menu Button */}
-          <div className="flex md:hidden">
+          <div className="flex lg:hidden">
             <button
               type="button"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -137,7 +137,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onGetStartedClick, onStartTourCl
 
       {/* Mobile Menu Dropdown */}
       {mobileMenuOpen && (
-        <div className="md:hidden border-b border-slate-200 bg-white px-4 pt-2 pb-6 space-y-3">
+        <div className="lg:hidden border-b border-slate-200 bg-white px-4 pt-2 pb-6 space-y-3">
           <div className="flex flex-col space-y-2">
             {navItems.map((item) =>
               item.isRoute ? (

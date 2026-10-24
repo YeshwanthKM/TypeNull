@@ -28,8 +28,14 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     );
   }
 
-  // 2. Supabase Unconfigured Guide
-  if (!isConfigured) {
+  // 2. Supabase Unconfigured Guide & Evaluation Launchpad
+  if (!isConfigured && !user) {
+    const recommendedRole: UserRole = allowedRoles?.includes('officer') && !allowedRoles?.includes('applicant')
+      ? 'officer'
+      : allowedRoles?.includes('administrator') && !allowedRoles?.includes('applicant')
+      ? 'administrator'
+      : 'applicant';
+
     return (
       <div className="max-w-2xl mx-auto my-12 p-6 sm:p-8 rounded-xl border border-amber-200 bg-amber-50/70 text-amber-900 shadow-sm space-y-4">
         <div className="flex items-center gap-3">
@@ -38,7 +44,7 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
           </div>
           <div>
             <h2 className="text-lg font-bold text-amber-950">
-              Supabase Configuration Required
+              Supabase Configuration Notice
             </h2>
             <p className="text-xs text-amber-800">
               Protected portal route: <code className="font-mono bg-amber-100/80 px-1 py-0.5 rounded">{location.pathname}</code>
@@ -58,17 +64,51 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
           <p>VITE_SUPABASE_PUBLISHABLE_KEY=eyJhbGciOi...</p>
         </div>
 
-        <div className="pt-2 flex flex-wrap items-center gap-3">
-          <Link to="/login">
-            <Button variant="primary" size="sm" rightIcon={<ArrowRight className="w-4 h-4" />}>
-              Go to Login Page
-            </Button>
-          </Link>
-          <Link to="/">
-            <Button variant="outline" size="sm">
-              Back to Landing Page
-            </Button>
-          </Link>
+        <div className="pt-2 border-t border-amber-200/80">
+          <p className="text-xs font-semibold text-amber-950 mb-2">
+            Local Evaluation &amp; QA Demo Mode:
+          </p>
+          <div className="flex flex-wrap items-center gap-2.5">
+            {useAuth().startDemoSession && (
+              <>
+                <Button
+                  variant="primary"
+                  size="sm"
+                  onClick={() => useAuth().startDemoSession!(recommendedRole)}
+                >
+                  Explore as {recommendedRole.charAt(0).toUpperCase() + recommendedRole.slice(1)} (Demo)
+                </Button>
+                {recommendedRole !== 'applicant' && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => useAuth().startDemoSession!('applicant')}
+                  >
+                    Applicant Demo
+                  </Button>
+                )}
+                {recommendedRole !== 'officer' && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => useAuth().startDemoSession!('officer')}
+                  >
+                    Officer Demo
+                  </Button>
+                )}
+              </>
+            )}
+            <Link to="/login">
+              <Button variant="outline" size="sm" rightIcon={<ArrowRight className="w-4 h-4" />}>
+                Go to Login Page
+              </Button>
+            </Link>
+            <Link to="/">
+              <Button variant="ghost" size="sm">
+                Back to Landing Page
+              </Button>
+            </Link>
+          </div>
         </div>
       </div>
     );
