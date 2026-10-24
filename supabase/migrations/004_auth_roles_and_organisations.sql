@@ -25,8 +25,10 @@ RETURNS TRIGGER AS $$
 BEGIN
     -- If role is being changed:
     IF NEW.role IS DISTINCT FROM OLD.role THEN
-        -- Allow only if executed by service_role (backend administrative operations)
-        IF current_user <> 'service_role' AND COALESCE(auth.jwt()->>'role', '') <> 'service_role' THEN
+        -- Block only if the request originates from a standard web client (authenticated or anon)
+        -- without a service_role key. Direct SQL Editor and postgres administrative operations are permitted.
+        IF (auth.role() = 'authenticated' OR auth.role() = 'anon') 
+           AND COALESCE(auth.jwt()->>'role', '') <> 'service_role' THEN
             RAISE EXCEPTION 'Unauthorised: User roles cannot be modified through client profile updates.';
         END IF;
     END IF;
