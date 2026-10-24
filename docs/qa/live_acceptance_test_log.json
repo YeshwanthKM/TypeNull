@@ -1,0 +1,49 @@
+{
+  "startTime": "2026-10-24T17:05:32.712Z",
+  "liveTarget": "https://type-null-rho.vercel.app/",
+  "browser": "Google Chrome (Puppeteer Core)",
+  "liveAuditOutcomes": [
+    {
+      "check": "Live Root Landing Page",
+      "status": "PASS",
+      "details": "HTTP 200 - Landing Hero loaded with mission and CTA."
+    },
+    {
+      "check": "Vercel Edge SPA Rewrites Configuration",
+      "status": "FAIL",
+      "details": "Direct HTTP GET to /officer returned 404 NOT_FOUND. Vercel deployment requires vercel.json rewrite rule { \"source\": \"/(.*)\", \"destination\": \"/index.html\" }."
+    },
+    {
+      "check": "Client-Side SPA Navigation to /guides",
+      "status": "PASS",
+      "details": "Successfully transitioned client-side: \"Help & Product Guides\""
+    },
+    {
+      "check": "Live Supabase Authentication Enforcement",
+      "status": "PASS",
+      "details": "Supabase instance at evpkolpyjlopyeqphdut.supabase.co actively enforced credentials and rejected invalid authentication: \"Invalid login credentials\""
+    }
+  ],
+  "corpusProcessingOutcomes": [
+    {
+      "test": "Real-World Document Processing & Classification",
+      "status": "PASS",
+      "details": "Extracted and screened real-world statutory corpus containing blank Annexure E, completed declaration, encrypted PDF, corrupted stream, blank scan, and scanned trade licence."
+    },
+    {
+      "test": "Audit Dossier CSV Export Generation",
+      "status": "PASS",
+      "details": "Screening report CSV export triggered and confirmed."
+    },
+    {
+      "test": "Applicant Pre-Validation Form & Conditional Questions",
+      "status": "FAIL",
+      "details": "Rendered 5 interactive inputs for Passport Seva Form 1 (\"Prepare Application Dossier\")."
+    }
+  ],
+  "consoleMessages": [
+    "[error] Failed to load resource: the server responded with a status of 400 ()"
+  ],
+  "networkErrors": [],
+  "endTime": "2026-10-24T17:05:51.268Z"
+}

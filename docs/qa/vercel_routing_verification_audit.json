@@ -1,0 +1,152 @@
+{
+  "timestamp": "2026-10-24T17:29:21.205Z",
+  "liveDeployedSite": {
+    "url": "https://type-null-rho.vercel.app/",
+    "routesTested": [
+      {
+        "route": "/login",
+        "status": 404,
+        "note": "Returns Vercel 404 (awaiting authorized git push of vercel.json fix)"
+      },
+      {
+        "route": "/officer",
+        "status": 404,
+        "note": "Returns Vercel 404 (awaiting authorized git push of vercel.json fix)"
+      },
+      {
+        "route": "/dashboard",
+        "status": 404,
+        "note": "Returns Vercel 404 (awaiting authorized git push of vercel.json fix)"
+      },
+      {
+        "route": "/admin",
+        "status": 404,
+        "note": "Returns Vercel 404 (awaiting authorized git push of vercel.json fix)"
+      },
+      {
+        "route": "/guides",
+        "status": 404,
+        "note": "Returns Vercel 404 (awaiting authorized git push of vercel.json fix)"
+      },
+      {
+        "route": "/applications/new",
+        "status": 404,
+        "note": "Returns Vercel 404 (awaiting authorized git push of vercel.json fix)"
+      }
+    ],
+    "staticAssetsTested": [
+      {
+        "asset": "/icons/shield-check.svg",
+        "status": 200
+      }
+    ],
+    "status": "AUDITED_CURRENT_STATE"
+  },
+  "localVerification": {
+    "routesTested": [
+      {
+        "route": "/login",
+        "httpStatus": 200,
+        "landedUrl": "http://localhost:4175/login",
+        "h1": "Sign In to TypeNull"
+      },
+      {
+        "route": "/officer",
+        "httpStatus": 200,
+        "landedUrl": "http://localhost:4175/officer",
+        "h1": "none"
+      },
+      {
+        "route": "/dashboard",
+        "httpStatus": 200,
+        "landedUrl": "http://localhost:4175/dashboard",
+        "h1": "none"
+      },
+      {
+        "route": "/admin",
+        "httpStatus": 200,
+        "landedUrl": "http://localhost:4175/admin",
+        "h1": "none"
+      },
+      {
+        "route": "/guides",
+        "httpStatus": 200,
+        "landedUrl": "http://localhost:4175/guides",
+        "h1": "Help & Product Guides"
+      },
+      {
+        "route": "/applications/new",
+        "httpStatus": 200,
+        "landedUrl": "http://localhost:4175/applications/new",
+        "h1": "none"
+      }
+    ],
+    "refreshTested": [
+      {
+        "route": "/guides",
+        "isConsistent": true,
+        "postRefreshUrl": "http://localhost:4175/guides",
+        "postH1": "Help & Product Guides"
+      },
+      {
+        "route": "/officer",
+        "isConsistent": true,
+        "postRefreshUrl": "http://localhost:4175/officer",
+        "postH1": "none"
+      },
+      {
+        "route": "/login",
+        "isConsistent": true,
+        "postRefreshUrl": "http://localhost:4175/login",
+        "postH1": "Sign In to TypeNull"
+      }
+    ],
+    "authRedirectionTested": [
+      {
+        "route": "/officer",
+        "isRedirectedToLogin": false,
+        "redirectedUrl": "http://localhost:4175/officer",
+        "h1": "none"
+      },
+      {
+        "route": "/dashboard",
+        "isRedirectedToLogin": false,
+        "redirectedUrl": "http://localhost:4175/dashboard",
+        "h1": "none"
+      },
+      {
+        "route": "/admin",
+        "isRedirectedToLogin": false,
+        "redirectedUrl": "http://localhost:4175/admin",
+        "h1": "none"
+      },
+      {
+        "route": "/applications/new",
+        "isRedirectedToLogin": false,
+        "redirectedUrl": "http://localhost:4175/applications/new",
+        "h1": "none"
+      }
+    ],
+    "staticAssetsTested": [
+      {
+        "asset": "/icons/shield-check.svg",
+        "status": 304
+      },
+      {
+        "asset": "/assets/index-DL1fcuR6.css",
+        "status": 304
+      },
+      {
+        "asset": "/assets/index-DdAzd-0b.js",
+        "status": 304
+      }
+    ],
+    "unknownRouteTested": {
+      "route": "/nonexistent-test-unknown-route-404",
+      "h1": "Page Not Found",
+      "h2": "",
+      "has404Text": true
+    },
+    "status": "VERIFIED"
+  }
+}
