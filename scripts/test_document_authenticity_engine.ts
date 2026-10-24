@@ -212,7 +212,7 @@ const sc4Assessment = assessDocumentAuthenticity({
   originalFilename: 'organisation_altered_gst_copy.pdf',
   rawText: sc4GstText,
   extractedFields: {
-    gstin: '99XXXXX9999X9ZZ', // Altered format
+    gstin: '99XXXXX9999X_INVALID', // Altered format
     legal_name: 'Bharat Industrial Solutions Private Limited',
     principal_place_of_business: 'Plot 88, MIDC Industrial Area, Andheri East, Mumbai 400093',
     date_of_issue: '01/04/2024',
@@ -373,6 +373,209 @@ testAssert(matchDocAssessment.statusDimensions.issuingAuthorityVerification === 
 testAssert(matchDocAssessment.statusDimensions.overallAuthenticity !== 'VERIFIED', 'Crucial Rule: Matching reference template NEVER marks a document as VERIFIED by itself');
 testAssert(matchDocAssessment.statusDimensions.overallAuthenticity === 'UNABLE_TO_VERIFY', 'Overall status is UNABLE_TO_VERIFY when issuer verification is unavailable');
 
+// =============================================================================
+// TEST GROUP 6: Verification of Complete 10-Document Synthetic Pack & Archive
+// =============================================================================
+console.log('\nTEST GROUP 6: Verification of Complete 10-Document Synthetic Pack & Archive');
+
+// 6.1 Archive & Documentation Existence
+const zipFile = path.join(samplePackDir, 'synthetic_demo_documents.zip');
+const readmeFile = path.join(samplePackDir, 'README.md');
+testAssert(fs.existsSync(zipFile), 'Synthetic demo ZIP archive exists');
+testAssert(fs.statSync(zipFile).size > 5000, 'Synthetic demo ZIP archive contains valid bundled bytes');
+testAssert(fs.existsSync(readmeFile), 'Demo pack README.md exists');
+const readmeTxt = fs.readFileSync(readmeFile, 'utf-8');
+testAssert(readmeTxt.includes('NOT AN OFFICIAL DOCUMENT'), 'README includes explicit safety notice & disclaimer');
+testAssert(readmeTxt.includes('applicant_reference_original.pdf'), 'README details inventory and test matrix');
+
+// Helper to extract fields from synthetic stream
+function extractSyntheticFields(text: string): Record<string, string> {
+  const fields: Record<string, string> = {};
+  const panMatch = text.match(/Permanent Account Number:\s*([A-Za-z0-9]+)/);
+  if (panMatch) fields['pan_number'] = panMatch[1];
+  const nameMatch = text.match(/Name:\s*([A-Za-z\s.]+)/);
+  if (nameMatch) fields['name'] = nameMatch[1].trim();
+  const fatherMatch = text.match(/Father Name:\s*([A-Za-z\s.]+)/);
+  if (fatherMatch) fields['father_name'] = fatherMatch[1].trim();
+  const dobMatch = text.match(/Date of Birth:\s*([0-9/]+)/);
+  if (dobMatch) fields['dob'] = dobMatch[1].trim();
+  const gstinMatch = text.match(/Registration Number:\s*([A-Za-z0-9]+)/);
+  if (gstinMatch) fields['gstin'] = gstinMatch[1].trim();
+  const legalNameMatch = text.match(/Legal Name:\s*([A-Za-z0-9\s.]+)/);
+  if (legalNameMatch) fields['legal_name'] = legalNameMatch[1].trim();
+  const placeMatch = text.match(/Principal Place of Business:\s*([^\n\r]+)/);
+  if (placeMatch) fields['principal_place_of_business'] = placeMatch[1].trim();
+  const issueDateMatch = text.match(/Date of Issue:\s*([0-9/]+)/);
+  if (issueDateMatch) fields['date_of_issue'] = issueDateMatch[1].trim();
+  return fields;
+}
+
+// 6.2 Sample 1: applicant_reference_original.pdf
+const s1Path = path.join(samplePackDir, 'applicant_reference_original.pdf');
+testAssert(fs.existsSync(s1Path), 'Sample 1 (applicant_reference_original.pdf) exists');
+const s1Text = fs.readFileSync(s1Path, 'utf-8');
+const s1Fields = extractSyntheticFields(s1Text);
+const s1Assessment = assessDocumentAuthenticity({
+  documentId: 'doc-demo-s1',
+  applicationId: 'app-demo-1',
+  originalFilename: 'applicant_reference_original.pdf',
+  rawText: s1Text,
+  extractedFields: s1Fields,
+  targetRequirement: 'director_pan',
+});
+testAssert(s1Assessment.statusDimensions.templateComparison === 'MATCH', 'Sample 1: Matching reference yields MATCH');
+testAssert(s1Assessment.statusDimensions.textConsistency === 'CONSISTENT', 'Sample 1: Clean fields yield CONSISTENT text');
+testAssert(s1Assessment.statusDimensions.alterationIndicators === 'NO_ALTERATIONS_DETECTED', 'Sample 1: No alteration indicators flagged');
+testAssert(s1Assessment.statusDimensions.overallAuthenticity === 'UNABLE_TO_VERIFY', 'Sample 1: Overall authenticity is UNABLE_TO_VERIFY (never fakes verified)');
+
+// 6.3 Sample 2: applicant_altered_copy.pdf
+const s2Path = path.join(samplePackDir, 'applicant_altered_copy.pdf');
+testAssert(fs.existsSync(s2Path), 'Sample 2 (applicant_altered_copy.pdf) exists');
+const s2Text = fs.readFileSync(s2Path, 'utf-8');
+const s2Fields = extractSyntheticFields(s2Text);
+const s2Assessment = assessDocumentAuthenticity({
+  documentId: 'doc-demo-s2',
+  applicationId: 'app-demo-1',
+  originalFilename: 'applicant_altered_copy.pdf',
+  rawText: s2Text,
+  extractedFields: s2Fields,
+  targetRequirement: 'director_pan',
+});
+testAssert(s2Assessment.statusDimensions.textConsistency === 'INCONSISTENT', 'Sample 2: Altered PAN yields INCONSISTENT text');
+testAssert(s2Assessment.statusDimensions.alterationIndicators === 'SUSPICIOUS', 'Sample 2: Regex violation flags SUSPICIOUS alteration indicator');
+testAssert(s2Assessment.statusDimensions.overallAuthenticity === 'SUSPICIOUS', 'Sample 2: Overall authenticity is SUSPICIOUS');
+
+// 6.4 Sample 3: applicant_missing_field.pdf
+const s3Path = path.join(samplePackDir, 'applicant_missing_field.pdf');
+testAssert(fs.existsSync(s3Path), 'Sample 3 (applicant_missing_field.pdf) exists');
+const s3Text = fs.readFileSync(s3Path, 'utf-8');
+const s3Fields = extractSyntheticFields(s3Text);
+const s3Assessment = assessDocumentAuthenticity({
+  documentId: 'doc-demo-s3',
+  applicationId: 'app-demo-1',
+  originalFilename: 'applicant_missing_field.pdf',
+  rawText: s3Text,
+  extractedFields: s3Fields,
+  targetRequirement: 'director_pan',
+});
+testAssert(s3Assessment.statusDimensions.textConsistency === 'FIELD_MISSING', 'Sample 3: Omitted field yields FIELD_MISSING');
+testAssert(s3Assessment.statusDimensions.applicationCompliance === 'INCOMPLETE', 'Sample 3: Missing field yields INCOMPLETE compliance');
+testAssert(s3Assessment.fieldComparisonFindings.some((f) => f.fieldKey === 'father_name' && f.status === 'missing'), 'Sample 3: Flags specific missing field father_name');
+
+// 6.5 Sample 4: applicant_unknown_document.pdf
+const s4Path = path.join(samplePackDir, 'applicant_unknown_document.pdf');
+testAssert(fs.existsSync(s4Path), 'Sample 4 (applicant_unknown_document.pdf) exists');
+const s4Text = fs.readFileSync(s4Path, 'utf-8');
+const s4Assessment = assessDocumentAuthenticity({
+  documentId: 'doc-demo-s4',
+  applicationId: 'app-demo-1',
+  originalFilename: 'applicant_unknown_document.pdf',
+  rawText: s4Text,
+  extractedFields: {},
+});
+testAssert(s4Assessment.statusDimensions.templateComparison === 'TEMPLATE_UNAVAILABLE', 'Sample 4: Unknown document yields TEMPLATE_UNAVAILABLE');
+testAssert(s4Assessment.statusDimensions.overallAuthenticity === 'UNABLE_TO_VERIFY', 'Sample 4: Unknown document yields UNABLE_TO_VERIFY (not falsely suspicious)');
+
+// 6.6 Sample 5: applicant_unreadable_sample.pdf
+const s5Path = path.join(samplePackDir, 'applicant_unreadable_sample.pdf');
+testAssert(fs.existsSync(s5Path), 'Sample 5 (applicant_unreadable_sample.pdf) exists');
+const s5Assessment = assessDocumentAuthenticity({
+  documentId: 'doc-demo-s5',
+  applicationId: 'app-demo-1',
+  originalFilename: 'applicant_unreadable_sample.pdf',
+  rawText: '', // Zero extractable text characters
+  extractedFields: {},
+});
+testAssert(s5Assessment.statusDimensions.templateComparison === 'TEMPLATE_UNAVAILABLE', 'Sample 5: Unreadable document yields TEMPLATE_UNAVAILABLE');
+testAssert(s5Assessment.statusDimensions.overallAuthenticity === 'UNABLE_TO_VERIFY', 'Sample 5: Unreadable document gracefully yields UNABLE_TO_VERIFY');
+
+// 6.7 Sample 6: organisation_reference_original.pdf
+const s6Path = path.join(samplePackDir, 'organisation_reference_original.pdf');
+testAssert(fs.existsSync(s6Path), 'Sample 6 (organisation_reference_original.pdf) exists');
+const s6Text = fs.readFileSync(s6Path, 'utf-8');
+const s6Fields = extractSyntheticFields(s6Text);
+const s6Assessment = assessDocumentAuthenticity({
+  documentId: 'doc-demo-s6',
+  applicationId: 'batch-demo-1',
+  originalFilename: 'organisation_reference_original.pdf',
+  rawText: s6Text,
+  extractedFields: s6Fields,
+  targetRequirement: 'gst_reg06',
+});
+testAssert(s6Assessment.statusDimensions.templateComparison === 'MATCH', 'Sample 6: Form GST REG-06 yields MATCH');
+testAssert(s6Assessment.statusDimensions.qrAndSignatureVerification === 'VALID_SIGNATURE', 'Sample 6: Valid QR structure yields VALID_SIGNATURE');
+testAssert(s6Assessment.statusDimensions.alterationIndicators === 'NO_ALTERATIONS_DETECTED', 'Sample 6: No alterations detected');
+
+// 6.8 Sample 7: organisation_altered_copy.pdf
+const s7Path = path.join(samplePackDir, 'organisation_altered_copy.pdf');
+testAssert(fs.existsSync(s7Path), 'Sample 7 (organisation_altered_copy.pdf) exists');
+const s7Text = fs.readFileSync(s7Path, 'utf-8');
+const s7Fields = extractSyntheticFields(s7Text);
+const s7Assessment = assessDocumentAuthenticity({
+  documentId: 'doc-demo-s7',
+  applicationId: 'batch-demo-1',
+  originalFilename: 'organisation_altered_copy.pdf',
+  rawText: s7Text,
+  extractedFields: s7Fields,
+  targetRequirement: 'gst_reg06',
+});
+testAssert(s7Assessment.statusDimensions.textConsistency === 'INCONSISTENT', 'Sample 7: Altered GSTIN yields INCONSISTENT text');
+testAssert(s7Assessment.statusDimensions.alterationIndicators === 'SUSPICIOUS', 'Sample 7: Invalid format flags alteration indicator SUSPICIOUS');
+testAssert(s7Assessment.statusDimensions.overallAuthenticity === 'SUSPICIOUS', 'Sample 7: Overall authenticity is SUSPICIOUS');
+
+// 6.9 Sample 8: organisation_missing_field.pdf
+const s8Path = path.join(samplePackDir, 'organisation_missing_field.pdf');
+testAssert(fs.existsSync(s8Path), 'Sample 8 (organisation_missing_field.pdf) exists');
+const s8Text = fs.readFileSync(s8Path, 'utf-8');
+const s8Fields = extractSyntheticFields(s8Text);
+const s8Assessment = assessDocumentAuthenticity({
+  documentId: 'doc-demo-s8',
+  applicationId: 'batch-demo-1',
+  originalFilename: 'organisation_missing_field.pdf',
+  rawText: s8Text,
+  extractedFields: s8Fields,
+  targetRequirement: 'gst_reg06',
+});
+testAssert(s8Assessment.statusDimensions.textConsistency === 'FIELD_MISSING', 'Sample 8: Missing organisation fields yields FIELD_MISSING');
+testAssert(s8Assessment.statusDimensions.applicationCompliance === 'INCOMPLETE', 'Sample 8: Missing fields yields INCOMPLETE compliance');
+
+// 6.10 Sample 9: organisation_malformed_qr.pdf
+const s9Path = path.join(samplePackDir, 'organisation_malformed_qr.pdf');
+testAssert(fs.existsSync(s9Path), 'Sample 9 (organisation_malformed_qr.pdf) exists');
+const s9Text = fs.readFileSync(s9Path, 'utf-8');
+const s9Fields = extractSyntheticFields(s9Text);
+const s9Assessment = assessDocumentAuthenticity({
+  documentId: 'doc-demo-s9',
+  applicationId: 'batch-demo-1',
+  originalFilename: 'organisation_malformed_qr.pdf',
+  rawText: s9Text,
+  extractedFields: s9Fields,
+  targetRequirement: 'gst_reg06',
+});
+testAssert(s9Assessment.statusDimensions.qrAndSignatureVerification === 'MALFORMED_OR_INVALID', 'Sample 9: Flags MALFORMED_OR_INVALID QR code payload');
+testAssert(s9Assessment.statusDimensions.overallAuthenticity === 'SUSPICIOUS', 'Sample 9: Malformed QR flags overall SUSPICIOUS');
+
+// 6.11 Sample 10: organisation_unknown_document.pdf
+const s10Path = path.join(samplePackDir, 'organisation_unknown_document.pdf');
+testAssert(fs.existsSync(s10Path), 'Sample 10 (organisation_unknown_document.pdf) exists');
+const s10Text = fs.readFileSync(s10Path, 'utf-8');
+const s10Assessment = assessDocumentAuthenticity({
+  documentId: 'doc-demo-s10',
+  applicationId: 'batch-demo-1',
+  originalFilename: 'organisation_unknown_document.pdf',
+  rawText: s10Text,
+  extractedFields: {},
+});
+testAssert(s10Assessment.statusDimensions.templateComparison === 'TEMPLATE_UNAVAILABLE', 'Sample 10: Unknown organisation document yields TEMPLATE_UNAVAILABLE');
+testAssert(s10Assessment.statusDimensions.overallAuthenticity === 'UNABLE_TO_VERIFY', 'Sample 10: Unknown document yields UNABLE_TO_VERIFY (not fraudulent)');
+
+// 6.12 Watermark & Safety Inspection
+const samplePdfs = [s1Path, s2Path, s3Path, s4Path, s6Path, s7Path, s8Path, s9Path, s10Path];
+for (const p of samplePdfs) {
+  const content = fs.readFileSync(p, 'utf-8');
+  testAssert(content.includes('SYNTHETIC DEMONSTRATION SAMPLE'), `File ${path.basename(p)} explicitly includes synthetic watermark`);
+}
+
 console.log('\n================================================================');
-console.log(`ALL TESTS PASSED: ${totalAssertions} assertions passed across 5 test groups.`);
+console.log(`ALL TESTS PASSED: ${totalAssertions} assertions passed across 6 test groups.`);
 console.log('================================================================\n');

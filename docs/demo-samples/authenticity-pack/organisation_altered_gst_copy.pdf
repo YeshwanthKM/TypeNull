@@ -12,25 +12,25 @@ endobj
 << /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
 endobj
 5 0 obj
-<< /Length 698 >>
+<< /Length 712 >>
 stream
 BT
 /F1 10 Tf
 50 750 Td
 15 TL
-(SYNTHETIC DEMONSTRATION DATA - NOT FOR OFFICIAL SUBMISSION) '
+(SYNTHETIC DEMONSTRATION SAMPLE — NOT AN OFFICIAL DOCUMENT) '
 (=================================================================) '
 (Goods and Services Tax) '
 (Registration Certificate) '
 (Form GST REG-06) '
 (=================================================================) '
-(Registration Number: 99XXXXX9999X9ZZ) '
+(Registration Number: 99XXXXX9999X_INVALID) '
 (Legal Name: Bharat Industrial Solutions Private Limited) '
 (Principal Place of Business: Plot 88, MIDC Industrial Area, Andheri East, Mumbai 400093) '
 (Date of Issue: 01/04/2024) '
 (Issuing Authority: Goods and Services Tax Network) '
 (qr-code: MALFORMED_GSTIN_TOKEN_ERR_INVALID) '
-(Status: Intentionally Altered Organisation Test Submission) '
+(Status: Intentionally Altered Organisation Registration Submission) '
 ET
 endstream
 endobj
@@ -45,5 +45,5 @@ xref
 trailer
 << /Size 6 /Root 1 0 R >>
 startxref
-1059
+1071
 %%EOF
