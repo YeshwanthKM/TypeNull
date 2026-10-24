@@ -557,4 +557,163 @@ export interface PersonalizedChecklistResult {
   totalRequiredCount: number;
 }
 
+/**
+ * =============================================================================
+ * Document Reference Dataset & Authenticity Verification Types
+ * =============================================================================
+ */
+
+export type ReferenceReviewStatus = 'pending_review' | 'approved' | 'retired' | 'rejected';
+
+export type ReferenceProvenance =
+  | 'synthetic_demo'
+  | 'official_gazette'
+  | 'regulatory_standard'
+  | 'internal_curation';
+
+export interface DocumentReferenceType {
+  id: string;
+  code: string; // e.g. doc_type_pan_card, doc_type_coi, doc_type_gst_reg06
+  name: string;
+  description: string;
+  applicationCategory: string;
+  issuingAuthority: string;
+  jurisdiction: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ExpectedFieldDefinition {
+  fieldKey: string;
+  label: string;
+  formatRegex?: string;
+  description?: string;
+  mandatory: boolean;
+}
+
+export interface ExpectedQrStructure {
+  format: 'gstin_b2b' | 'digital_seal' | 'url_reference' | 'none';
+  requiredPattern?: string;
+  description?: string;
+}
+
+export interface DocumentReferenceTemplate {
+  id: string;
+  documentTypeId: string;
+  version: string; // e.g. 'v1.0', 'v2.0'
+  effectiveDate: string; // ISO date string YYYY-MM-DD
+  expiryDate: string | null;
+  isSynthetic: boolean;
+  provenance: ReferenceProvenance;
+  reviewStatus: ReferenceReviewStatus;
+  lastReviewedAt: string;
+  reviewedBy: string | null;
+  approvalNotes: string | null;
+  expectedPageStructure: {
+    pageCount: number;
+    dimensions: { width: number; height: number };
+    orientation: 'portrait' | 'landscape';
+  };
+  expectedHeadings: string[];
+  requiredFields: ExpectedFieldDefinition[];
+  expectedQrStructure?: ExpectedQrStructure;
+  digitalSignatureRequirements: 'mandatory' | 'optional' | 'unsupported';
+  officialVerificationMethod: string;
+  officialVerificationSource: string;
+  referenceFileMetadata?: {
+    filename: string;
+    sizeBytes: number;
+    sha256?: string;
+    sampleContentSnippet?: string;
+  };
+  created_at: string;
+  updated_at: string;
+}
+
+export type ApplicationComplianceStatus = 'COMPLIANT' | 'NON_COMPLIANT' | 'INCOMPLETE';
+export type TemplateComparisonStatus = 'MATCH' | 'STRUCTURAL_MISMATCH' | 'TEMPLATE_UNAVAILABLE' | 'NOT_CHECKED';
+export type TextConsistencyStatus = 'CONSISTENT' | 'INCONSISTENT' | 'FIELD_MISSING' | 'NOT_CHECKED';
+export type AlterationStatus = 'NO_ALTERATIONS_DETECTED' | 'SUSPICIOUS' | 'INCONCLUSIVE';
+export type QrAndSignatureStatus = 'VALID_SIGNATURE' | 'NO_SIGNATURE' | 'MALFORMED_OR_INVALID' | 'UNSUPPORTED';
+export type IssuerVerificationStatus = 'VERIFIED' | 'VERIFICATION_FAILED' | 'UNABLE_TO_VERIFY' | 'NOT_CHECKED';
+export type OverallAuthenticityStatus = 'VERIFIED' | 'VERIFICATION_FAILED' | 'SUSPICIOUS' | 'UNABLE_TO_VERIFY' | 'NOT_CHECKED';
+
+export interface StructuralFinding {
+  aspect: string;
+  expected: string;
+  observed: string;
+  matched: boolean;
+  severity: 'info' | 'warning' | 'alert';
+}
+
+export interface FieldComparisonFinding {
+  fieldKey: string;
+  label: string;
+  expectedFormat?: string;
+  observedValue: string | null;
+  status: 'present_valid' | 'missing' | 'format_mismatch' | 'discrepancy';
+  details: string;
+}
+
+export interface AlterationIndicator {
+  indicatorType: string;
+  description: string;
+  severity: 'low' | 'medium' | 'high';
+  evidence: string;
+  limitations: string;
+}
+
+export interface QrAndSignatureFinding {
+  hasQr: boolean;
+  qrDecodedContent?: string | null;
+  qrValidationStatus: 'valid' | 'malformed' | 'unsupported' | 'not_present';
+  qrNotes?: string;
+  hasDigitalSignature: boolean;
+  signatureDetails?: string;
+  signatureValid?: boolean;
+  limitations: string;
+}
+
+export interface IssuerVerificationFinding {
+  attempted: boolean;
+  method: string;
+  source: string;
+  status: IssuerVerificationStatus;
+  details: string;
+  limitations: string;
+  verifiedAt?: string;
+}
+
+export interface DocumentAuthenticityAssessment {
+  id: string;
+  documentId: string;
+  applicationId: string;
+  originalFilename: string;
+  detectedDocumentType: string;
+  claimedIssuingAuthority: string;
+  selectedReferenceId: string | null;
+  selectedReferenceVersion: string | null;
+  selectedReferenceProvenance: ReferenceProvenance | null;
+  referenceTrustStatus: ReferenceReviewStatus | null;
+  selectionReason: string;
+  ocrStatus: string;
+  structuralComparisonFindings: StructuralFinding[];
+  fieldComparisonFindings: FieldComparisonFinding[];
+  alterationIndicators: AlterationIndicator[];
+  qrAndSignatureFindings: QrAndSignatureFinding;
+  issuerVerificationResult: IssuerVerificationFinding;
+  checksNotPerformed: string[];
+  recommendedNextAction: string;
+  statusDimensions: {
+    applicationCompliance: ApplicationComplianceStatus;
+    templateComparison: TemplateComparisonStatus;
+    textConsistency: TextConsistencyStatus;
+    alterationIndicators: AlterationStatus;
+    qrAndSignatureVerification: QrAndSignatureStatus;
+    issuingAuthorityVerification: IssuerVerificationStatus;
+    overallAuthenticity: OverallAuthenticityStatus;
+  };
+  createdAt: string;
+}
+
 

@@ -18,6 +18,7 @@ import {
   AlertCircle,
   X,
   Shield,
+  FileCheck,
 } from 'lucide-react';
 import { PageHeader } from '../components/ui/PageHeader';
 import { Button } from '../components/ui/Button';
@@ -36,6 +37,7 @@ import {
   KnowledgeBaseEntry,
 } from '../services/knowledgeBase';
 import { FormIngestionWorkspace } from '../components/admin/FormIngestionWorkspace';
+import { DocumentReferenceDatasetWorkspace } from '../components/admin/DocumentReferenceDatasetWorkspace';
 import {
   fetchOrganisations,
   createOrganisation,
@@ -73,7 +75,7 @@ export const AdminWorkspacePage: React.FC = () => {
   const { user, profile } = useAuth();
 
   const [activeTab, setActiveTab] = useState<
-    'users' | 'organisations' | 'requests' | 'rules' | 'ingestion' | 'security'
+    'users' | 'organisations' | 'requests' | 'references' | 'rules' | 'ingestion' | 'security'
   >('users');
 
   // Users state
@@ -435,6 +437,19 @@ export const AdminWorkspacePage: React.FC = () => {
               {accessRequests.length}
             </span>
           )}
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setActiveTab('references')}
+          className={`pb-3 flex items-center gap-2 border-b-2 transition-colors flex-shrink-0 ${
+            activeTab === 'references'
+              ? 'border-indigo-600 text-indigo-700'
+              : 'border-transparent text-slate-500 hover:text-slate-800'
+          }`}
+        >
+          <FileCheck className="w-4 h-4" />
+          <span>Document Reference Dataset</span>
         </button>
 
         <button
@@ -870,6 +885,11 @@ export const AdminWorkspacePage: React.FC = () => {
             </div>
           </div>
         </div>
+      )}
+
+      {/* TAB: DOCUMENT REFERENCE DATASET */}
+      {activeTab === 'references' && (
+        <DocumentReferenceDatasetWorkspace />
       )}
 
       {/* TAB 4: KNOWLEDGE BASE & RULES */}

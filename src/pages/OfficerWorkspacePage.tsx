@@ -21,6 +21,7 @@ import {
   Sparkles,
   Lock,
   FileSpreadsheet,
+  ShieldCheck,
 } from 'lucide-react';
 import { PageHeader } from '../components/ui/PageHeader';
 import { Button } from '../components/ui/Button';
@@ -28,6 +29,7 @@ import { StatusBadge } from '../components/ui/StatusBadge';
 import { useAuth } from '../contexts/AuthContext';
 import { getRoleDisplayLabel } from '../utils/roleUtils';
 import { isSupabaseConfigured } from '../lib/supabase';
+import { assessDocumentAuthenticity } from '../services/documentAuthenticityService';
 import {
   ApplicationDocument,
   DocumentExtractionRecord,
@@ -1759,6 +1761,83 @@ export const OfficerWorkspacePage: React.FC = () => {
                   ))}
                 </div>
               </div>
+
+              {/* Reference Template & Authenticity Assessment */}
+              {(() => {
+                const primaryFile = inspectingItem.sourceFiles?.[0];
+                const authenticity = assessDocumentAuthenticity({
+                  documentId: inspectingItem.id,
+                  applicationId: currentBatch ? currentBatch.id : 'batch-default',
+                  originalFilename: primaryFile?.name || `${inspectingItem.applicantIdentifier}-dossier.pdf`,
+                  rawText: Object.values(inspectingItem.extractedFields || {}).join(' ') || inspectingItem.applicantIdentifier,
+                  extractedFields: inspectingItem.extractedFields || {},
+                  targetRequirement: inspectingItem.targetCategory,
+                });
+
+                return (
+                  <div className="p-4 rounded-xl border border-indigo-200 bg-white shadow-xs space-y-3">
+                    <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
+                      <div className="flex items-center gap-2">
+                        <ShieldCheck className="w-4 h-4 text-indigo-600" />
+                        <span className="font-bold text-slate-900 text-xs">
+                          Reference Template Comparison &amp; Authenticity Verification
+                        </span>
+                      </div>
+                      <span className="text-[10px] font-mono px-2 py-0.5 rounded-full font-semibold bg-indigo-50 text-indigo-700 border border-indigo-200">
+                        {authenticity.statusDimensions.overallAuthenticity}
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-[11px]">
+                      <div className="p-2 rounded-lg bg-slate-50 border border-slate-200">
+                        <span className="text-slate-400 block text-[9px] uppercase font-semibold">
+                          Selected Template
+                        </span>
+                        <span className="font-semibold text-slate-800">
+                          {authenticity.selectedReferenceVersion || 'Unavailable'}
+                        </span>
+                      </div>
+                      <div className="p-2 rounded-lg bg-slate-50 border border-slate-200">
+                        <span className="text-slate-400 block text-[9px] uppercase font-semibold">
+                          Template Match
+                        </span>
+                        <span className="font-semibold text-slate-800">
+                          {authenticity.statusDimensions.templateComparison}
+                        </span>
+                      </div>
+                      <div className="p-2 rounded-lg bg-slate-50 border border-slate-200">
+                        <span className="text-slate-400 block text-[9px] uppercase font-semibold">
+                          Field Consistency
+                        </span>
+                        <span className="font-semibold text-slate-800">
+                          {authenticity.statusDimensions.textConsistency}
+                        </span>
+                      </div>
+                      <div className="p-2 rounded-lg bg-slate-50 border border-slate-200">
+                        <span className="text-slate-400 block text-[9px] uppercase font-semibold">
+                          Issuer Verification
+                        </span>
+                        <span className="font-semibold text-slate-800">
+                          {authenticity.statusDimensions.issuingAuthorityVerification}
+                        </span>
+                      </div>
+                    </div>
+
+                    {authenticity.alterationIndicators.length > 0 && (
+                      <div className="p-2.5 bg-rose-50 border border-rose-200 rounded-lg text-[11px] text-rose-800">
+                        <span className="font-bold block mb-1">
+                          Potential Alteration Indicators Flagged ({authenticity.alterationIndicators.length}):
+                        </span>
+                        {authenticity.alterationIndicators.map((a, i) => (
+                          <div key={i} className="text-[10px]">
+                            • {a.indicatorType}: {a.description}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                );
+              })()}
 
               {/* Categorized Findings Breakdown */}
               <div className="space-y-3">

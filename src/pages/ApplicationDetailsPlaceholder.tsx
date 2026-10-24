@@ -24,6 +24,7 @@ import { DocumentPreviewModal } from '../components/documents/DocumentPreviewMod
 import { DocumentExtractionModal } from '../components/extraction/DocumentExtractionModal';
 import { ExtractedDossierSection } from '../components/extraction/ExtractedDossierSection';
 import { PreValidationSection } from '../components/validation/PreValidationSection';
+import { DocumentAuthenticitySection } from '../components/documents/DocumentAuthenticitySection';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
 import { fetchApplicationById } from '../services/applications';
@@ -366,6 +367,16 @@ export const ApplicationDetailsPlaceholder: React.FC = () => {
               extractions={extractions}
               fields={fields}
               userId={user.id}
+            />
+          )}
+
+          {/* Document Reference & Authenticity Verification Section */}
+          {documents.length > 0 && (
+            <DocumentAuthenticitySection
+              documents={documents}
+              extractions={extractions}
+              fields={fields}
+              applicationId={id || ''}
             />
           )}
 

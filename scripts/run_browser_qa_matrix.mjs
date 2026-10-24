@@ -26,7 +26,17 @@ async function runQaMatrix() {
   const results = [];
 
   // Helper to test a page at a viewport
-  async function testPage(page, url, routeName, viewport, options = {}) {
+  async function testPage(pageOrBrowser, url, routeName, viewport, options = {}) {
+    let page;
+    let shouldClose = false;
+    if (pageOrBrowser.newPage) {
+      page = await pageOrBrowser.newPage();
+      await page.setViewport({ width: viewport.width, height: viewport.height });
+      shouldClose = true;
+    } else {
+      page = pageOrBrowser;
+    }
+
     const pageErrors = [];
     const consoleListener = (msg) => {
       if (msg.type() === 'error') {
@@ -128,7 +138,12 @@ async function runQaMatrix() {
         status: 'FAIL',
       });
     } finally {
-      page.off('console', consoleListener);
+      if (page && !page.isClosed()) {
+        page.off('console', consoleListener);
+      }
+      if (shouldClose && page && !page.isClosed()) {
+        await page.close().catch(() => {});
+      }
     }
   }
 
@@ -150,11 +165,8 @@ async function runQaMatrix() {
     });
 
     try {
-      const page = await browser.newPage();
-      await page.setViewport({ width: vp.width, height: vp.height });
-
       // 1. Landing Page
-      await testPage(page, '/', 'Landing Page', vp, {
+      await testPage(browser, '/', 'Landing Page', vp, {
         interact: async (p) => {
           if (vp.width < 1024) {
             const menuBtn = await p.$('button[aria-label="Toggle navigation menu"]');
@@ -169,7 +181,7 @@ async function runQaMatrix() {
       });
 
       // 2. Guides Page
-      await testPage(page, '/guides', 'User Guides', vp, {
+      await testPage(browser, '/guides', 'User Guides', vp, {
         interact: async (p) => {
           const searchInput = await p.$('input[placeholder*="Search"]');
           if (searchInput) {
@@ -183,7 +195,7 @@ async function runQaMatrix() {
       });
 
       // 3. Guides Interactive Walkthrough Tour
-      await testPage(page, '/guides?walkthrough=true', 'Interactive Product Tour Modal', vp, {
+      await testPage(browser, '/guides?walkthrough=true', 'Interactive Product Tour Modal', vp, {
         interact: async (p) => {
           const modal = await p.$('div[role="dialog"]');
           if (modal) {
@@ -195,22 +207,22 @@ async function runQaMatrix() {
       });
 
       // 4. Login Page
-      await testPage(page, '/login', 'Authentication: Login', vp);
+      await testPage(browser, '/login', 'Authentication: Login', vp);
 
       // 5. Register Page
-      await testPage(page, '/register', 'Authentication: Register', vp);
+      await testPage(browser, '/register', 'Authentication: Register', vp);
 
       // 6. Forgot Password Page
-      await testPage(page, '/forgot-password', 'Authentication: Forgot Password', vp);
+      await testPage(browser, '/forgot-password', 'Authentication: Forgot Password', vp);
 
       // 7. Reset Password Page
-      await testPage(page, '/reset-password', 'Authentication: Reset Password', vp);
+      await testPage(browser, '/reset-password', 'Authentication: Reset Password', vp);
 
       // 8. Applicant Dashboard (in demo evaluation mode)
-      await testPage(page, '/dashboard', 'Applicant Dashboard', vp, { role: 'applicant' });
+      await testPage(browser, '/dashboard', 'Applicant Dashboard', vp, { role: 'applicant' });
 
       // 9. Application Catalogue
-      await testPage(page, '/applications/explore', 'Government Applications Catalogue', vp, {
+      await testPage(browser, '/applications/explore', 'Government Applications Catalogue', vp, {
         role: 'applicant',
         interact: async (p) => {
           const search = await p.$('input[placeholder*="Search"]');
@@ -222,7 +234,7 @@ async function runQaMatrix() {
       });
 
       // 10. New Application Builder
-      await testPage(page, '/applications/new', 'New Application & Questionnaire', vp, {
+      await testPage(browser, '/applications/new', 'New Application & Questionnaire', vp, {
         role: 'applicant',
         interact: async (p) => {
           const select = await p.$('select#serviceType');
@@ -234,12 +246,12 @@ async function runQaMatrix() {
       });
 
       // 11. Application Details Dossier
-      await testPage(page, '/applications/app-demo-1', 'Application Details Dossier', vp, {
+      await testPage(browser, '/applications/app-demo-1', 'Application Details Dossier', vp, {
         role: 'applicant',
       });
 
       // 12. Officer Workspace
-      await testPage(page, '/officer', 'Officer Bulk Screening Workspace', vp, {
+      await testPage(browser, '/officer', 'Officer Bulk Screening Workspace', vp, {
         role: 'officer',
         interact: async (p) => {
           await p.evaluate(() => {
@@ -252,7 +264,7 @@ async function runQaMatrix() {
       });
 
       // 13. Admin Workspace
-      await testPage(page, '/admin', 'Administration Console', vp, {
+      await testPage(browser, '/admin', 'Administration Console', vp, {
         role: 'administrator',
         interact: async (p) => {
           await p.evaluate(() => {
@@ -265,12 +277,10 @@ async function runQaMatrix() {
       });
 
       // 14. Settings Page
-      await testPage(page, '/settings', 'User Settings & Clearance', vp, { role: 'applicant' });
+      await testPage(browser, '/settings', 'User Settings & Clearance', vp, { role: 'applicant' });
 
       // 15. 404 Fallback Page
-      await testPage(page, '/non-existent-qa-path', '404 Fallback', vp);
-
-      await page.close();
+      await testPage(browser, '/non-existent-qa-path', '404 Fallback', vp);
     } finally {
       await browser.close().catch(() => {});
     }
