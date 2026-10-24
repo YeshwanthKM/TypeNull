@@ -91,10 +91,10 @@ export const RegisterPage: React.FC = () => {
             </div>
           </Link>
           <h1 className="mt-6 text-2xl font-bold tracking-tight text-slate-900">
-            Create Applicant Account
+            Create User Account
           </h1>
           <p className="mt-1.5 text-xs text-slate-600">
-            Register as an applicant to submit dossiers, upload documents, and track compliance intelligence.
+            Register as a user to submit dossiers, upload documents, and track compliance intelligence.
           </p>
         </div>
 

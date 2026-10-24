@@ -78,7 +78,7 @@ export const LoginPage: React.FC = () => {
             Sign In to TypeNull
           </h1>
           <p className="mt-1.5 text-xs text-slate-600">
-            Access your authorized portal as an Applicant, Officer, or Administrator.
+            Access your authorized portal as a User, Organisation, or Admin.
           </p>
         </div>
 
@@ -105,7 +105,7 @@ export const LoginPage: React.FC = () => {
                   }}
                   className="px-2.5 py-1 text-xs font-semibold rounded bg-teal-700 text-white hover:bg-teal-800 transition-colors"
                 >
-                  Applicant Portal
+                  User Portal
                 </button>
                 <button
                   type="button"
@@ -115,7 +115,7 @@ export const LoginPage: React.FC = () => {
                   }}
                   className="px-2.5 py-1 text-xs font-semibold rounded bg-white text-slate-700 border border-slate-300 hover:bg-slate-50 transition-colors"
                 >
-                  Officer Workspace
+                  Organisation Workspace
                 </button>
                 <button
                   type="button"

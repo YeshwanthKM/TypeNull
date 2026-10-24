@@ -97,6 +97,28 @@ export interface OrganisationMember {
   created_at: string;
 }
 
+export type AccessRequestStatus = 'pending' | 'approved' | 'rejected';
+
+export interface OrganisationAccessRequest {
+  id: string;
+  user_id: string;
+  organisation_id: string;
+  explanation?: string | null;
+  status: AccessRequestStatus;
+  submitted_at: string;
+  reviewed_at?: string | null;
+  reviewed_by?: string | null;
+  review_note?: string | null;
+  created_at?: string;
+  updated_at?: string;
+  // Joined or populated fields for presentation
+  user_name?: string;
+  user_email?: string;
+  organisation_name?: string;
+  organisation_code?: string;
+  reviewer_name?: string;
+}
+
 export interface DbApplication {
   id: string;
   user_id: string;

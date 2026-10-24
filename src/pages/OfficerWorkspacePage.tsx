@@ -26,6 +26,7 @@ import { PageHeader } from '../components/ui/PageHeader';
 import { Button } from '../components/ui/Button';
 import { StatusBadge } from '../components/ui/StatusBadge';
 import { useAuth } from '../contexts/AuthContext';
+import { getRoleDisplayLabel } from '../utils/roleUtils';
 import { isSupabaseConfigured } from '../lib/supabase';
 import {
   ApplicationDocument,
@@ -701,7 +702,7 @@ export const OfficerWorkspacePage: React.FC = () => {
                 Institutional Screening Directorate &bull; Evaluating Authority
               </h3>
               <span className="text-[10px] font-mono font-semibold bg-teal-50 text-teal-800 border border-teal-200 px-2 py-0.5 rounded-full">
-                Officer Role: {profile?.role || 'officer'}
+                Organisation Role: {getRoleDisplayLabel(profile?.role || 'officer')}
               </span>
             </div>
             <p className="text-xs text-slate-500">

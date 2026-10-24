@@ -2,6 +2,7 @@ import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ShieldCheck, Menu, Globe, UserCheck, LogOut, LogIn } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
+import { getRoleDisplayLabel } from '../../utils/roleUtils';
 
 export interface AppHeaderProps {
   onToggleMobileMenu: () => void;
@@ -77,7 +78,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({ onToggleMobileMenu }) => {
                     {displayName}
                   </span>
                   <span className="text-[9px] font-mono uppercase font-bold px-1.5 py-0.2 rounded bg-slate-100 text-slate-600 border border-slate-200">
-                    {displayRole}
+                    {getRoleDisplayLabel(displayRole)}
                   </span>
                 </div>
                 <span className="text-[10px] text-slate-500 font-mono truncate max-w-[140px]">

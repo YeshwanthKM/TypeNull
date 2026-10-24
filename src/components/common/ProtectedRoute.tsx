@@ -2,6 +2,7 @@ import React from 'react';
 import { Navigate, useLocation, Link, useNavigate } from 'react-router-dom';
 import { useAuth, getRoleRedirectPath } from '../../contexts/AuthContext';
 import { UserRole } from '../../types';
+import { getRoleDisplayLabel } from '../../utils/roleUtils';
 import { LoadingState } from '../ui/LoadingState';
 import { ShieldAlert, ArrowRight, Lock, LogOut } from 'lucide-react';
 import { Button } from '../ui/Button';
@@ -76,7 +77,7 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
                   size="sm"
                   onClick={() => useAuth().startDemoSession!(recommendedRole)}
                 >
-                  Explore as {recommendedRole.charAt(0).toUpperCase() + recommendedRole.slice(1)} (Demo)
+                  Explore as {getRoleDisplayLabel(recommendedRole)} (Demo)
                 </Button>
                 {recommendedRole !== 'applicant' && (
                   <Button
@@ -84,7 +85,7 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
                     size="sm"
                     onClick={() => useAuth().startDemoSession!('applicant')}
                   >
-                    Applicant Demo
+                    User Demo
                   </Button>
                 )}
                 {recommendedRole !== 'officer' && (
@@ -93,7 +94,7 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
                     size="sm"
                     onClick={() => useAuth().startDemoSession!('officer')}
                   >
-                    Officer Demo
+                    Organisation Demo
                   </Button>
                 )}
               </>
@@ -180,7 +181,7 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
               Access Denied: Unauthorised Workspace
             </h3>
             <p className="text-xs text-slate-600 leading-relaxed max-w-sm mx-auto">
-              Your account is registered as <strong className="font-semibold text-slate-900 uppercase font-mono">{activeRole}</strong>, but this section requires <strong className="font-semibold text-slate-900 uppercase font-mono">{allowedRoles.join(' or ')}</strong> clearance.
+              Your account is registered as <strong className="font-semibold text-slate-900 uppercase font-mono">{getRoleDisplayLabel(activeRole)}</strong>, but this section requires <strong className="font-semibold text-slate-900 uppercase font-mono">{allowedRoles.map(getRoleDisplayLabel).join(' or ')}</strong> clearance.
             </p>
           </div>
 
@@ -191,7 +192,7 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
             </div>
             <div className="flex justify-between items-center">
               <span className="text-slate-500">Assigned Role:</span>
-              <span className="font-mono text-teal-800 font-semibold capitalize">{activeRole}</span>
+              <span className="font-mono text-teal-800 font-semibold">{getRoleDisplayLabel(activeRole)}</span>
             </div>
             <div className="flex justify-between items-center">
               <span className="text-slate-500">Target Workspace:</span>
