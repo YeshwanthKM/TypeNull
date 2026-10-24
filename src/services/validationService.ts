@@ -115,21 +115,65 @@ export async function saveScreeningBatch(
   }
 
   try {
-    const { data: batchRow, error: batchErr } = await supabase
-      .from('screening_batches')
-      .insert({
-        organisation_id: batch.organisationId || null,
-        user_id: userId,
-        title: batch.title,
-        target_category: batch.targetCategory,
-        service_code: batch.serviceCode || null,
-        variant_code: batch.variantCode || null,
-        total_applications: batch.totalApplications,
-        outcome_counts: batch.outcomeCounts,
-        status: batch.status || 'completed',
-      })
-      .select()
-      .single();
+    let batchRow: any = null;
+    let batchErr: any = null;
+
+    // Check if updating/retrying an existing batch
+    if (batch.id) {
+      const { data: existingBatch } = await supabase
+        .from('screening_batches')
+        .select('id')
+        .eq('id', batch.id)
+        .maybeSingle();
+
+      if (existingBatch) {
+        const { data: updatedRow, error: updateErr } = await supabase
+          .from('screening_batches')
+          .update({
+            title: batch.title,
+            total_applications: batch.totalApplications,
+            outcome_counts: batch.outcomeCounts,
+            status: batch.status || 'completed',
+            service_code: batch.serviceCode || null,
+            variant_code: batch.variantCode || null,
+            updated_at: new Date().toISOString(),
+          })
+          .eq('id', batch.id)
+          .select()
+          .single();
+
+        batchRow = updatedRow;
+        batchErr = updateErr;
+
+        if (!batchErr && batchRow) {
+          // Clear existing items to prevent duplicate rows on retry
+          await supabase.from('screening_batch_items').delete().eq('batch_id', batchRow.id);
+        }
+      }
+    }
+
+    if (!batchRow && !batchErr) {
+      const isCustomId = batch.id && !batch.id.startsWith('batch-');
+      const { data: insertedRow, error: insertErr } = await supabase
+        .from('screening_batches')
+        .insert({
+          ...(isCustomId ? { id: batch.id } : {}),
+          organisation_id: batch.organisationId || null,
+          user_id: userId,
+          title: batch.title,
+          target_category: batch.targetCategory,
+          service_code: batch.serviceCode || null,
+          variant_code: batch.variantCode || null,
+          total_applications: batch.totalApplications,
+          outcome_counts: batch.outcomeCounts,
+          status: batch.status || 'completed',
+        })
+        .select()
+        .single();
+
+      batchRow = insertedRow;
+      batchErr = insertErr;
+    }
 
     if (batchErr || !batchRow) {
       console.warn('[TypeNull] Screening batch save notice:', batchErr?.message);

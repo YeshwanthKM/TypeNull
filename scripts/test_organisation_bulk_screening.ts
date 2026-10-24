@@ -481,6 +481,9 @@ const mixedBatch: ScreeningBatch = {
 
 assert(mixedBatch.status === 'completed', 'Case 11: Entire batch status is "completed" despite 1 item failure');
 assert(mixedBatch.items[1].status === 'failed', 'individual failed application records status === "failed"');
+assert(mixedBatch.items[1].errorMessage !== undefined, 'technical processing failure records explicit errorMessage');
+assert(mixedBatch.items[1].counts.majorIssues === 0, 'technical processing error does not manufacture false substantive major issues');
+assert(mixedBatch.items[1].outcome === 'Unable to Assess', 'technical processing failure evaluates to "Unable to Assess"');
 assert(mixedBatch.items[0].status === 'completed', 'other applications in the batch completed successfully');
 
 // Test 12: Batch counts and summaries match actual individual application statuses
@@ -512,6 +515,7 @@ const duplicateMatches = fetchedBatches.data.filter((b) => b.id === mixedBatch.i
 
 assert(duplicateMatches.length === 1, 'Case 13: Re-saving existing batch ID updates record without creating duplicates');
 assert(duplicateMatches[0].title === 'Resilience Verification Batch — Retried', 'persisted batch title updated correctly');
+assert(duplicateMatches[0].items.length === 3, 'retried batch retains exact item count without duplicating child items');
 
 // Test 14: Stale validation fingerprint handling
 const originalFingerprint = `doc-count:3|status:completed`;

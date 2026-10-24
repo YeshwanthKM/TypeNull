@@ -3,11 +3,16 @@
 -- Module 2: Organisation Bulk Screening Enhancements & Tenancy Protection
 -- ==============================================================================
 
--- 1. Extend screening_batches with catalogue references and updated timestamps
+-- 1. Extend screening_batches with catalogue references, status check, and updated timestamps
 ALTER TABLE public.screening_batches
     ADD COLUMN IF NOT EXISTS service_code TEXT,
     ADD COLUMN IF NOT EXISTS variant_code TEXT,
     ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL;
+
+-- Ensure screening_batches status check constraint supports all BatchProcessingStatus states
+ALTER TABLE public.screening_batches
+    DROP CONSTRAINT IF EXISTS screening_batches_status_check,
+    ADD CONSTRAINT screening_batches_status_check CHECK (status IN ('pending', 'processing', 'completed', 'failed'));
 
 COMMENT ON COLUMN public.screening_batches.service_code IS 'Official government service code (e.g. MCA-SRV-SPICE-PLUS).';
 COMMENT ON COLUMN public.screening_batches.variant_code IS 'Statutory application variant code (e.g. MCA-SPICE-INC32).';
@@ -60,5 +65,74 @@ CREATE POLICY "screening_batches_update_officer"
                 WHERE om.organisation_id = public.screening_batches.organisation_id
                   AND om.user_id = auth.uid()
             )
+        )
+    );
+
+-- Ensure batch items insert respects organisation tenancy or batch ownership
+DROP POLICY IF EXISTS "screening_batch_items_insert" ON public.screening_batch_items;
+CREATE POLICY "screening_batch_items_insert"
+    ON public.screening_batch_items
+    FOR INSERT
+    TO authenticated
+    WITH CHECK (
+        EXISTS (
+            SELECT 1 FROM public.screening_batches sb
+            WHERE sb.id = public.screening_batch_items.batch_id
+              AND (
+                  sb.user_id = auth.uid()
+                  OR (
+                      sb.organisation_id IS NOT NULL AND EXISTS (
+                          SELECT 1 FROM public.organisation_members om
+                          WHERE om.organisation_id = sb.organisation_id
+                            AND om.user_id = auth.uid()
+                      )
+                  )
+              )
+        )
+    );
+
+-- Ensure batch items can be updated by authorised officers
+DROP POLICY IF EXISTS "screening_batch_items_update" ON public.screening_batch_items;
+CREATE POLICY "screening_batch_items_update"
+    ON public.screening_batch_items
+    FOR UPDATE
+    TO authenticated
+    USING (
+        EXISTS (
+            SELECT 1 FROM public.screening_batches sb
+            WHERE sb.id = public.screening_batch_items.batch_id
+              AND (
+                  sb.user_id = auth.uid()
+                  OR (
+                      sb.organisation_id IS NOT NULL AND EXISTS (
+                          SELECT 1 FROM public.organisation_members om
+                          WHERE om.organisation_id = sb.organisation_id
+                            AND om.user_id = auth.uid()
+                      )
+                  )
+              )
+        )
+    );
+
+-- Allow authorized officers to delete existing batch items when retrying or updating batches
+DROP POLICY IF EXISTS "screening_batch_items_delete" ON public.screening_batch_items;
+CREATE POLICY "screening_batch_items_delete"
+    ON public.screening_batch_items
+    FOR DELETE
+    TO authenticated
+    USING (
+        EXISTS (
+            SELECT 1 FROM public.screening_batches sb
+            WHERE sb.id = public.screening_batch_items.batch_id
+              AND (
+                  sb.user_id = auth.uid()
+                  OR (
+                      sb.organisation_id IS NOT NULL AND EXISTS (
+                          SELECT 1 FROM public.organisation_members om
+                          WHERE om.organisation_id = sb.organisation_id
+                            AND om.user_id = auth.uid()
+                      )
+                  )
+              )
         )
     );

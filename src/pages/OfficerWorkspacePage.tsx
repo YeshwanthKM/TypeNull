@@ -588,7 +588,7 @@ export const OfficerWorkspacePage: React.FC = () => {
     };
 
     setCurrentBatch(newBatch);
-    setHistoricalBatches((prev) => [newBatch, ...prev]);
+    setHistoricalBatches((prev) => [newBatch, ...prev.filter((b) => b.id !== newBatch.id)]);
     setIsScreening(false);
     setActiveTab('results');
 
@@ -1704,6 +1704,22 @@ export const OfficerWorkspacePage: React.FC = () => {
                   <strong>Screening Determination Protocol:</strong> This automated finding is an institutional pre-screening determination to aid human evaluation. It does not constitute automatic statutory approval or binding legal rejection by government authorities.
                 </p>
               </div>
+
+              {/* Technical Processing Failure Notice (Distinguishable from Compliance Findings) */}
+              {inspectingItem.errorMessage && (
+                <div className="p-3.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-900 text-xs flex items-start gap-2.5">
+                  <AlertOctagon className="w-4 h-4 text-rose-700 flex-shrink-0 mt-0.5" />
+                  <div className="space-y-1">
+                    <p className="font-bold">Technical Processing Failure</p>
+                    <p className="leading-relaxed text-[11px] font-mono text-rose-800">
+                      {inspectingItem.errorMessage}
+                    </p>
+                    <p className="text-[10px] text-rose-600">
+                      Note: This is an unexpected processing error during extraction/analysis, not a confirmed substantive statutory violation.
+                    </p>
+                  </div>
+                </div>
+              )}
 
               {/* Dossier Files Received */}
               <div className="space-y-2">
