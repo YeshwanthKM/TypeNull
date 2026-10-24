@@ -23,10 +23,17 @@ import { DocumentUploadModal } from '../components/documents/DocumentUploadModal
 import { DocumentPreviewModal } from '../components/documents/DocumentPreviewModal';
 import { DocumentExtractionModal } from '../components/extraction/DocumentExtractionModal';
 import { ExtractedDossierSection } from '../components/extraction/ExtractedDossierSection';
+import { PreValidationSection } from '../components/validation/PreValidationSection';
 import { useAuth } from '../contexts/AuthContext';
+import { supabase } from '../lib/supabase';
 import { fetchApplicationById } from '../services/applications';
 import { fetchApplicationDocuments } from '../services/documents';
-import { DbApplication, ApplicationDocument } from '../types';
+import {
+  DbApplication,
+  ApplicationDocument,
+  DocumentExtractionRecord,
+  ExtractedFieldRecord,
+} from '../types';
 
 export const ApplicationDetailsPlaceholder: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -51,6 +58,7 @@ export const ApplicationDetailsPlaceholder: React.FC = () => {
     setDocuments((prev) =>
       prev.map((d) => (d.id === docId ? { ...d, processing_status: newStatus } : d))
     );
+    loadExtractionsAndFields();
   };
 
   // Load application details
@@ -83,6 +91,10 @@ export const ApplicationDetailsPlaceholder: React.FC = () => {
     }
   }, [id, isConfigured]);
 
+  // Extractions & Fields state for Validation Engine
+  const [extractions, setExtractions] = useState<DocumentExtractionRecord[]>([]);
+  const [fields, setFields] = useState<ExtractedFieldRecord[]>([]);
+
   // Load application documents
   const loadDocuments = useCallback(async () => {
     if (!id || !isConfigured) {
@@ -99,10 +111,32 @@ export const ApplicationDetailsPlaceholder: React.FC = () => {
     }
   }, [id, isConfigured]);
 
+  // Load extractions and fields for validation engine
+  const loadExtractionsAndFields = useCallback(async () => {
+    if (!id || !isConfigured || !supabase) return;
+
+    try {
+      const [extRes, fieldRes] = await Promise.all([
+        supabase.from('document_extractions').select('*').eq('application_id', id),
+        supabase.from('extracted_fields').select('*').eq('application_id', id),
+      ]);
+
+      if (!extRes.error && extRes.data) {
+        setExtractions(extRes.data as DocumentExtractionRecord[]);
+      }
+      if (!fieldRes.error && fieldRes.data) {
+        setFields(fieldRes.data as ExtractedFieldRecord[]);
+      }
+    } catch (err) {
+      console.warn('[TypeNull] Error loading extractions for validation:', err);
+    }
+  }, [id, isConfigured]);
+
   useEffect(() => {
     loadApplication();
     loadDocuments();
-  }, [loadApplication, loadDocuments]);
+    loadExtractionsAndFields();
+  }, [loadApplication, loadDocuments, loadExtractionsAndFields]);
 
   // Handler when new document upload completes
   const handleDocumentUploaded = (newDoc: ApplicationDocument) => {
@@ -322,6 +356,17 @@ export const ApplicationDetailsPlaceholder: React.FC = () => {
               onDocumentDeleted={handleDocumentDeleted}
             />
           </div>
+
+          {/* Pre-Validation Engine Section */}
+          {application && user && (
+            <PreValidationSection
+              application={application}
+              documents={documents}
+              extractions={extractions}
+              fields={fields}
+              userId={user.id}
+            />
+          )}
 
           {/* Extracted Intelligence & Human Review Dossier Section */}
           <ExtractedDossierSection

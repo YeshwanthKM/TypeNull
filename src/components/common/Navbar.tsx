@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ShieldCheck, Menu, X, ArrowRight, UserCheck } from 'lucide-react';
-import { useAuth } from '../../contexts/AuthContext';
+import { useAuth, getRoleRedirectPath } from '../../contexts/AuthContext';
 
 interface NavbarProps {
   onGetStartedClick: () => void;
@@ -9,7 +9,7 @@ interface NavbarProps {
 
 export const Navbar: React.FC<NavbarProps> = ({ onGetStartedClick }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const { user } = useAuth();
+  const { user, role } = useAuth();
 
   const navItems = [
     { label: 'Overview', href: '#overview' },
@@ -54,11 +54,17 @@ export const Navbar: React.FC<NavbarProps> = ({ onGetStartedClick }) => {
           <div className="hidden md:flex items-center space-x-3">
             {user ? (
               <Link
-                to="/dashboard"
+                to={getRoleRedirectPath(role)}
                 className="inline-flex items-center gap-2 px-4 py-2 border border-teal-700 text-sm font-semibold rounded-lg text-white bg-teal-700 hover:bg-teal-800 shadow-sm transition-colors"
               >
                 <UserCheck className="w-4 h-4" />
-                <span>Go to Dashboard</span>
+                <span>
+                  {role === 'officer'
+                    ? 'Go to Screening'
+                    : role === 'administrator'
+                    ? 'Go to Admin Console'
+                    : 'Go to Dashboard'}
+                </span>
                 <ArrowRight className="w-4 h-4" />
               </Link>
             ) : (
@@ -113,11 +119,17 @@ export const Navbar: React.FC<NavbarProps> = ({ onGetStartedClick }) => {
           <div className="pt-2 border-t border-slate-100 space-y-2">
             {user ? (
               <Link
-                to="/dashboard"
+                to={getRoleRedirectPath(role)}
                 onClick={() => setMobileMenuOpen(false)}
                 className="w-full flex items-center justify-center gap-2 px-4 py-2.5 text-base font-semibold rounded-lg text-white bg-teal-700 hover:bg-teal-800 shadow-sm transition-colors"
               >
-                <span>Go to Dashboard</span>
+                <span>
+                  {role === 'officer'
+                    ? 'Go to Organisation Screening'
+                    : role === 'administrator'
+                    ? 'Go to Admin Console'
+                    : 'Go to Dashboard'}
+                </span>
                 <ArrowRight className="w-4 h-4" />
               </Link>
             ) : (

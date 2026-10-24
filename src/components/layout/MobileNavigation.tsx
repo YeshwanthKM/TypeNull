@@ -37,31 +37,31 @@ export const MobileNavigation: React.FC<MobileNavigationProps> = ({ isOpen, onCl
   const navItems = [
     {
       to: '/dashboard',
-      label: 'Dashboard',
+      label: 'Pre-Validation Dashboard',
       icon: LayoutDashboard,
-      show: true,
+      show: role === 'applicant',
     },
     {
       to: '/applications/new',
-      label: 'New Application',
+      label: 'Prepare Application',
       icon: FilePlus,
-      show: role !== 'officer',
+      show: role === 'applicant',
     },
     {
       to: '/officer',
-      label: 'Officer Workspace',
+      label: 'Organisation Screening',
       icon: Shield,
-      show: role === 'officer' || role === 'administrator',
+      show: role === 'officer',
     },
     {
       to: '/admin',
-      label: 'Administration',
+      label: 'Administration Console',
       icon: Key,
       show: role === 'administrator',
     },
     {
       to: '/settings',
-      label: 'Settings',
+      label: 'Account Settings',
       icon: Settings,
       show: true,
     },
@@ -166,30 +166,62 @@ export const MobileNavigation: React.FC<MobileNavigationProps> = ({ isOpen, onCl
         className="fixed bottom-0 inset-x-0 z-30 md:hidden bg-white/95 backdrop-blur border-t border-slate-200 px-2 py-1.5 flex items-center justify-around shadow-sm"
         aria-label="Mobile quick actions"
       >
-        <NavLink
-          to="/dashboard"
-          end
-          className={({ isActive }) =>
-            `flex flex-col items-center py-1 px-3 text-[11px] font-medium transition-colors ${
-              isActive ? 'text-teal-700 font-bold' : 'text-slate-500 hover:text-slate-900'
-            }`
-          }
-        >
-          <LayoutDashboard className="w-5 h-5 mb-0.5" />
-          <span>Dashboard</span>
-        </NavLink>
+        {role === 'applicant' && (
+          <>
+            <NavLink
+              to="/dashboard"
+              end
+              className={({ isActive }) =>
+                `flex flex-col items-center py-1 px-3 text-[11px] font-medium transition-colors ${
+                  isActive ? 'text-teal-700 font-bold' : 'text-slate-500 hover:text-slate-900'
+                }`
+              }
+            >
+              <LayoutDashboard className="w-5 h-5 mb-0.5" />
+              <span>Dashboard</span>
+            </NavLink>
 
-        <NavLink
-          to="/applications/new"
-          className={({ isActive }) =>
-            `flex flex-col items-center py-1 px-3 text-[11px] font-medium transition-colors ${
-              isActive ? 'text-teal-700 font-bold' : 'text-slate-500 hover:text-slate-900'
-            }`
-          }
-        >
-          <FilePlus className="w-5 h-5 mb-0.5" />
-          <span>New App</span>
-        </NavLink>
+            <NavLink
+              to="/applications/new"
+              className={({ isActive }) =>
+                `flex flex-col items-center py-1 px-3 text-[11px] font-medium transition-colors ${
+                  isActive ? 'text-teal-700 font-bold' : 'text-slate-500 hover:text-slate-900'
+                }`
+              }
+            >
+              <FilePlus className="w-5 h-5 mb-0.5" />
+              <span>New App</span>
+            </NavLink>
+          </>
+        )}
+
+        {role === 'officer' && (
+          <NavLink
+            to="/officer"
+            className={({ isActive }) =>
+              `flex flex-col items-center py-1 px-3 text-[11px] font-medium transition-colors ${
+                isActive ? 'text-teal-700 font-bold' : 'text-slate-500 hover:text-slate-900'
+              }`
+            }
+          >
+            <Shield className="w-5 h-5 mb-0.5" />
+            <span>Screening</span>
+          </NavLink>
+        )}
+
+        {role === 'administrator' && (
+          <NavLink
+            to="/admin"
+            className={({ isActive }) =>
+              `flex flex-col items-center py-1 px-3 text-[11px] font-medium transition-colors ${
+                isActive ? 'text-indigo-700 font-bold' : 'text-slate-500 hover:text-slate-900'
+              }`
+            }
+          >
+            <Key className="w-5 h-5 mb-0.5" />
+            <span>Admin</span>
+          </NavLink>
+        )}
 
         <NavLink
           to="/settings"

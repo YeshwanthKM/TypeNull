@@ -222,3 +222,120 @@ export interface ExtractedFieldRecord {
   created_at: string;
   updated_at: string;
 }
+
+/**
+ * Shared Validation Engine & Screening Types
+ */
+export type FindingStatus =
+  | 'passed'
+  | 'failed'
+  | 'warning'
+  | 'needs_review'
+  | 'unable_to_check';
+
+export type FindingSeverity = 'blocking' | 'major' | 'minor' | 'info';
+
+export type ScreeningOutcome =
+  | 'Complete'
+  | 'Minor Issues'
+  | 'Major Issues'
+  | 'Unable to Assess';
+
+export interface ValidationFinding {
+  id: string;
+  ruleId: string;
+  ruleVersion: string;
+  title: string;
+  status: FindingStatus;
+  severity: FindingSeverity;
+  explanation: string;
+  sourceDocument?: string;
+  sourcePage?: number;
+  observedValue?: string | null;
+  expectedValue?: string | null;
+  evidenceSnippet?: string | null;
+  recommendedAction?: string;
+  isBlocking: boolean;
+  requiresManualReview: boolean;
+  referenceCitation?: string;
+}
+
+export interface ValidationSummaryCounts {
+  passed: number;
+  warnings: number;
+  minorIssues: number;
+  majorIssues: number;
+  unableToAssess: number;
+  total: number;
+}
+
+export interface ValidationRun {
+  id: string;
+  applicationId: string;
+  category: string;
+  outcome: ScreeningOutcome;
+  findings: ValidationFinding[];
+  counts: ValidationSummaryCounts;
+  validatedAt: string;
+}
+
+export interface ScreeningBatchItem {
+  id: string;
+  applicantIdentifier: string;
+  targetCategory: string;
+  outcome: ScreeningOutcome;
+  documentCount: number;
+  findings: ValidationFinding[];
+  counts: ValidationSummaryCounts;
+  extractedFields: Record<string, string>;
+  sourceFiles: Array<{ name: string; size: number; mimeType: string }>;
+  processedAt: string;
+}
+
+export interface ScreeningBatch {
+  id: string;
+  title: string;
+  organisationId?: string;
+  targetCategory: string;
+  totalApplications: number;
+  outcomeCounts: Record<ScreeningOutcome, number>;
+  items: ScreeningBatchItem[];
+  createdAt: string;
+}
+
+export interface StatutoryCitation {
+  authority: string;
+  statute: string;
+  section: string;
+  effectiveDate: string;
+  sourceUrl?: string;
+  verificationStatus: 'verified' | 'provisional' | 'synthetic_reference';
+}
+
+export interface CategoryRequirement {
+  id: string;
+  categoryKey: string;
+  displayName: string;
+  jurisdiction: string;
+  citation: StatutoryCitation;
+  mandatoryDocuments: Array<{
+    type: DocumentCategory;
+    name: string;
+    description: string;
+    acceptableFormats: string[];
+  }>;
+  mandatoryFields: Array<{
+    fieldName: string;
+    label: string;
+    regexPattern?: string;
+    description: string;
+    example: string;
+  }>;
+  crossDocumentChecks: Array<{
+    id: string;
+    name: string;
+    description: string;
+    severity: FindingSeverity;
+  }>;
+}
+

@@ -57,15 +57,15 @@ export const DashboardPage: React.FC = () => {
     <div className="space-y-8">
       {/* Page Header */}
       <PageHeader
-        title="Verification Dashboard"
-        description="Monitor application verification requests, inspect document authentication pipelines, and audit regulatory compliance."
+        title="Applicant Pre-Validation Dashboard"
+        description="Prepare application dossiers, inspect OCR document intelligence, and run pre-validation checks against statutory requirements before formal submission."
         action={
           <Button
             variant="primary"
             onClick={() => navigate('/applications/new')}
             leftIcon={<Plus className="w-4 h-4" />}
           >
-            New Application
+            Prepare Application
           </Button>
         }
       />

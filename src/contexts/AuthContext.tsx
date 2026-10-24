@@ -3,27 +3,8 @@ import { User, Session, AuthError } from '@supabase/supabase-js';
 import { supabase, isSupabaseConfigured } from '../lib/supabase';
 import { UserProfile, UserRole } from '../types';
 
-export function getRoleRedirectPath(role?: UserRole | null, intendedPath?: string): string {
-  if (role === 'officer') {
-    if (intendedPath && intendedPath.startsWith('/officer')) return intendedPath;
-    return '/officer';
-  }
-  if (role === 'administrator') {
-    if (intendedPath && intendedPath.startsWith('/admin')) return intendedPath;
-    return '/admin';
-  }
-  // Default for applicant
-  if (
-    intendedPath &&
-    intendedPath !== '/login' &&
-    intendedPath !== '/register' &&
-    !intendedPath.startsWith('/officer') &&
-    !intendedPath.startsWith('/admin')
-  ) {
-    return intendedPath;
-  }
-  return '/dashboard';
-}
+import { getRoleRedirectPath } from '../utils/roleUtils';
+export { getRoleRedirectPath };
 
 interface AuthContextType {
   user: User | null;

@@ -108,8 +108,8 @@ export const NewApplicationPage: React.FC = () => {
     <div className="max-w-3xl mx-auto space-y-6">
       {/* Header with breadcrumbs */}
       <PageHeader
-        title="Create New Application"
-        description="Initiate an institutional validation dossier for multi-document authentication and compliance verification."
+        title="Prepare Application Dossier"
+        description="Initiate an application pre-validation dossier for multi-document authentication and compliance checks before formal submission."
         breadcrumbs={[
           { label: 'Dashboard', href: '/dashboard' },
           { label: 'New Application' },

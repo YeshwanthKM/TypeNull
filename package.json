@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test": "esbuild scripts/test_validation_and_rbac.ts --bundle --platform=node --format=esm --outfile=scripts/test_bundle.mjs && node scripts/test_bundle.mjs && rm scripts/test_bundle.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.47.10",
