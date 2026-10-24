@@ -249,9 +249,17 @@ export function runValidationEngine(input: ValidationEngineInput): ValidationRun
     }
   }
 
-  // -------------------------------------------------------------
-  // 3. Required Fields & Regulatory Format Validation
-  // -------------------------------------------------------------
+  const hasReadableEvidence =
+    fields.length > 0 ||
+    documents.some((d) => {
+      const ext = extractionMap.get(d.id);
+      return (
+        d.processing_status !== 'failed' &&
+        ext?.extraction_status !== 'failed' &&
+        (ext ? (ext.raw_text?.trim().length || 0) >= 20 : true)
+      );
+    });
+
   for (const reqField of kb.mandatoryFields) {
     const ruleId = `FLD-${reqField.fieldName.toUpperCase()}`;
     const extractedItems = fieldMap.get(reqField.fieldName) || [];
@@ -274,6 +282,25 @@ export function runValidationEngine(input: ValidationEngineInput): ValidationRun
     }
 
     if (!observedValue) {
+      if (!hasReadableEvidence && documents.length > 0) {
+        findings.push({
+          id: `finding-${ruleId}-unassessed-${Math.random().toString(36).slice(2, 6)}`,
+          ruleId,
+          ruleVersion: kb.version,
+          title: `Field Unassessed: ${reqField.label}`,
+          status: 'unable_to_check',
+          severity: 'major',
+          explanation: `Mandatory statutory field "${reqField.label}" could not be assessed because submitted documentary proofs failed extraction or were unreadable.`,
+          expectedValue: reqField.example,
+          observedValue: 'Unassessed due to extraction failure',
+          recommendedAction: `Upload a legible, high-contrast scan of documentary proof displaying ${reqField.label}.`,
+          isBlocking: false,
+          requiresManualReview: true,
+          referenceCitation: kb.citation.statute,
+        });
+        continue;
+      }
+
       findings.push({
         id: `finding-${ruleId}-missing-${Math.random().toString(36).slice(2, 6)}`,
         ruleId,
@@ -549,11 +576,15 @@ export function runValidationEngine(input: ValidationEngineInput): ValidationRun
 
   let outcome: ScreeningOutcome = 'Complete';
 
-  if (documents.length === 0 || counts.unableToAssess > 0) {
-    // If no evidence uploaded, or vital checks could not be resolved due to unreadable scans
-    outcome = documents.length === 0 || counts.unableToAssess >= 2 ? 'Unable to Assess' : 'Major Issues';
+  if (documents.length === 0) {
+    outcome = 'Unable to Assess';
   } else if (counts.majorIssues > 0) {
+    // There is at least one independently established blocking or major substantive defect
     outcome = 'Major Issues';
+  } else if (counts.unableToAssess > 0) {
+    // Prerequisite checks could not be completed (e.g. unreadable scan or OCR failure),
+    // and no substantive blocking defect was independently confirmed
+    outcome = 'Unable to Assess';
   } else if (counts.warnings > 0 || counts.minorIssues > 0) {
     outcome = 'Minor Issues';
   } else {

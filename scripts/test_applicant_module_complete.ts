@@ -460,19 +460,75 @@ const sc4Extractions: DocumentExtractionRecord[] = [
   },
 ];
 
+const sc4SingleDocReqs: ApplicationDocumentRequirement[] = [
+  {
+    id: 'req-sc4-id',
+    applicationTypeId: 'type-sc4',
+    documentType: 'identity_document',
+    canonicalDocumentKey: 'identity_document',
+    documentName: 'Director PAN / Identity Proof',
+    classification: 'mandatory',
+    isMandatory: true,
+    acceptedAlternatives: [],
+  },
+];
+
+// Case 4A: All required documents present, but scan is unreadable (NO independently established blocking defect)
 const sc4Result = runValidationEngine({
   applicationId: 'app-sc4',
   category: 'organisation_registration',
   documents: sc4Documents,
   extractions: sc4Extractions,
   fields: [],
+  personalizedRequirements: sc4SingleDocReqs,
 });
 
 assert(
-  sc4Result.outcome === 'Unable to Assess' || sc4Result.outcome === 'Major Issues',
-  `Scenario 4 outcome reflects unassessable scan (got "${sc4Result.outcome}")`
+  sc4Result.outcome === 'Unable to Assess',
+  `Scenario 4 outcome reflects unassessable scan without substantive defect (got "${sc4Result.outcome}")`
+);
+assert(
+  sc4Result.counts.majorIssues === 0,
+  `Scenario 4 has 0 major issues because no substantive defect was confirmed (got ${sc4Result.counts.majorIssues})`
+);
+assert(
+  sc4Result.counts.unableToAssess >= 1,
+  `Scenario 4 has at least 1 unable to assess finding (got ${sc4Result.counts.unableToAssess})`
 );
 assert(sc4Result.outcome !== 'Complete', 'unreadable scan strictly prevents "Complete" evaluation');
+
+// Case 4B: Unreadable scan PLUS an independently established blocking defect (e.g. missing mandatory COI)
+const sc4MultiDocReqs: ApplicationDocumentRequirement[] = [
+  ...sc4SingleDocReqs,
+  {
+    id: 'req-sc4-coi',
+    applicationTypeId: 'type-sc4',
+    documentType: 'registration_certificate',
+    canonicalDocumentKey: 'registration_certificate',
+    documentName: 'Certificate of Incorporation',
+    classification: 'mandatory',
+    isMandatory: true,
+    acceptedAlternatives: [],
+  },
+];
+
+const sc4ResultWithMissingDoc = runValidationEngine({
+  applicationId: 'app-sc4-missing',
+  category: 'organisation_registration',
+  documents: sc4Documents,
+  extractions: sc4Extractions,
+  fields: [],
+  personalizedRequirements: sc4MultiDocReqs,
+});
+
+assert(
+  sc4ResultWithMissingDoc.outcome === 'Major Issues',
+  `Scenario 4 with independent missing document evaluates to "Major Issues" (got "${sc4ResultWithMissingDoc.outcome}")`
+);
+assert(
+  sc4ResultWithMissingDoc.counts.majorIssues >= 1,
+  'independent missing document constitutes confirmed substantive blocking defect'
+);
 
 const ocrQualityFinding = sc4Result.findings.find(
   (f) => f.ruleId === 'OCR-QUAL-FAIL' || f.ruleId === 'OCR-QUAL-LOW'
