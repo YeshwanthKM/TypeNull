@@ -16,13 +16,16 @@ import {
   Layers,
   Info,
   Landmark,
+  Clock,
+  AlertTriangle,
+  FileQuestion,
 } from 'lucide-react';
 import { PageHeader } from '../components/ui/PageHeader';
 import { Button } from '../components/ui/Button';
 import { LoadingState } from '../components/ui/LoadingState';
 import { EmptyState } from '../components/ui/EmptyState';
 import { GovernmentService, ServiceApplicationType, ApplicationDocumentRequirement } from '../types';
-import { getPublishedGovernmentServices } from '../services/ingestion/ingestionService';
+import { getGovernmentServices } from '../services/ingestion/ingestionService';
 
 interface ApplicationCardItem {
   service: GovernmentService;
@@ -41,6 +44,7 @@ export const GovernmentApplicationsCataloguePage: React.FC = () => {
   // Search & Filter state
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [selectedStatus, setSelectedStatus] = useState<'all' | 'published' | 'review' | 'discovered'>('all');
 
   // Modal Detail State
   const [activeDetailItem, setActiveDetailItem] = useState<ApplicationCardItem | null>(null);
@@ -49,10 +53,11 @@ export const GovernmentApplicationsCataloguePage: React.FC = () => {
     setIsLoading(true);
     setError(null);
     try {
-      const data = await getPublishedGovernmentServices();
+      // Load all registered & discovered services for transparent status reporting
+      const data = await getGovernmentServices();
       setServices(data);
     } catch (err: any) {
-      setError(err?.message || 'Failed to retrieve published government applications catalogue.');
+      setError(err?.message || 'Failed to retrieve government applications catalogue.');
     } finally {
       setIsLoading(false);
     }
@@ -116,11 +121,26 @@ export const GovernmentApplicationsCataloguePage: React.FC = () => {
     return Array.from(cats);
   }, [services]);
 
-  // Filtered applications based on search query and category
+  // Filtered applications based on search query, category, and lifecycle status
   const filteredItems = useMemo(() => {
     return applicationItems.filter((item) => {
       // Category filter
       if (selectedCategory !== 'all' && item.service.category !== selectedCategory) {
+        return false;
+      }
+
+      // Lifecycle status filter
+      if (selectedStatus === 'published' && item.variant.lifecycleStatus !== 'published') {
+        return false;
+      }
+      if (
+        selectedStatus === 'review' &&
+        item.variant.lifecycleStatus !== 'needs_verification' &&
+        item.variant.lifecycleStatus !== 'extracted'
+      ) {
+        return false;
+      }
+      if (selectedStatus === 'discovered' && item.variant.lifecycleStatus !== 'discovered') {
         return false;
       }
 
@@ -137,9 +157,13 @@ export const GovernmentApplicationsCataloguePage: React.FC = () => {
 
       return matchName || matchService || matchDept || matchVariant || matchDesc || matchUsers;
     });
-  }, [applicationItems, searchQuery, selectedCategory]);
+  }, [applicationItems, searchQuery, selectedCategory, selectedStatus]);
 
   const handleStartValidation = (item: ApplicationCardItem) => {
+    // Strictly prevent starting validation for non-published variants
+    if (item.variant.lifecycleStatus !== 'published') {
+      return;
+    }
     setActiveDetailItem(null);
     navigate(`/applications/new?serviceId=${encodeURIComponent(item.service.id)}&variantId=${encodeURIComponent(item.variant.id)}`);
   };
@@ -228,6 +252,58 @@ export const GovernmentApplicationsCataloguePage: React.FC = () => {
             </button>
           ))}
         </div>
+
+        {/* Coverage & Verification Status Filter */}
+        <div className="flex flex-wrap items-center gap-1.5 pt-2 border-t border-slate-100">
+          <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider mr-1 flex items-center gap-1">
+            <ShieldCheck className="w-3 h-3 text-slate-400" />
+            Coverage:
+          </span>
+          <button
+            type="button"
+            onClick={() => setSelectedStatus('all')}
+            className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
+              selectedStatus === 'all'
+                ? 'bg-slate-800 text-white shadow-xs'
+                : 'bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-900'
+            }`}
+          >
+            All Coverages ({applicationItems.length})
+          </button>
+          <button
+            type="button"
+            onClick={() => setSelectedStatus('published')}
+            className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
+              selectedStatus === 'published'
+                ? 'bg-emerald-700 text-white shadow-xs'
+                : 'bg-emerald-50 text-emerald-800 border border-emerald-200 hover:bg-emerald-100'
+            }`}
+          >
+            Validation Ready ({applicationItems.filter((i) => i.variant.lifecycleStatus === 'published').length})
+          </button>
+          <button
+            type="button"
+            onClick={() => setSelectedStatus('review')}
+            className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
+              selectedStatus === 'review'
+                ? 'bg-amber-700 text-white shadow-xs'
+                : 'bg-amber-50 text-amber-800 border border-amber-200 hover:bg-amber-100'
+            }`}
+          >
+            Under Review &amp; Partial ({applicationItems.filter((i) => i.variant.lifecycleStatus === 'needs_verification' || i.variant.lifecycleStatus === 'extracted').length})
+          </button>
+          <button
+            type="button"
+            onClick={() => setSelectedStatus('discovered')}
+            className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
+              selectedStatus === 'discovered'
+                ? 'bg-slate-700 text-white shadow-xs'
+                : 'bg-slate-100 text-slate-700 border border-slate-200 hover:bg-slate-200'
+            }`}
+          >
+            Discovered Pipeline ({applicationItems.filter((i) => i.variant.lifecycleStatus === 'discovered').length})
+          </button>
+        </div>
       </section>
 
       {/* Error State */}
@@ -302,9 +378,32 @@ export const GovernmentApplicationsCataloguePage: React.FC = () => {
                       {service.department}
                     </span>
                   </div>
-                  <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-teal-50 text-teal-800 border border-teal-200 font-semibold flex-shrink-0">
-                    {variant.variantCode}
-                  </span>
+                  <div className="flex items-center gap-1.5 flex-shrink-0">
+                    <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-slate-100 text-slate-700 border border-slate-200 font-semibold">
+                      {variant.variantCode}
+                    </span>
+                    {variant.lifecycleStatus === 'published' ? (
+                      <span className="inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded bg-emerald-50 text-emerald-800 border border-emerald-200">
+                        <ShieldCheck className="w-3 h-3 text-emerald-600" />
+                        Ready
+                      </span>
+                    ) : variant.lifecycleStatus === 'needs_verification' ? (
+                      <span className="inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded bg-amber-50 text-amber-800 border border-amber-200">
+                        <Clock className="w-3 h-3 text-amber-600" />
+                        In Review
+                      </span>
+                    ) : variant.lifecycleStatus === 'extracted' ? (
+                      <span className="inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded bg-blue-50 text-blue-800 border border-blue-200">
+                        <Layers className="w-3 h-3 text-blue-600" />
+                        Partial
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded bg-slate-100 text-slate-700 border border-slate-300">
+                        <FileQuestion className="w-3 h-3 text-slate-500" />
+                        Discovered
+                      </span>
+                    )}
+                  </div>
                 </div>
 
                 {/* Card Body */}
@@ -318,6 +417,27 @@ export const GovernmentApplicationsCataloguePage: React.FC = () => {
                       {typicalSituation}
                     </p>
                   </div>
+
+                  {/* Coverage limitation notice for non-published items */}
+                  {variant.lifecycleStatus !== 'published' && (
+                    <div className="text-[11px] p-2.5 rounded-lg bg-amber-50/70 border border-amber-200 text-amber-900 leading-relaxed space-y-0.5">
+                      <p className="font-semibold flex items-center gap-1">
+                        <AlertTriangle className="w-3 h-3 text-amber-700 flex-shrink-0" />
+                        {variant.lifecycleStatus === 'needs_verification'
+                          ? 'Awaiting Administrative Review'
+                          : variant.lifecycleStatus === 'extracted'
+                          ? 'Partial Requirements Extraction'
+                          : 'Discovered Form Entry'}
+                      </p>
+                      <p className="text-[10px] text-amber-800">
+                        {variant.lifecycleStatus === 'needs_verification'
+                          ? 'Extracted candidate rules require official review before validation can be enabled.'
+                          : variant.lifecycleStatus === 'extracted'
+                          ? 'Demographic rules extracted; full identity schedule verification pending.'
+                          : 'Statutory gazette entry identified; requirements extraction in progress.'}
+                      </p>
+                    </div>
+                  )}
 
                   {/* Intended Audience */}
                   <div className="pt-2 border-t border-slate-100 text-xs">
@@ -380,15 +500,27 @@ export const GovernmentApplicationsCataloguePage: React.FC = () => {
                   >
                     View Details
                   </Button>
-                  <Button
-                    variant="primary"
-                    size="sm"
-                    className="w-full sm:w-auto justify-center"
-                    onClick={() => handleStartValidation(item)}
-                    rightIcon={<ArrowRight className="w-3.5 h-3.5" />}
-                  >
-                    Start Validation
-                  </Button>
+                  {variant.lifecycleStatus === 'published' ? (
+                    <Button
+                      variant="primary"
+                      size="sm"
+                      className="w-full sm:w-auto justify-center"
+                      onClick={() => handleStartValidation(item)}
+                      rightIcon={<ArrowRight className="w-3.5 h-3.5" />}
+                    >
+                      Start Validation
+                    </Button>
+                  ) : (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      disabled
+                      className="w-full sm:w-auto justify-center opacity-60 cursor-not-allowed bg-slate-100 text-slate-500 border-slate-200"
+                      title="Pre-validation is restricted until statutory rules are verified by an authorized officer"
+                    >
+                      Validation Unavailable
+                    </Button>
+                  )}
                 </div>
               </div>
             );
@@ -439,16 +571,33 @@ const ApplicationDetailModal: React.FC<ApplicationDetailModalProps> = ({
         <div className="flex items-start justify-between pb-4 border-b border-slate-200">
           <div className="space-y-1">
             <div className="flex items-center gap-2 flex-wrap">
-              <span className="text-xs font-semibold px-2 py-0.5 rounded bg-teal-50 text-teal-800 border border-teal-200 font-mono">
+              <span className="text-xs font-semibold px-2 py-0.5 rounded bg-slate-100 text-slate-700 border border-slate-200 font-mono">
                 {variant.variantCode}
               </span>
               <span className="text-xs text-slate-500 font-mono">
                 Version {variant.requirementsVersion || '2024.1'}
               </span>
-              <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
-                <ShieldCheck className="w-3 h-3 text-emerald-600" />
-                Published &amp; Verified
-              </span>
+              {variant.lifecycleStatus === 'published' ? (
+                <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+                  <ShieldCheck className="w-3 h-3 text-emerald-600" />
+                  Published &amp; Verified
+                </span>
+              ) : variant.lifecycleStatus === 'needs_verification' ? (
+                <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-amber-800 bg-amber-50 px-2 py-0.5 rounded border border-amber-200">
+                  <Clock className="w-3 h-3 text-amber-600" />
+                  Under Review (Validation Disabled)
+                </span>
+              ) : variant.lifecycleStatus === 'extracted' ? (
+                <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-blue-800 bg-blue-50 px-2 py-0.5 rounded border border-blue-200">
+                  <Layers className="w-3 h-3 text-blue-600" />
+                  Partial Extraction (Validation Disabled)
+                </span>
+              ) : (
+                <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-slate-700 bg-slate-100 px-2 py-0.5 rounded border border-slate-300">
+                  <FileQuestion className="w-3 h-3 text-slate-500" />
+                  Discovered Only (Validation Disabled)
+                </span>
+              )}
             </div>
             <h2 id="app-detail-title" className="text-xl font-bold text-slate-900">
               {variant.applicationName}
@@ -473,6 +622,25 @@ const ApplicationDetailModal: React.FC<ApplicationDetailModalProps> = ({
 
         {/* Modal Body Scrollable Content */}
         <div className="flex-1 overflow-y-auto py-5 space-y-6 pr-1">
+          {/* Statutory Verification Notice for Non-Published Applications */}
+          {variant.lifecycleStatus !== 'published' && (
+            <div className="p-4 rounded-xl border border-amber-200 bg-amber-50 text-amber-950 text-xs flex items-start gap-3">
+              <AlertTriangle className="w-5 h-5 text-amber-700 flex-shrink-0 mt-0.5" />
+              <div className="space-y-1">
+                <p className="font-semibold text-amber-950">
+                  Pre-Validation Restricted (Statutory Review Pending)
+                </p>
+                <p className="text-amber-800 leading-relaxed">
+                  This statutory application is currently in{' '}
+                  <code className="font-mono bg-amber-100 px-1 py-0.5 rounded font-bold">
+                    {variant.lifecycleStatus.replace('_', ' ')}
+                  </code>{' '}
+                  status. To protect applicants from inaccurate compliance determinations, TypeNull enforces a strict regulatory safeguard: dossiers can only be created and pre-validated against fully published and verified requirement profiles.
+                </p>
+              </div>
+            </div>
+          )}
+
           {/* Statutory Purpose & Typical Situation */}
           <div className="space-y-3 bg-slate-50 p-4 rounded-xl border border-slate-200">
             <h3 className="text-xs font-semibold text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
@@ -498,6 +666,40 @@ const ApplicationDetailModal: React.FC<ApplicationDetailModalProps> = ({
                   <ExternalLink className="w-3 h-3" />
                 </a>
               )}
+            </div>
+          </div>
+
+          {/* Pre-Validation Scope & System Capabilities */}
+          <div className="space-y-3">
+            <h3 className="text-xs font-semibold text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
+              <ShieldCheck className="w-4 h-4 text-teal-700" />
+              Pre-Validation Scope &amp; System Capabilities
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+              <div className="p-3.5 rounded-xl border border-emerald-200 bg-emerald-50/60 space-y-1.5">
+                <p className="font-semibold text-emerald-950 flex items-center gap-1.5">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-700 flex-shrink-0" />
+                  What TypeNull Can Check
+                </p>
+                <ul className="text-emerald-900 text-[11px] space-y-1 list-disc list-inside">
+                  <li>Mandatory and conditional document checklist compliance</li>
+                  <li>Official identifier format syntax (CIN, GSTIN, PAN)</li>
+                  <li>Cross-document name and identifier alignment</li>
+                  <li>Credential validity and non-expired status</li>
+                </ul>
+              </div>
+              <div className="p-3.5 rounded-xl border border-slate-200 bg-slate-50 space-y-1.5">
+                <p className="font-semibold text-slate-800 flex items-center gap-1.5">
+                  <Info className="w-3.5 h-3.5 text-slate-500 flex-shrink-0" />
+                  What TypeNull Cannot Check
+                </p>
+                <ul className="text-slate-600 text-[11px] space-y-1 list-disc list-inside">
+                  <li>Does not replace official filing on government portals</li>
+                  <li>Does not guarantee statutory approval by authorities</li>
+                  <li>Does not perform biometric or criminal background checks</li>
+                  <li>Does not verify physical stamp paper or embossed notary seals</li>
+                </ul>
+              </div>
             </div>
           </div>
 
@@ -621,14 +823,24 @@ const ApplicationDetailModal: React.FC<ApplicationDetailModalProps> = ({
           <Button variant="outline" className="w-full sm:w-auto justify-center" onClick={onClose}>
             Close
           </Button>
-          <Button
-            variant="primary"
-            className="w-full sm:w-auto justify-center"
-            onClick={onStartValidation}
-            rightIcon={<ArrowRight className="w-4 h-4" />}
-          >
-            Start Pre-Validation
-          </Button>
+          {variant.lifecycleStatus === 'published' ? (
+            <Button
+              variant="primary"
+              className="w-full sm:w-auto justify-center"
+              onClick={onStartValidation}
+              rightIcon={<ArrowRight className="w-4 h-4" />}
+            >
+              Start Pre-Validation
+            </Button>
+          ) : (
+            <Button
+              variant="outline"
+              disabled
+              className="w-full sm:w-auto justify-center opacity-60 cursor-not-allowed bg-slate-100 text-slate-500 border-slate-200 text-xs"
+            >
+              Pre-Validation Unavailable (Awaiting Review)
+            </Button>
+          )}
         </div>
       </div>
     </div>
