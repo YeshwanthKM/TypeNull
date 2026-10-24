@@ -1,4 +1,5 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import {
   BookOpen,
   Search,
@@ -16,9 +17,28 @@ import { PRODUCT_GUIDES, ProductGuide } from '../components/guides/UserGuidesDat
 import { InteractiveWalkthrough } from '../components/guides/InteractiveWalkthrough';
 
 export const GuidesPage: React.FC = () => {
-  const [selectedGuideId, setSelectedGuideId] = useState<string>(PRODUCT_GUIDES[0].id);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const guideParam = searchParams.get('guide');
+  const initialGuideId =
+    guideParam && PRODUCT_GUIDES.some((g) => g.id === guideParam)
+      ? guideParam
+      : PRODUCT_GUIDES[0].id;
+
+  const [selectedGuideId, setSelectedGuideId] = useState<string>(initialGuideId);
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [isWalkthroughOpen, setIsWalkthroughOpen] = useState<boolean>(false);
+
+  useEffect(() => {
+    const param = searchParams.get('guide');
+    if (param && PRODUCT_GUIDES.some((g) => g.id === param)) {
+      setSelectedGuideId(param);
+    }
+  }, [searchParams]);
+
+  const handleSelectGuide = (id: string) => {
+    setSelectedGuideId(id);
+    setSearchParams({ guide: id });
+  };
 
   const filteredGuides = useMemo(() => {
     if (!searchQuery.trim()) return PRODUCT_GUIDES;
@@ -106,7 +126,7 @@ export const GuidesPage: React.FC = () => {
                 <button
                   key={guide.id}
                   type="button"
-                  onClick={() => setSelectedGuideId(guide.id)}
+                  onClick={() => handleSelectGuide(guide.id)}
                   className={`w-full text-left p-4 rounded-xl border transition-all ${
                     isSelected
                       ? 'border-teal-600 bg-teal-50/50 shadow-xs ring-1 ring-teal-600'

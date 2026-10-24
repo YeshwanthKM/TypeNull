@@ -121,6 +121,19 @@ export const OfficerWorkspacePage: React.FC = () => {
   // Inspection Drawer
   const [inspectingItem, setInspectingItem] = useState<ScreeningBatchItem | null>(null);
 
+  useEffect(() => {
+    if (!inspectingItem) return;
+    document.body.style.overflow = 'hidden';
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setInspectingItem(null);
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.body.style.overflow = '';
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [inspectingItem]);
+
   const folderInputRef = useRef<HTMLInputElement>(null);
   const zipInputRef = useRef<HTMLInputElement>(null);
 
@@ -1657,13 +1670,18 @@ export const OfficerWorkspacePage: React.FC = () => {
 
       {/* EVIDENCE & FINDINGS INSPECTION MODAL / DRAWER */}
       {inspectingItem && (
-        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4">
+        <div
+          className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="inspection-modal-title"
+        >
           <div className="bg-white rounded-2xl shadow-2xl border border-slate-200 w-full max-w-3xl max-h-[92vh] flex flex-col overflow-hidden">
             {/* Modal Header */}
             <div className="p-4 sm:p-5 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-50">
               <div className="space-y-0.5 min-w-0">
                 <div className="flex items-center gap-2 flex-wrap">
-                  <h3 className="text-base font-bold text-slate-900 truncate max-w-xs sm:max-w-md">
+                  <h3 id="inspection-modal-title" className="text-base font-bold text-slate-900 truncate max-w-xs sm:max-w-md">
                     Dossier Inspection: {inspectingItem.applicantIdentifier}
                   </h3>
                   <span

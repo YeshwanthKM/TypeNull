@@ -169,8 +169,32 @@ assert(
   'Footer explicitly states TypeNull is a pre-validation tool'
 );
 assert(
-  footerContent.includes('/guides'),
-  'Footer links to User Guides page'
+  footerContent.includes('/guides?guide=individual-validation'),
+  'Footer links specifically to individual validation guide'
+);
+assert(
+  footerContent.includes('/guides?guide=organisation-screening'),
+  'Footer links specifically to organisation screening guide'
+);
+
+const guidesPagePath = path.join(srcDir, 'pages', 'GuidesPage.tsx');
+assert(fs.existsSync(guidesPagePath), 'GuidesPage.tsx exists');
+const guidesPageContent = fs.readFileSync(guidesPagePath, 'utf8');
+assert(
+  guidesPageContent.includes('useSearchParams'),
+  'GuidesPage uses useSearchParams for URL synchronization'
+);
+
+// Verify archive accuracy in documentation (no TAR/GZ or JSON/CSV manifest claims)
+const guidesDataPath = path.join(srcDir, 'components', 'guides', 'UserGuidesData.ts');
+const guidesDataContent = fs.readFileSync(guidesDataPath, 'utf8');
+assert(
+  !guidesDataContent.includes('.tar') && !guidesDataContent.includes('.gz'),
+  'User guides do not make unsupported claims about .tar or .gz archives'
+);
+assert(
+  !guidesDataContent.includes('manifest.json') && !guidesDataContent.includes('manifest.csv'),
+  'User guides do not make unsupported claims about manifest.json/csv intake'
 );
 
 const appPath = path.join(srcDir, 'App.tsx');

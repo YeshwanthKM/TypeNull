@@ -299,7 +299,7 @@ export const FeaturesOverview: React.FC = () => {
               </div>
 
               <Link
-                to="/guides"
+                to={`/guides?guide=${guide.id}`}
                 className="inline-flex items-center gap-1.5 text-xs font-semibold text-teal-700 hover:text-teal-900 border-t border-slate-100 pt-3"
               >
                 Read Guide

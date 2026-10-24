@@ -553,6 +553,18 @@ const ApplicationDetailModal: React.FC<ApplicationDetailModalProps> = ({
 }) => {
   const { service, variant, intendedUsers, typicalSituation } = item;
 
+  useEffect(() => {
+    document.body.style.overflow = 'hidden';
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.body.style.overflow = '';
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [onClose]);
+
   const mandatoryReqs = (variant.requirements || []).filter((r) => r.classification === 'mandatory');
   const conditionalReqs = (variant.requirements || []).filter((r) => r.classification === 'conditional');
   const alternativeReqs = (variant.requirements || []).filter((r) => r.classification === 'alternative');

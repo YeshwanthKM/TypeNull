@@ -135,6 +135,19 @@ export const InteractiveWalkthrough: React.FC<InteractiveWalkthroughProps> = ({
     }
   };
 
+  // Reset to Step 1 whenever the walkthrough modal opens
+  useEffect(() => {
+    if (isOpen) {
+      setCurrentStepIdx(0);
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isOpen]);
+
   // Keyboard navigation
   useEffect(() => {
     if (!isOpen) return;

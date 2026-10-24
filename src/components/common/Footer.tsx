@@ -80,23 +80,28 @@ export const Footer: React.FC = () => {
                 </Link>
               </li>
               <li>
-                <Link to="/guides" className="hover:text-teal-700 transition-colors">
-                  Applicant Validation Guide
+                <Link to="/guides?guide=individual-validation" className="hover:text-teal-700 transition-colors">
+                  Individual Pre-Validation Guide
                 </Link>
               </li>
               <li>
-                <Link to="/guides" className="hover:text-teal-700 transition-colors">
-                  Bulk Screening &amp; Archive Guide
+                <Link to="/guides?guide=organisation-screening" className="hover:text-teal-700 transition-colors">
+                  Organisation Bulk Screening Guide
                 </Link>
               </li>
               <li>
-                <Link to="/guides" className="hover:text-teal-700 transition-colors">
-                  Understanding Audit Outcomes
+                <Link to="/guides?guide=application-catalogue" className="hover:text-teal-700 transition-colors">
+                  Government Applications Catalogue Guide
                 </Link>
               </li>
               <li>
-                <Link to="/guides" className="hover:text-teal-700 transition-colors">
-                  Account Roles &amp; Security
+                <Link to="/guides?guide=understanding-results" className="hover:text-teal-700 transition-colors">
+                  Understanding Audit Outcomes Guide
+                </Link>
+              </li>
+              <li>
+                <Link to="/guides?guide=account-access" className="hover:text-teal-700 transition-colors">
+                  Account Roles &amp; Security Guide
                 </Link>
               </li>
             </ul>

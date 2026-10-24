@@ -60,7 +60,7 @@ export const DashboardPage: React.FC = () => {
         title="Applicant Pre-Validation Dashboard"
         description="Prepare application dossiers, inspect OCR document intelligence, and run pre-validation checks against statutory requirements before formal submission."
         action={
-          <div className="flex items-center gap-2.5">
+          <div className="flex flex-wrap items-center gap-2.5">
             <Button
               variant="outline"
               onClick={() => navigate('/applications/explore')}
