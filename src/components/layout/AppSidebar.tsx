@@ -2,6 +2,7 @@ import React from 'react';
 import { NavLink } from 'react-router-dom';
 import {
   LayoutDashboard,
+  Compass,
   FilePlus,
   Settings,
   Shield,
@@ -18,6 +19,12 @@ export const AppSidebar: React.FC = () => {
       to: '/dashboard',
       label: 'Pre-Validation Dashboard',
       icon: LayoutDashboard,
+      show: role === 'applicant',
+    },
+    {
+      to: '/applications/explore',
+      label: 'Explore Applications',
+      icon: Compass,
       show: role === 'applicant',
     },
     {

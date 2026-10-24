@@ -7,6 +7,7 @@ import { AppLayout } from './layouts/AppLayout';
 import { LandingPage } from './pages/LandingPage';
 import { DashboardPage } from './pages/DashboardPage';
 import { NewApplicationPage } from './pages/NewApplicationPage';
+import { GovernmentApplicationsCataloguePage } from './pages/GovernmentApplicationsCataloguePage';
 import { ApplicationDetailsPlaceholder } from './pages/ApplicationDetailsPlaceholder';
 import { SettingsPage } from './pages/SettingsPage';
 import { OfficerWorkspacePage } from './pages/OfficerWorkspacePage';
@@ -50,6 +51,28 @@ export const App: React.FC = () => {
               <ProtectedRoute allowedRoles={['applicant']}>
                 <AppLayout>
                   <DashboardPage />
+                </AppLayout>
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/applications/explore"
+            element={
+              <ProtectedRoute allowedRoles={['applicant', 'officer', 'administrator']}>
+                <AppLayout>
+                  <GovernmentApplicationsCataloguePage />
+                </AppLayout>
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/applications/catalogue"
+            element={
+              <ProtectedRoute allowedRoles={['applicant', 'officer', 'administrator']}>
+                <AppLayout>
+                  <GovernmentApplicationsCataloguePage />
                 </AppLayout>
               </ProtectedRoute>
             }

@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { Plus, FileText, CheckCircle2, ShieldAlert, ArrowRight, RefreshCw, Clock, Building } from 'lucide-react';
+import { Plus, FileText, CheckCircle2, ShieldAlert, ArrowRight, RefreshCw, Clock, Building, Compass } from 'lucide-react';
 import { PageHeader } from '../components/ui/PageHeader';
 import { Button } from '../components/ui/Button';
 import { EmptyState } from '../components/ui/EmptyState';
@@ -60,15 +60,53 @@ export const DashboardPage: React.FC = () => {
         title="Applicant Pre-Validation Dashboard"
         description="Prepare application dossiers, inspect OCR document intelligence, and run pre-validation checks against statutory requirements before formal submission."
         action={
-          <Button
-            variant="primary"
-            onClick={() => navigate('/applications/new')}
-            leftIcon={<Plus className="w-4 h-4" />}
-          >
-            Prepare Application
-          </Button>
+          <div className="flex items-center gap-2.5">
+            <Button
+              variant="outline"
+              onClick={() => navigate('/applications/explore')}
+              leftIcon={<Compass className="w-4 h-4 text-teal-700" />}
+            >
+              Explore Applications
+            </Button>
+            <Button
+              variant="primary"
+              onClick={() => navigate('/applications/new')}
+              leftIcon={<Plus className="w-4 h-4" />}
+            >
+              Prepare Application
+            </Button>
+          </div>
         }
       />
+
+      {/* Government Applications Catalogue Quick Discovery Card */}
+      <div className="p-5 rounded-xl border border-teal-200 bg-gradient-to-r from-teal-50/80 to-slate-50 text-slate-800 shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div className="space-y-1">
+          <div className="flex items-center gap-2">
+            <span className="p-1.5 rounded-lg bg-teal-100 text-teal-800">
+              <Compass className="w-4 h-4" />
+            </span>
+            <h2 className="text-sm font-bold text-slate-900">
+              Government Applications Catalogue
+            </h2>
+            <span className="text-[10px] font-mono font-semibold px-2 py-0.5 rounded-full bg-teal-100 text-teal-900 border border-teal-200">
+              Published Registry
+            </span>
+          </div>
+          <p className="text-xs text-slate-600 max-w-2xl leading-relaxed">
+            Need guidance on official application schemes? Browse published statutory forms (SPICe+, GST, Passport), review document checklists, and understand situational eligibility rules before creating a dossier.
+          </p>
+        </div>
+        <Button
+          variant="primary"
+          size="sm"
+          onClick={() => navigate('/applications/explore')}
+          rightIcon={<ArrowRight className="w-3.5 h-3.5" />}
+          className="flex-shrink-0"
+        >
+          Explore Catalogue
+        </Button>
+      </div>
 
       {/* Supabase Unconfigured Banner */}
       {!isConfigured && (
@@ -176,13 +214,22 @@ export const DashboardPage: React.FC = () => {
               title="No Applications Found"
               description="You have not created any validation applications yet. Create an application dossier to initiate cross-document consistency checks and regulatory compliance workflows."
               action={
-                <Button
-                  variant="primary"
-                  onClick={() => navigate('/applications/new')}
-                  leftIcon={<Plus className="w-4 h-4" />}
-                >
-                  Create Your First Application
-                </Button>
+                <div className="flex flex-col sm:flex-row items-center gap-2.5">
+                  <Button
+                    variant="outline"
+                    onClick={() => navigate('/applications/explore')}
+                    leftIcon={<Compass className="w-4 h-4 text-teal-700" />}
+                  >
+                    Explore Applications
+                  </Button>
+                  <Button
+                    variant="primary"
+                    onClick={() => navigate('/applications/new')}
+                    leftIcon={<Plus className="w-4 h-4" />}
+                  >
+                    Create Your First Application
+                  </Button>
+                </div>
               }
               note="Records are secured via Supabase Row-Level Security (RLS) so each user only sees their own applications."
             />

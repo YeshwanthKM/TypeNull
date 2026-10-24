@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, FilePlus, Settings, ShieldCheck, X, Globe, Shield, Key } from 'lucide-react';
+import { LayoutDashboard, Compass, FilePlus, Settings, ShieldCheck, X, Globe, Shield, Key } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 
 export interface MobileNavigationProps {
@@ -39,6 +39,12 @@ export const MobileNavigation: React.FC<MobileNavigationProps> = ({ isOpen, onCl
       to: '/dashboard',
       label: 'Pre-Validation Dashboard',
       icon: LayoutDashboard,
+      show: role === 'applicant',
+    },
+    {
+      to: '/applications/explore',
+      label: 'Explore Applications',
+      icon: Compass,
       show: role === 'applicant',
     },
     {
@@ -172,7 +178,7 @@ export const MobileNavigation: React.FC<MobileNavigationProps> = ({ isOpen, onCl
               to="/dashboard"
               end
               className={({ isActive }) =>
-                `flex flex-col items-center py-1 px-3 text-[11px] font-medium transition-colors ${
+                `flex flex-col items-center py-1 px-2.5 text-[11px] font-medium transition-colors ${
                   isActive ? 'text-teal-700 font-bold' : 'text-slate-500 hover:text-slate-900'
                 }`
               }
@@ -182,9 +188,21 @@ export const MobileNavigation: React.FC<MobileNavigationProps> = ({ isOpen, onCl
             </NavLink>
 
             <NavLink
+              to="/applications/explore"
+              className={({ isActive }) =>
+                `flex flex-col items-center py-1 px-2.5 text-[11px] font-medium transition-colors ${
+                  isActive ? 'text-teal-700 font-bold' : 'text-slate-500 hover:text-slate-900'
+                }`
+              }
+            >
+              <Compass className="w-5 h-5 mb-0.5" />
+              <span>Explore</span>
+            </NavLink>
+
+            <NavLink
               to="/applications/new"
               className={({ isActive }) =>
-                `flex flex-col items-center py-1 px-3 text-[11px] font-medium transition-colors ${
+                `flex flex-col items-center py-1 px-2.5 text-[11px] font-medium transition-colors ${
                   isActive ? 'text-teal-700 font-bold' : 'text-slate-500 hover:text-slate-900'
                 }`
               }

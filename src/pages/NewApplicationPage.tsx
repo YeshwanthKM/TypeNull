@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import {
   ArrowLeft,
   AlertCircle,
@@ -29,6 +29,7 @@ import { evaluateConditionalChecklist } from '../services/conditionalEvaluator';
 
 export const NewApplicationPage: React.FC = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { user, isConfigured } = useAuth();
 
   // Published Government Services from the Knowledge Base
@@ -52,12 +53,51 @@ export const NewApplicationPage: React.FC = () => {
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Load published government services on mount
+  // Load published government services on mount and pre-select from URL params
   useEffect(() => {
     getPublishedGovernmentServices().then((srvs) => {
       setPublishedServices(srvs);
+
+      const serviceParam = searchParams.get('serviceId') || searchParams.get('serviceCode');
+      const variantParam = searchParams.get('variantId') || searchParams.get('variantCode');
+
+      if (serviceParam && srvs.length > 0) {
+        const foundSrv = srvs.find(
+          (s) => s.id === serviceParam || s.serviceCode === serviceParam
+        );
+        if (foundSrv && foundSrv.applicationTypes.length > 0) {
+          setSelectedServiceId(foundSrv.id);
+
+          const foundVariant =
+            (variantParam &&
+              foundSrv.applicationTypes.find(
+                (v) => v.id === variantParam || v.variantCode === variantParam
+              )) ||
+            foundSrv.applicationTypes[0];
+
+          setSelectedVariantId(foundVariant.id);
+
+          setFormData((prev) => ({
+            ...prev,
+            title: foundVariant.applicationName,
+            category: (foundSrv.category as ApplicationCategory) || 'general_registration',
+            institutionName: foundSrv.department,
+            jurisdiction: foundSrv.jurisdiction,
+            description: foundSrv.description,
+          }));
+
+          const initialAnswers: Record<string, any> = {};
+          (foundVariant.conditionalQuestions || []).forEach((q) => {
+            const key = q.questionCode || q.questionKey || q.id;
+            initialAnswers[key] =
+              q.defaultValue ||
+              (q.responseType === 'boolean' || q.questionType === 'boolean' ? 'no' : '');
+          });
+          setConditionalAnswers(initialAnswers);
+        }
+      }
     });
-  }, []);
+  }, [searchParams]);
 
   // Selected Service and Variant objects
   const selectedService = useMemo(
@@ -229,7 +269,8 @@ export const NewApplicationPage: React.FC = () => {
         description="Select an official Indian government service or custom category to receive an individualized required document checklist and run pre-validation compliance checks."
         breadcrumbs={[
           { label: 'Dashboard', href: '/dashboard' },
-          { label: 'New Application' },
+          { label: 'Explore Applications', href: '/applications/explore' },
+          { label: 'Prepare Application' },
         ]}
         action={
           <Button

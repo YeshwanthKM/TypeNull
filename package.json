@@ -7,7 +7,7 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
-    "test": "esbuild scripts/test_validation_and_rbac.ts --bundle --platform=node --format=esm --outfile=scripts/test_rbac_bundle.mjs && node scripts/test_rbac_bundle.mjs && rm scripts/test_rbac_bundle.mjs && esbuild scripts/test_discovery_and_ingestion.ts --bundle --platform=node --format=esm --outfile=scripts/test_ingestion_bundle.mjs && node scripts/test_ingestion_bundle.mjs && rm scripts/test_ingestion_bundle.mjs && esbuild scripts/test_security_and_persistence.ts --bundle --platform=node --format=esm --outfile=scripts/test_security_bundle.mjs && node scripts/test_security_bundle.mjs && rm scripts/test_security_bundle.mjs"
+    "test": "esbuild scripts/test_validation_and_rbac.ts --bundle --platform=node --format=esm --outfile=scripts/test_rbac_bundle.mjs && node scripts/test_rbac_bundle.mjs && rm scripts/test_rbac_bundle.mjs && esbuild scripts/test_discovery_and_ingestion.ts --bundle --platform=node --format=esm --outfile=scripts/test_ingestion_bundle.mjs && node scripts/test_ingestion_bundle.mjs && rm scripts/test_ingestion_bundle.mjs && esbuild scripts/test_security_and_persistence.ts --bundle --platform=node --format=esm --outfile=scripts/test_security_bundle.mjs && node scripts/test_security_bundle.mjs && rm scripts/test_security_bundle.mjs && esbuild scripts/test_applications_catalogue.ts --bundle --platform=node --format=esm --outfile=scripts/test_catalogue_bundle.mjs && node scripts/test_catalogue_bundle.mjs && rm scripts/test_catalogue_bundle.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.47.10",
