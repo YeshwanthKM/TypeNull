@@ -22,6 +22,7 @@ import {
   DocumentReferenceTemplate,
   DocumentAuthenticityAssessment,
   ReferenceReviewStatus,
+  ReferenceProvenance,
   StructuralFinding,
   FieldComparisonFinding,
   AlterationIndicator,
@@ -439,6 +440,127 @@ export const DEFAULT_REFERENCE_TEMPLATES: DocumentReferenceTemplate[] = [
     created_at: '2026-02-01T00:00:00.000Z',
     updated_at: '2026-02-01T00:00:00.000Z',
   },
+
+  // 7. Official Gazette Template: SPICe+ (INC-32) Company Registration (MCA)
+  {
+    id: 'tmpl-official-spice-v2',
+    documentTypeId: 'ref-type-coi',
+    version: 'v2.0-Official',
+    effectiveDate: '2020-02-23',
+    expiryDate: null,
+    isSynthetic: false,
+    provenance: 'official_gazette',
+    reviewStatus: 'approved',
+    lastReviewedAt: '2026-01-20T10:00:00.000Z',
+    reviewedBy: 'system-admin',
+    approvalNotes: 'Official statutory proforma per MCA Gazette Notification G.S.R. 128(E) dated 18.02.2020.',
+    expectedPageStructure: {
+      pageCount: 1,
+      dimensions: { width: 612, height: 792 },
+      orientation: 'portrait',
+    },
+    expectedHeadings: [
+      'Ministry of Corporate Affairs',
+      'Certificate of Incorporation',
+    ],
+    requiredFields: [
+      {
+        fieldKey: 'cin',
+        label: 'Corporate Identity Number (CIN)',
+        formatRegex: '^[UL][0-9]{5}[A-Z]{2}[0-9]{4}[A-Z]{3}[0-9]{6}$',
+        mandatory: true,
+      },
+      {
+        fieldKey: 'company_name',
+        label: 'Name of Company',
+        mandatory: true,
+      },
+      {
+        fieldKey: 'date_of_incorporation',
+        label: 'Date of Incorporation',
+        formatRegex: '^\\d{2}/\\d{2}/\\d{4}$',
+        mandatory: true,
+      },
+      {
+        fieldKey: 'registered_office',
+        label: 'Registered Office Address',
+        mandatory: true,
+      },
+    ],
+    digitalSignatureRequirements: 'optional',
+    officialVerificationMethod: 'mca_v3_company_search',
+    officialVerificationSource: 'https://www.mca.gov.in/content/mca/global/en/mca/fo-llp-services/company-llp-name-search.html',
+    referenceFileMetadata: {
+      filename: 'MCA_SPICe_Plus_INC32_Official_Proforma.pdf',
+      sizeBytes: 154000,
+      sampleContentSnippet: 'Ministry of Corporate Affairs Certificate of Incorporation SPICe+ INC-32 Proforma',
+    },
+    created_at: '2026-01-20T00:00:00.000Z',
+    updated_at: '2026-01-20T00:00:00.000Z',
+  },
+
+  // 8. Official Gazette Template: Form GST REG-06 (CBIC)
+  {
+    id: 'tmpl-official-gst-reg06',
+    documentTypeId: 'ref-type-gst',
+    version: 'v1.0-Official',
+    effectiveDate: '2017-07-01',
+    expiryDate: null,
+    isSynthetic: false,
+    provenance: 'official_gazette',
+    reviewStatus: 'approved',
+    lastReviewedAt: '2026-01-22T10:00:00.000Z',
+    reviewedBy: 'system-admin',
+    approvalNotes: 'Official statutory proforma per CBIC Notification No. 03/2017-Central Tax dated 19.06.2017.',
+    expectedPageStructure: {
+      pageCount: 1,
+      dimensions: { width: 612, height: 792 },
+      orientation: 'portrait',
+    },
+    expectedHeadings: [
+      'Goods and Services Tax',
+      'Registration Certificate',
+    ],
+    requiredFields: [
+      {
+        fieldKey: 'gstin',
+        label: 'Registration Number (GSTIN)',
+        formatRegex: '^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z][1-9A-Z]Z[0-9A-Z]$',
+        mandatory: true,
+      },
+      {
+        fieldKey: 'legal_name',
+        label: 'Legal Name of Enterprise',
+        mandatory: true,
+      },
+      {
+        fieldKey: 'principal_place_of_business',
+        label: 'Principal Place of Business',
+        mandatory: true,
+      },
+      {
+        fieldKey: 'date_of_issue',
+        label: 'Date of Issue',
+        formatRegex: '^\\d{2}/\\d{2}/\\d{4}$',
+        mandatory: true,
+      },
+    ],
+    expectedQrStructure: {
+      format: 'gstin_b2b',
+      requiredPattern: '^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]',
+      description: 'Official GST taxpayer summary barcode',
+    },
+    digitalSignatureRequirements: 'optional',
+    officialVerificationMethod: 'gstn_public_taxpayer_search',
+    officialVerificationSource: 'https://services.gst.gov.in/services/searchtp',
+    referenceFileMetadata: {
+      filename: 'CBIC_GST_REG06_Official_Proforma.pdf',
+      sizeBytes: 182000,
+      sampleContentSnippet: 'Form GST REG-06 Registration Certificate Government of India',
+    },
+    created_at: '2026-01-22T00:00:00.000Z',
+    updated_at: '2026-01-22T00:00:00.000Z',
+  },
 ];
 
 /**
@@ -605,6 +727,7 @@ export interface ReferenceSelectionInput {
   targetRequirement?: string; // e.g. 'director_pan', 'coi', 'gstin_certificate', 'utility_bill'
   applicationCategory?: string;
   claimedIssueDate?: string | null; // e.g. '15/06/2024'
+  provenancePreference?: ReferenceProvenance;
 }
 
 export interface ReferenceSelectionResult {
@@ -748,23 +871,32 @@ export function selectAppropriateReference(
     };
   }
 
+  // Filter by provenance preference if specified and available
+  let candidatePool = approvedTemplates;
+  if (input.provenancePreference) {
+    const provFiltered = approvedTemplates.filter((t) => t.provenance === input.provenancePreference);
+    if (provFiltered.length > 0) {
+      candidatePool = provFiltered;
+    }
+  }
+
   // If only 1 approved template
-  if (approvedTemplates.length === 1) {
+  if (candidatePool.length === 1) {
     return {
       candidateType: chosenType,
-      selectedTemplate: approvedTemplates[0],
-      selectionReason: `Selected ${approvedTemplates[0].version} based on: ${candidates[0].matchReason}.`,
+      selectedTemplate: candidatePool[0],
+      selectionReason: `Selected ${candidatePool[0].version} based on: ${candidates[0].matchReason}.`,
       isAmbiguous: false,
     };
   }
 
   // Multiple approved versions exist: check claimed issue date
-  let selectedVersion = approvedTemplates[0]; // default latest
+  let selectedVersion = candidatePool[0]; // default first
   if (input.claimedIssueDate) {
     const parts = input.claimedIssueDate.split('/');
     if (parts.length === 3) {
       const docDate = new Date(`${parts[2]}-${parts[1]}-${parts[0]}`);
-      const matchingVersion = approvedTemplates.find((tmpl) => {
+      const matchingVersion = candidatePool.find((tmpl) => {
         const eff = new Date(tmpl.effectiveDate);
         const exp = tmpl.expiryDate ? new Date(tmpl.expiryDate) : null;
         if (exp) {
@@ -792,6 +924,314 @@ export function selectAppropriateReference(
  * ==============================================================================
  */
 
+/**
+ * Common field aliases across different form variations, OCR engines, and field names.
+ */
+export const FIELD_KEY_ALIASES: Record<string, string[]> = {
+  pan_number: [
+    'pan', 'pan_no', 'pan_card', 'permanent_account_number', 'card_number', 'pan_number', 'pan_code'
+  ],
+  full_name: [
+    'name', 'taxpayer_name', 'holder_name', 'name_of_holder', 'cardholder_name', 'applicant_name', 'full_name'
+  ],
+  father_name: [
+    'father', 'fathers_name', "father's_name", 'father_name', 'parent_name', 'care_of', 'c_o'
+  ],
+  dob: [
+    'date_of_birth', 'birth_date', 'dob', 'd_o_b', 'date_birth'
+  ],
+  cin: [
+    'cin', 'corporate_identity_number', 'cin_no', 'cin_number', 'cin_code', 'company_identity_number'
+  ],
+  company_name: [
+    'name_of_company', 'company_name', 'entity_name', 'legal_name', 'corporate_name', 'firm_name'
+  ],
+  date_of_incorporation: [
+    'incorporation_date', 'date_of_incorporation', 'doi', 'reg_date', 'date_of_registration', 'registered_date'
+  ],
+  registered_office: [
+    'registered_address', 'registered_office', 'office_address', 'registered_office_address', 'address'
+  ],
+  gstin: [
+    'gstin', 'gst_number', 'gstin_number', 'gst_no', 'registration_number', 'gst_code'
+  ],
+  legal_name: [
+    'legal_name', 'trade_name', 'legal_name_of_business', 'business_name', 'taxpayer_legal_name', 'name_of_enterprise'
+  ],
+  principal_place_of_business: [
+    'principal_place_of_business', 'place_of_business', 'principal_address', 'business_address', 'address'
+  ],
+  date_of_issue: [
+    'date_of_issue', 'issue_date', 'date_issued', 'issued_on', 'doi'
+  ],
+  account_id: [
+    'account_id', 'consumer_number', 'ca_number', 'consumer_id', 'account_no', 'k_number', 'rr_no'
+  ],
+  consumer_name: [
+    'consumer_name', 'customer_name', 'account_name', 'name', 'consumer'
+  ],
+  billing_address: [
+    'billing_address', 'service_address', 'premise_address', 'address', 'consumer_address'
+  ],
+  trade_name: [
+    'trade_name', 'establishment_name', 'business_name', 'shop_name', 'enterprise_name'
+  ],
+  licence_number: [
+    'licence_number', 'license_number', 'trade_license_no', 'licence_no', 'license_no'
+  ],
+  ward_jurisdiction: [
+    'ward_jurisdiction', 'ward', 'zone', 'jurisdiction', 'circle', 'ward_no'
+  ],
+};
+
+/**
+ * Finds all synonymous aliases for a fieldKey across all configured alias groups
+ */
+export function getAliasesForField(fieldKey: string): string[] {
+  const normTarget = fieldKey.toLowerCase().replace(/[^a-z0-9]/g, '');
+  const result = new Set<string>([fieldKey]);
+
+  for (const [canonical, aliases] of Object.entries(FIELD_KEY_ALIASES)) {
+    const allInGroup = [canonical, ...aliases];
+    const match = allInGroup.some((a) => a.toLowerCase().replace(/[^a-z0-9]/g, '') === normTarget);
+    if (match) {
+      for (const a of allInGroup) {
+        result.add(a);
+      }
+    }
+  }
+  return Array.from(result);
+}
+
+/**
+ * Searches for field candidate across:
+ * 1. Direct extractedFields matching key
+ * 2. Aliases in extractedFields (case-insensitive and punctuation-insensitive)
+ * 3. Fallback regex extraction from raw document text stream
+ */
+export function resolveFieldCandidate(
+  fieldKey: string,
+  extractedFields: Record<string, string>,
+  rawText: string
+): { value: string; source: 'direct' | 'alias' | 'text_stream' } | null {
+  // 1. Direct match
+  if (extractedFields[fieldKey] !== undefined && extractedFields[fieldKey] !== null) {
+    return { value: extractedFields[fieldKey], source: 'direct' };
+  }
+
+  // 2. Case-insensitive key match & normalized key match in extractedFields
+  const normKey = fieldKey.toLowerCase().replace(/[^a-z0-9]/g, '');
+  for (const [k, v] of Object.entries(extractedFields)) {
+    if (k.toLowerCase().replace(/[^a-z0-9]/g, '') === normKey && v) {
+      return { value: v, source: 'direct' };
+    }
+  }
+
+  // 3. Known aliases (bidirectional group search)
+  const aliases = getAliasesForField(fieldKey);
+  for (const alias of aliases) {
+    const normAlias = alias.toLowerCase().replace(/[^a-z0-9]/g, '');
+    for (const [k, v] of Object.entries(extractedFields)) {
+      if (k.toLowerCase().replace(/[^a-z0-9]/g, '') === normAlias && v) {
+        return { value: v, source: 'alias' };
+      }
+    }
+  }
+
+  // 4. Text stream regex extraction fallback
+  if (rawText) {
+    if (fieldKey === 'pan_number') {
+      const match = rawText.match(/\b([A-Z]{5}[0-9]{4}[A-Z])\b/);
+      if (match) return { value: match[1], source: 'text_stream' };
+    } else if (fieldKey === 'cin') {
+      const match = rawText.match(/\b([UL][0-9]{5}[A-Z]{2}[0-9]{4}[A-Z]{3}[0-9]{6})\b/);
+      if (match) return { value: match[1], source: 'text_stream' };
+    } else if (fieldKey === 'gstin') {
+      const match = rawText.match(/\b([0-9]{2}[A-Z]{5}[0-9]{4}[A-Z][1-9A-Z]Z[0-9A-Z])\b/);
+      if (match) return { value: match[1], source: 'text_stream' };
+    } else if (fieldKey === 'dob' || fieldKey === 'date_of_incorporation' || fieldKey === 'date_of_issue') {
+      const dateMatch = rawText.match(/(?:date(?:\s+of\s+(?:birth|issue|incorporation))?|dob)[:\s]+(\d{2}[\/\-]\d{2}[\/\-]\d{4})/i);
+      if (dateMatch) return { value: dateMatch[1], source: 'text_stream' };
+    } else if (fieldKey === 'father_name') {
+      const fnMatch = rawText.match(/father(?:'s)?\s+name[:\s]+([^\n\r,]+)/i);
+      if (fnMatch) return { value: fnMatch[1].trim(), source: 'text_stream' };
+    }
+  }
+
+  return null;
+}
+
+export interface NormalizationResult {
+  normalizedValue: string;
+  normalizationApplied: string | null;
+  confidence: number;
+  isIllegible: boolean;
+}
+
+/**
+ * Normalizes common OCR errors, excess whitespace, and format conventions
+ * while strictly preserving the raw observed string in the audit record.
+ */
+export function normalizeFieldValue(
+  fieldKey: string,
+  rawValue: string,
+  _expectedFormatRegex?: string
+): NormalizationResult {
+  if (!rawValue) {
+    return {
+      normalizedValue: '',
+      normalizationApplied: null,
+      confidence: 0,
+      isIllegible: true,
+    };
+  }
+
+  const rawTrimmed = rawValue.trim();
+
+  // Check for explicit illegible / damaged OCR markers
+  if (
+    rawTrimmed === '[ILLEGIBLE]' ||
+    rawTrimmed === '[UNREADABLE]' ||
+    rawTrimmed === '???' ||
+    rawTrimmed === '***' ||
+    /^[\?_*\.]{3,}$/.test(rawTrimmed)
+  ) {
+    return {
+      normalizedValue: rawValue,
+      normalizationApplied: 'Marked as unreadable / illegible in source scan',
+      confidence: 0.1,
+      isIllegible: true,
+    };
+  }
+
+  const modifications: string[] = [];
+  let candidate = rawTrimmed;
+
+  // 1. Whitespace normalization:
+  const isCodeField = ['pan_number', 'cin', 'gstin', 'dob', 'date_of_incorporation', 'date_of_issue'].includes(fieldKey);
+
+  if (isCodeField && /\s+/.test(candidate)) {
+    candidate = candidate.replace(/\s+/g, '');
+    modifications.push('Internal whitespace removed from structured identifier');
+  } else if (/\s{2,}/.test(candidate)) {
+    candidate = candidate.replace(/\s+/g, ' ');
+    modifications.push('Multiple internal spaces collapsed');
+  }
+
+  // 2. Date delimiter normalization (e.g., DD-MM-YYYY -> DD/MM/YYYY)
+  if (['dob', 'date_of_incorporation', 'date_of_issue'].includes(fieldKey)) {
+    if (/^\d{2}-\d{2}-\d{4}$/.test(candidate)) {
+      candidate = candidate.replace(/-/g, '/');
+      modifications.push('Date delimiter normalized from hyphen (-) to slash (/)');
+    }
+  }
+
+  // 3. OCR character confusion for structured government identifiers:
+  // PAN format: 5 letters, 4 digits, 1 letter (e.g. ABCDE1234F)
+  if (fieldKey === 'pan_number' && candidate.length === 10) {
+    let corrected = '';
+    let charsFixed = 0;
+    for (let i = 0; i < 10; i++) {
+      const ch = candidate[i].toUpperCase();
+      if (i < 5 || i === 9) {
+        if (ch === '0') { corrected += 'O'; charsFixed++; }
+        else if (ch === '1') { corrected += 'I'; charsFixed++; }
+        else if (ch === '5') { corrected += 'S'; charsFixed++; }
+        else if (ch === '8') { corrected += 'B'; charsFixed++; }
+        else { corrected += ch; }
+      } else {
+        if (ch === 'O' || ch === 'o') { corrected += '0'; charsFixed++; }
+        else if (ch === 'I' || ch === 'l' || ch === 'i') { corrected += '1'; charsFixed++; }
+        else if (ch === 'S' || ch === 's') { corrected += '5'; charsFixed++; }
+        else if (ch === 'B') { corrected += '8'; charsFixed++; }
+        else if (ch === 'Z' || ch === 'z') { corrected += '2'; charsFixed++; }
+        else { corrected += ch; }
+      }
+    }
+    const panRegex = /^[A-Z]{5}[0-9]{4}[A-Z]$/;
+    if (!panRegex.test(candidate.toUpperCase()) && panRegex.test(corrected)) {
+      candidate = corrected;
+      modifications.push(`OCR character substitution applied (${charsFixed} character(s) disambiguated)`);
+    } else {
+      candidate = candidate.toUpperCase();
+    }
+  }
+
+  // CIN format: [UL][0-9]{5}[A-Z]{2}[0-9]{4}[A-Z]{3}[0-9]{6} (21 chars)
+  if (fieldKey === 'cin' && candidate.length === 21) {
+    let corrected = '';
+    let charsFixed = 0;
+    for (let i = 0; i < 21; i++) {
+      const ch = candidate[i].toUpperCase();
+      const isLetterPos = (i === 0 || (i >= 6 && i <= 7) || (i >= 12 && i <= 14));
+      if (isLetterPos) {
+        if (ch === '0') { corrected += 'O'; charsFixed++; }
+        else if (ch === '1') { corrected += 'I'; charsFixed++; }
+        else { corrected += ch; }
+      } else {
+        if (ch === 'O' || ch === 'o') { corrected += '0'; charsFixed++; }
+        else if (ch === 'I' || ch === 'l' || ch === 'i') { corrected += '1'; charsFixed++; }
+        else if (ch === 'S' || ch === 's') { corrected += '5'; charsFixed++; }
+        else { corrected += ch; }
+      }
+    }
+    const cinRegex = /^[UL][0-9]{5}[A-Z]{2}[0-9]{4}[A-Z]{3}[0-9]{6}$/;
+    if (!cinRegex.test(candidate.toUpperCase()) && cinRegex.test(corrected)) {
+      candidate = corrected;
+      modifications.push(`OCR character substitution applied (${charsFixed} character(s) disambiguated)`);
+    } else {
+      candidate = candidate.toUpperCase();
+    }
+  }
+
+  // GSTIN format: 2 digits, 5 letters, 4 digits, 1 letter, 1 alphanumeric, 'Z', 1 alphanumeric (15 chars)
+  if (fieldKey === 'gstin' && candidate.length === 15) {
+    let corrected = '';
+    let charsFixed = 0;
+    for (let i = 0; i < 15; i++) {
+      const ch = candidate[i].toUpperCase();
+      const isDigitPos = (i <= 1 || (i >= 7 && i <= 10));
+      const isLetterPos = ((i >= 2 && i <= 6) || i === 11);
+      if (isDigitPos) {
+        if (ch === 'O' || ch === 'o') { corrected += '0'; charsFixed++; }
+        else if (ch === 'I' || ch === 'l' || ch === 'i') { corrected += '1'; charsFixed++; }
+        else if (ch === 'S' || ch === 's') { corrected += '5'; charsFixed++; }
+        else if (ch === 'B') { corrected += '8'; charsFixed++; }
+        else { corrected += ch; }
+      } else if (isLetterPos) {
+        if (ch === '0') { corrected += 'O'; charsFixed++; }
+        else if (ch === '1') { corrected += 'I'; charsFixed++; }
+        else if (ch === '5') { corrected += 'S'; charsFixed++; }
+        else { corrected += ch; }
+      } else if (i === 13) {
+        if (ch === '2') { corrected += 'Z'; charsFixed++; }
+        else { corrected += ch; }
+      } else {
+        corrected += ch;
+      }
+    }
+    const gstinRegex = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z][1-9A-Z]Z[0-9A-Z]$/;
+    if (!gstinRegex.test(candidate.toUpperCase()) && gstinRegex.test(corrected)) {
+      candidate = corrected;
+      modifications.push(`OCR character substitution applied (${charsFixed} character(s) disambiguated)`);
+    } else {
+      candidate = candidate.toUpperCase();
+    }
+  }
+
+  let confidence = 0.95;
+  if (modifications.length > 0) {
+    confidence = 0.88;
+  }
+
+  return {
+    normalizedValue: candidate,
+    normalizationApplied: modifications.length > 0 ? modifications.join('; ') : null,
+    confidence,
+    isIllegible: false,
+  };
+}
+
 export interface ComparisonInput {
   rawText: string;
   extractedFields: Record<string, string>;
@@ -808,6 +1248,8 @@ export interface ComparisonResult {
   hasMissingFields: boolean;
   hasFormatMismatches: boolean;
   isSuspicious: boolean;
+  unreadableFields: string[];
+  normalizationNotes: string[];
 }
 
 export function compareDocumentAgainstReference(input: ComparisonInput): ComparisonResult {
@@ -817,6 +1259,8 @@ export function compareDocumentAgainstReference(input: ComparisonInput): Compari
   const structuralFindings: StructuralFinding[] = [];
   const fieldFindings: FieldComparisonFinding[] = [];
   const alterationIndicators: AlterationIndicator[] = [];
+  const unreadableFields: string[] = [];
+  const normalizationNotes: string[] = [];
 
   // 1. Structural Comparison
   // 1.1 Page Count
@@ -859,14 +1303,14 @@ export function compareDocumentAgainstReference(input: ComparisonInput): Compari
     });
   }
 
-  // 2. Field-by-Field Comparison
+  // 2. Field-by-Field Comparison with Alias Matching & Transparent Normalization
   let hasMissingFields = false;
   let hasFormatMismatches = false;
 
   for (const reqField of template.requiredFields) {
-    const observed = extractedFields[reqField.fieldKey] || null;
+    const candidate = resolveFieldCandidate(reqField.fieldKey, extractedFields, rawText);
 
-    if (!observed) {
+    if (!candidate || !candidate.value) {
       if (reqField.mandatory) {
         hasMissingFields = true;
         fieldFindings.push({
@@ -874,6 +1318,9 @@ export function compareDocumentAgainstReference(input: ComparisonInput): Compari
           label: reqField.label,
           expectedFormat: reqField.formatRegex || 'Non-empty value',
           observedValue: null,
+          rawObservedValue: null,
+          normalizationApplied: null,
+          confidence: 0,
           status: 'missing',
           details: `Mandatory field "${reqField.label}" was not extracted or present.`,
         });
@@ -883,44 +1330,83 @@ export function compareDocumentAgainstReference(input: ComparisonInput): Compari
           description: `Mandatory statutory field "${reqField.label}" is absent.`,
           severity: 'medium',
           evidence: `Field key "${reqField.fieldKey}" returned null during parsing`,
-          limitations: 'Document may be incomplete or redacted rather than intentionally altered.',
+          limitations: 'Document may be incomplete or blank proforma rather than intentionally altered.',
         });
       }
     } else {
-      // Validate format regex
-      let formatValid = true;
-      if (reqField.formatRegex) {
-        const regex = new RegExp(reqField.formatRegex);
-        formatValid = regex.test(observed.trim());
+      const rawValue = candidate.value;
+      const normResult = normalizeFieldValue(reqField.fieldKey, rawValue, reqField.formatRegex);
+
+      if (normResult.normalizationApplied) {
+        normalizationNotes.push(`${reqField.label}: ${normResult.normalizationApplied}`);
       }
 
-      if (!formatValid) {
-        hasFormatMismatches = true;
+      if (normResult.isIllegible) {
+        unreadableFields.push(reqField.label);
+        hasMissingFields = true;
         fieldFindings.push({
           fieldKey: reqField.fieldKey,
           label: reqField.label,
           expectedFormat: reqField.formatRegex,
-          observedValue: observed,
-          status: 'format_mismatch',
-          details: `Value "${observed}" does not conform to official statutory pattern (${reqField.formatRegex}).`,
+          observedValue: null,
+          rawObservedValue: rawValue,
+          normalizationApplied: normResult.normalizationApplied,
+          confidence: normResult.confidence,
+          status: 'unreadable',
+          details: `Field "${reqField.label}" is illegible or damaged in source scan.`,
         });
 
         alterationIndicators.push({
-          indicatorType: 'Format Validation Violation',
-          description: `Field "${reqField.label}" contains invalid format value "${observed}".`,
-          severity: 'high',
-          evidence: `Expected pattern ${reqField.formatRegex}, observed "${observed}"`,
-          limitations: 'Indicates potential manual tampering, typographical error, or OCR character misrecognition.',
+          indicatorType: 'Unreadable Statutory Field',
+          description: `Field "${reqField.label}" could not be legibly recognized from document scan.`,
+          severity: 'low',
+          evidence: `Observed value: "${rawValue}"`,
+          limitations: 'Low scan resolution or scan artifact. Manual officer inspection advised.',
         });
       } else {
-        fieldFindings.push({
-          fieldKey: reqField.fieldKey,
-          label: reqField.label,
-          expectedFormat: reqField.formatRegex,
-          observedValue: observed,
-          status: 'present_valid',
-          details: `Field matches official statutory format specification.`,
-        });
+        // Validate format regex against normalized candidate
+        let formatValid = true;
+        if (reqField.formatRegex) {
+          const regex = new RegExp(reqField.formatRegex);
+          formatValid = regex.test(normResult.normalizedValue);
+        }
+
+        if (!formatValid) {
+          hasFormatMismatches = true;
+          fieldFindings.push({
+            fieldKey: reqField.fieldKey,
+            label: reqField.label,
+            expectedFormat: reqField.formatRegex,
+            observedValue: normResult.normalizedValue,
+            rawObservedValue: rawValue,
+            normalizationApplied: normResult.normalizationApplied,
+            confidence: normResult.confidence,
+            status: 'format_mismatch',
+            details: `Value "${normResult.normalizedValue}" does not conform to official statutory pattern (${reqField.formatRegex}).`,
+          });
+
+          alterationIndicators.push({
+            indicatorType: 'Format Validation Violation',
+            description: `Field "${reqField.label}" contains invalid format value "${normResult.normalizedValue}".`,
+            severity: 'high',
+            evidence: `Expected pattern ${reqField.formatRegex}, observed "${normResult.normalizedValue}" (raw: "${rawValue}")`,
+            limitations: 'Indicates potential manual tampering, typographical error, or OCR character misrecognition.',
+          });
+        } else {
+          fieldFindings.push({
+            fieldKey: reqField.fieldKey,
+            label: reqField.label,
+            expectedFormat: reqField.formatRegex,
+            observedValue: normResult.normalizedValue,
+            rawObservedValue: rawValue,
+            normalizationApplied: normResult.normalizationApplied,
+            confidence: normResult.confidence,
+            status: 'present_valid',
+            details: normResult.normalizationApplied
+              ? `Field matches official statutory format after transparent normalization (${normResult.normalizationApplied}).`
+              : `Field matches official statutory format specification.`,
+          });
+        }
       }
     }
   }
@@ -950,6 +1436,8 @@ export function compareDocumentAgainstReference(input: ComparisonInput): Compari
     hasMissingFields,
     hasFormatMismatches,
     isSuspicious,
+    unreadableFields,
+    normalizationNotes,
   };
 }
 
@@ -1083,6 +1571,11 @@ export interface AuthenticityAssessmentInput {
   pageCount?: number;
   pdfBytes?: Uint8Array | null;
   pdfMetadata?: Record<string, any>;
+  isPasswordProtected?: boolean;
+  readabilityStatus?: 'digital_text' | 'scanned_ocr' | 'unreadable' | 'password_protected' | 'unsupported_format';
+  extractionConfidence?: number | null;
+  extractionError?: string | null;
+  provenancePreference?: ReferenceProvenance;
 }
 
 export function assessDocumentAuthenticity(
@@ -1099,7 +1592,228 @@ export function assessDocumentAuthenticity(
     pageCount,
     pdfBytes,
     pdfMetadata,
+    isPasswordProtected,
+    provenancePreference,
   } = input;
+
+  // Resolve readability status and confidence
+  const ext = (originalFilename || '').toLowerCase();
+  const isImageFile = ext.endsWith('.png') || ext.endsWith('.jpg') || ext.endsWith('.jpeg') || ext.endsWith('.webp') || ext.endsWith('.tiff');
+  const isArchiveFile = ext.endsWith('.zip') || ext.endsWith('.rar') || ext.endsWith('.7z') || ext.endsWith('.tar') || ext.endsWith('.gz');
+
+  let readabilityStatus: 'digital_text' | 'scanned_ocr' | 'unreadable' | 'password_protected' | 'unsupported_format' =
+    input.readabilityStatus || 'digital_text';
+
+  if (isPasswordProtected || input.readabilityStatus === 'password_protected') {
+    readabilityStatus = 'password_protected';
+  } else if (isArchiveFile || input.readabilityStatus === 'unsupported_format') {
+    readabilityStatus = 'unsupported_format';
+  } else if (!rawText || rawText.trim().length === 0 || input.readabilityStatus === 'unreadable') {
+    readabilityStatus = 'unreadable';
+  } else if (!input.readabilityStatus) {
+    if (isImageFile || rawText.includes('[OCR]') || rawText.includes('TESSERACT_OCR_STREAM')) {
+      readabilityStatus = 'scanned_ocr';
+    } else {
+      readabilityStatus = 'digital_text';
+    }
+  }
+
+  let extractionConfidence = input.extractionConfidence;
+  if (extractionConfidence === undefined || extractionConfidence === null) {
+    if (readabilityStatus === 'digital_text') extractionConfidence = 0.98;
+    else if (readabilityStatus === 'scanned_ocr') extractionConfidence = 0.85;
+    else extractionConfidence = 0.0;
+  }
+
+  // Handle explicitly unprocessable cases
+  if (readabilityStatus === 'password_protected') {
+    const assessment: DocumentAuthenticityAssessment = {
+      id: `assess-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+      documentId,
+      applicationId,
+      originalFilename,
+      detectedDocumentType: 'Encrypted / Password-Protected File',
+      claimedIssuingAuthority: 'Unspecified',
+      selectedReferenceId: null,
+      selectedReferenceVersion: null,
+      selectedReferenceProvenance: null,
+      referenceTrustStatus: null,
+      selectionReason: 'Processing halted: File is password-protected or encrypted. Decryption key required.',
+      ocrStatus: 'failed_encrypted',
+      readabilityStatus: 'password_protected',
+      extractionConfidence: 0.0,
+      unreadableFields: [],
+      normalizationNotes: [],
+      structuralComparisonFindings: [],
+      fieldComparisonFindings: [],
+      alterationIndicators: [],
+      qrAndSignatureFindings: {
+        hasQr: false,
+        qrDecodedContent: null,
+        qrValidationStatus: 'not_present',
+        qrNotes: 'Unable to inspect encrypted file.',
+        hasDigitalSignature: false,
+        signatureDetails: 'Document stream encrypted.',
+        limitations: 'Encrypted container prevents byte-level inspection.',
+      },
+      issuerVerificationResult: {
+        attempted: false,
+        method: 'none',
+        source: 'none',
+        status: 'NOT_CHECKED',
+        details: 'Encrypted document prevents statutory field extraction.',
+        limitations: 'Issuing-authority verification not performed.',
+      },
+      checksNotPerformed: [
+        'Document stream decryption',
+        'Text extraction and optical character recognition',
+        'Authoritative reference template matching',
+        'Issuing-authority database query',
+      ],
+      recommendedNextAction:
+        'Submit an unprotected PDF copy. Password-protected or encrypted statutory documents cannot be audited automatically.',
+      statusDimensions: {
+        applicationCompliance: 'INCOMPLETE',
+        templateComparison: 'TEMPLATE_UNAVAILABLE',
+        textConsistency: 'NOT_CHECKED',
+        alterationIndicators: 'INCONCLUSIVE',
+        qrAndSignatureVerification: 'UNSUPPORTED',
+        issuingAuthorityVerification: 'NOT_CHECKED',
+        overallAuthenticity: 'UNABLE_TO_VERIFY',
+      },
+      createdAt: new Date().toISOString(),
+    };
+    inMemoryAssessments.push(assessment);
+    return assessment;
+  }
+
+  if (readabilityStatus === 'unsupported_format') {
+    const assessment: DocumentAuthenticityAssessment = {
+      id: `assess-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+      documentId,
+      applicationId,
+      originalFilename,
+      detectedDocumentType: 'Unsupported File Format',
+      claimedIssuingAuthority: 'Unspecified',
+      selectedReferenceId: null,
+      selectedReferenceVersion: null,
+      selectedReferenceProvenance: null,
+      referenceTrustStatus: null,
+      selectionReason: `Unsupported file container format (${ext}). Supported formats: PDF, PNG, JPEG.`,
+      ocrStatus: 'unsupported_format',
+      readabilityStatus: 'unsupported_format',
+      extractionConfidence: 0.0,
+      unreadableFields: [],
+      normalizationNotes: [],
+      structuralComparisonFindings: [],
+      fieldComparisonFindings: [],
+      alterationIndicators: [],
+      qrAndSignatureFindings: {
+        hasQr: false,
+        qrDecodedContent: null,
+        qrValidationStatus: 'not_present',
+        qrNotes: 'Unsupported container.',
+        hasDigitalSignature: false,
+        signatureDetails: 'Unsupported container.',
+        limitations: 'Cannot inspect unsupported file container.',
+      },
+      issuerVerificationResult: {
+        attempted: false,
+        method: 'none',
+        source: 'none',
+        status: 'NOT_CHECKED',
+        details: 'File format not supported for statutory validation.',
+        limitations: 'Issuing-authority verification not performed.',
+      },
+      checksNotPerformed: [
+        'File format parsing (container unsupported)',
+        'Reference template matching',
+        'Issuing-authority verification',
+      ],
+      recommendedNextAction:
+        'Upload document in standard PDF, PNG, or JPEG format. Compressed archive files (.zip, .tar, .7z) cannot be processed.',
+      statusDimensions: {
+        applicationCompliance: 'INCOMPLETE',
+        templateComparison: 'TEMPLATE_UNAVAILABLE',
+        textConsistency: 'NOT_CHECKED',
+        alterationIndicators: 'INCONCLUSIVE',
+        qrAndSignatureVerification: 'UNSUPPORTED',
+        issuingAuthorityVerification: 'NOT_CHECKED',
+        overallAuthenticity: 'UNABLE_TO_VERIFY',
+      },
+      createdAt: new Date().toISOString(),
+    };
+    inMemoryAssessments.push(assessment);
+    return assessment;
+  }
+
+  if (readabilityStatus === 'unreadable') {
+    const assessment: DocumentAuthenticityAssessment = {
+      id: `assess-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+      documentId,
+      applicationId,
+      originalFilename,
+      detectedDocumentType: 'Unreadable / Blank Scan',
+      claimedIssuingAuthority: 'Unspecified',
+      selectedReferenceId: null,
+      selectedReferenceVersion: null,
+      selectedReferenceProvenance: null,
+      referenceTrustStatus: null,
+      selectionReason: 'OCR engine yielded zero legible characters or unreadable noise.',
+      ocrStatus: 'empty_scan',
+      readabilityStatus: 'unreadable',
+      extractionConfidence: 0.0,
+      unreadableFields: ['all_fields'],
+      normalizationNotes: [],
+      structuralComparisonFindings: [],
+      fieldComparisonFindings: [],
+      alterationIndicators: [
+        {
+          indicatorType: 'Unreadable Document Content',
+          description: 'Document image contains no extractable statutory text.',
+          severity: 'low',
+          evidence: 'Character extraction count: 0',
+          limitations: 'May result from low DPI scan, camera glare, or blank file rather than fraudulent intent.',
+        },
+      ],
+      qrAndSignatureFindings: {
+        hasQr: false,
+        qrDecodedContent: null,
+        qrValidationStatus: 'not_present',
+        qrNotes: 'No legible barcode symbols found.',
+        hasDigitalSignature: false,
+        signatureDetails: 'No digital signature certificate detected.',
+        limitations: 'Unreadable document stream.',
+      },
+      issuerVerificationResult: {
+        attempted: false,
+        method: 'none',
+        source: 'none',
+        status: 'NOT_CHECKED',
+        details: 'Zero legible fields to query against issuing authority.',
+        limitations: 'Issuing-authority verification not performed.',
+      },
+      checksNotPerformed: [
+        'Reference template structural comparison',
+        'Field format validation',
+        'Issuing-authority verification',
+      ],
+      recommendedNextAction:
+        'Re-scan or upload higher resolution legible copy. Document scan contains no legible text.',
+      statusDimensions: {
+        applicationCompliance: 'INCOMPLETE',
+        templateComparison: 'TEMPLATE_UNAVAILABLE',
+        textConsistency: 'NOT_CHECKED',
+        alterationIndicators: 'INCONCLUSIVE',
+        qrAndSignatureVerification: 'NO_SIGNATURE',
+        issuingAuthorityVerification: 'NOT_CHECKED',
+        overallAuthenticity: 'UNABLE_TO_VERIFY',
+      },
+      createdAt: new Date().toISOString(),
+    };
+    inMemoryAssessments.push(assessment);
+    return assessment;
+  }
 
   // 1. Automatic Reference Selection
   const selection = selectAppropriateReference({
@@ -1107,6 +1821,7 @@ export function assessDocumentAuthenticity(
     fileName: originalFilename,
     targetRequirement,
     claimedIssueDate,
+    provenancePreference,
   });
 
   const template = selection.selectedTemplate;
@@ -1169,10 +1884,8 @@ export function assessDocumentAuthenticity(
     alterationStatus = 'INCONCLUSIVE';
   } else if (comparison?.isSuspicious || qrAndSig.qrValidationStatus === 'malformed' || qrAndSig.signatureValid === false) {
     alterationStatus = 'SUSPICIOUS';
-  } else if (comparison && comparison.alterationIndicators.length === 0) {
-    alterationStatus = 'NO_ALTERATIONS_DETECTED';
   } else {
-    alterationStatus = 'SUSPICIOUS';
+    alterationStatus = 'NO_ALTERATIONS_DETECTED';
   }
 
   // Dimension E: QR Code & Digital Signature Status
@@ -1191,10 +1904,6 @@ export function assessDocumentAuthenticity(
   const issuerStatus: IssuerVerificationStatus = issuerResult.status;
 
   // Dimension G: Overall Authenticity Assessment
-  // Crucial rules:
-  // - A document matching reference template MUST NOT automatically be marked VERIFIED.
-  // - A missing reference template MUST NOT automatically be marked SUSPICIOUS.
-  // - A technical error MUST NOT automatically be treated as failed check.
   let overallStatus: OverallAuthenticityStatus = 'NOT_CHECKED';
   if (alterationStatus === 'SUSPICIOUS' || qrSigStatus === 'MALFORMED_OR_INVALID') {
     overallStatus = 'SUSPICIOUS';
@@ -1217,8 +1926,12 @@ export function assessDocumentAuthenticity(
     recommendedNextAction =
       'Request applicant to ensure document belongs to supported statutory categories, or review custom format manually.';
   } else if (appCompliance === 'INCOMPLETE') {
-    recommendedNextAction =
-      'Re-upload document ensuring all required statutory fields (e.g., entity name, registration number, father name) are legible.';
+    if (comparison && comparison.unreadableFields.length > 0) {
+      recommendedNextAction = `Re-scan or re-upload document: Statutory field(s) ${comparison.unreadableFields.join(', ')} were illegible in scan.`;
+    } else {
+      recommendedNextAction =
+        'Re-upload document ensuring all required statutory fields (e.g., entity name, registration number, father name) are legible and filled.';
+    }
   }
 
   const checksNotPerformed: string[] = [
@@ -1241,7 +1954,11 @@ export function assessDocumentAuthenticity(
     selectedReferenceProvenance: template ? template.provenance : null,
     referenceTrustStatus: template ? template.reviewStatus : null,
     selectionReason: selection.selectionReason,
-    ocrStatus: 'completed',
+    ocrStatus: readabilityStatus === 'scanned_ocr' ? 'ocr_stream' : 'digital_stream',
+    readabilityStatus,
+    extractionConfidence,
+    unreadableFields: comparison?.unreadableFields || [],
+    normalizationNotes: comparison?.normalizationNotes || [],
     structuralComparisonFindings: comparison ? comparison.structuralFindings : [],
     fieldComparisonFindings: comparison ? comparison.fieldFindings : [],
     alterationIndicators: comparison ? comparison.alterationIndicators : [],

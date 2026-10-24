@@ -651,7 +651,10 @@ export interface FieldComparisonFinding {
   label: string;
   expectedFormat?: string;
   observedValue: string | null;
-  status: 'present_valid' | 'missing' | 'format_mismatch' | 'discrepancy';
+  rawObservedValue?: string | null;
+  normalizationApplied?: string | null;
+  confidence?: number;
+  status: 'present_valid' | 'missing' | 'format_mismatch' | 'discrepancy' | 'unreadable';
   details: string;
 }
 
@@ -697,6 +700,10 @@ export interface DocumentAuthenticityAssessment {
   referenceTrustStatus: ReferenceReviewStatus | null;
   selectionReason: string;
   ocrStatus: string;
+  readabilityStatus?: 'digital_text' | 'scanned_ocr' | 'unreadable' | 'password_protected' | 'unsupported_format';
+  extractionConfidence?: number | null;
+  unreadableFields?: string[];
+  normalizationNotes?: string[];
   structuralComparisonFindings: StructuralFinding[];
   fieldComparisonFindings: FieldComparisonFinding[];
   alterationIndicators: AlterationIndicator[];

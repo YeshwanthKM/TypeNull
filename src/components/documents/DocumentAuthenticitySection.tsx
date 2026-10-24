@@ -188,9 +188,9 @@ export const DocumentAuthenticitySection: React.FC<DocumentAuthenticitySectionPr
       {activeAssessment && (
         <div className="space-y-4">
           {/* Selected Reference Banner */}
-          <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-2">
+          <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-2.5">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-              <div className="flex items-center gap-2">
+              <div className="flex flex-wrap items-center gap-2">
                 <span className="text-xs text-slate-500 font-semibold">
                   Detected Document Type:
                 </span>
@@ -202,10 +202,35 @@ export const DocumentAuthenticitySection: React.FC<DocumentAuthenticitySectionPr
                     SYNTHETIC DEMO REFERENCE
                   </span>
                 )}
+                {activeAssessment.selectedReferenceProvenance === 'official_gazette' && (
+                  <span className="text-[10px] font-mono font-bold bg-emerald-50 text-emerald-800 border border-emerald-200 px-1.5 py-0.5 rounded">
+                    OFFICIAL GAZETTE PROFORMA
+                  </span>
+                )}
               </div>
 
-              <div className="flex items-center gap-2 text-xs">
-                <span className="text-slate-500">Selected Reference:</span>
+              <div className="flex flex-wrap items-center gap-2 text-xs">
+                {activeAssessment.readabilityStatus && (
+                  <span className={`text-[10px] font-semibold px-2 py-0.5 rounded border ${
+                    activeAssessment.readabilityStatus === 'digital_text'
+                      ? 'bg-blue-50 text-blue-700 border-blue-200'
+                      : activeAssessment.readabilityStatus === 'scanned_ocr'
+                      ? 'bg-purple-50 text-purple-700 border-purple-200'
+                      : activeAssessment.readabilityStatus === 'password_protected'
+                      ? 'bg-rose-50 text-rose-700 border-rose-200'
+                      : 'bg-amber-50 text-amber-700 border-amber-200'
+                  }`}>
+                    {activeAssessment.readabilityStatus === 'digital_text' && 'Digital PDF'}
+                    {activeAssessment.readabilityStatus === 'scanned_ocr' && 'Scanned OCR'}
+                    {activeAssessment.readabilityStatus === 'password_protected' && 'Password Protected'}
+                    {activeAssessment.readabilityStatus === 'unreadable' && 'Unreadable Scan'}
+                    {activeAssessment.readabilityStatus === 'unsupported_format' && 'Unsupported Format'}
+                    {activeAssessment.extractionConfidence !== undefined && activeAssessment.extractionConfidence !== null && (
+                      <span className="ml-1 opacity-80">({Math.round(activeAssessment.extractionConfidence * 100)}%)</span>
+                    )}
+                  </span>
+                )}
+                <span className="text-slate-500">Reference:</span>
                 <span className="font-mono font-bold text-indigo-700 bg-indigo-50 border border-indigo-200 px-2 py-0.5 rounded">
                   {activeAssessment.selectedReferenceVersion || 'UNAVAILABLE'}
                 </span>
@@ -215,6 +240,20 @@ export const DocumentAuthenticitySection: React.FC<DocumentAuthenticitySectionPr
             <p className="text-[11px] text-slate-600 italic">
               Selection Rationale: {activeAssessment.selectionReason}
             </p>
+
+            {activeAssessment.normalizationNotes && activeAssessment.normalizationNotes.length > 0 && (
+              <div className="pt-1 border-t border-slate-200/60 flex items-center gap-2 text-[11px] text-slate-600">
+                <span className="font-semibold text-indigo-700">Transparent Normalizations:</span>
+                <span>{activeAssessment.normalizationNotes.join(' • ')}</span>
+              </div>
+            )}
+
+            {activeAssessment.unreadableFields && activeAssessment.unreadableFields.length > 0 && (
+              <div className="pt-1 border-t border-slate-200/60 flex items-center gap-2 text-[11px] text-amber-700">
+                <span className="font-semibold">Illegible Fields:</span>
+                <span>{activeAssessment.unreadableFields.join(', ')}</span>
+              </div>
+            )}
           </div>
 
           {/* 7-Dimension Status Matrix */}
@@ -441,14 +480,23 @@ export const DocumentAuthenticitySection: React.FC<DocumentAuthenticitySectionPr
                           {f.expectedFormat || 'Any'}
                         </td>
                         <td className="py-2 px-3 font-mono text-slate-800">
-                          {f.observedValue || '<Missing>'}
+                          {f.status === 'unreadable' ? (
+                            <span className="text-amber-700 italic font-sans">&lt;Unreadable / Illegible&gt;</span>
+                          ) : (
+                            f.observedValue || '<Missing>'
+                          )}
+                          {f.rawObservedValue && f.normalizationApplied && (
+                            <span className="block text-[9px] text-indigo-600 font-sans mt-0.5">
+                              Raw: &quot;{f.rawObservedValue}&quot; ({f.normalizationApplied})
+                            </span>
+                          )}
                         </td>
                         <td className="py-2 px-3">
                           <span
                             className={`font-semibold capitalize ${
                               f.status === 'present_valid'
                                 ? 'text-emerald-700'
-                                : f.status === 'missing'
+                                : f.status === 'missing' || f.status === 'unreadable'
                                 ? 'text-amber-700'
                                 : 'text-rose-700'
                             }`}
