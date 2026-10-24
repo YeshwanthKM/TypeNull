@@ -135,36 +135,40 @@ export const ExtractionReviewCard: React.FC<ExtractionReviewCardProps> = ({
             <label className="block text-[11px] font-semibold text-slate-700 uppercase tracking-wider">
               Human Reviewer Correction
             </label>
-            <div className="flex items-center gap-2">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
               <input
                 type="text"
                 value={valueDraft}
                 onChange={(e) => setValueDraft(e.target.value)}
-                className="w-full text-xs font-mono px-3 py-2 border border-teal-500 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500/20 bg-teal-50/20 text-slate-900"
+                className="w-full text-base sm:text-xs font-mono px-3 py-2 border border-teal-500 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500/20 bg-teal-50/20 text-slate-900"
                 placeholder="Enter corrected value..."
                 autoFocus
               />
-              <Button
-                variant="primary"
-                size="sm"
-                onClick={handleSaveCorrection}
-                isLoading={isSaving}
-                leftIcon={<Save className="w-3.5 h-3.5" />}
-              >
-                Save
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => {
-                  setValueDraft(field.reviewed_value || field.extracted_value || '');
-                  setIsEditing(false);
-                }}
-                disabled={isSaving}
-                leftIcon={<X className="w-3.5 h-3.5" />}
-              >
-                Cancel
-              </Button>
+              <div className="flex items-center gap-2 justify-end">
+                <Button
+                  variant="primary"
+                  size="sm"
+                  onClick={handleSaveCorrection}
+                  isLoading={isSaving}
+                  leftIcon={<Save className="w-3.5 h-3.5" />}
+                  className="flex-1 sm:flex-initial"
+                >
+                  Save
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    setValueDraft(field.reviewed_value || field.extracted_value || '');
+                    setIsEditing(false);
+                  }}
+                  disabled={isSaving}
+                  leftIcon={<X className="w-3.5 h-3.5" />}
+                  className="flex-1 sm:flex-initial"
+                >
+                  Cancel
+                </Button>
+              </div>
             </div>
             {field.extracted_value && (
               <span className="text-[10px] text-slate-500 block">
@@ -191,7 +195,7 @@ export const ExtractionReviewCard: React.FC<ExtractionReviewCardProps> = ({
             </div>
 
             {/* Action Buttons */}
-            <div className="flex items-center gap-2 self-end sm:self-auto">
+            <div className="flex items-center gap-2 self-start sm:self-auto flex-wrap">
               {field.review_status !== 'confirmed' && (
                 <Button
                   variant="outline"

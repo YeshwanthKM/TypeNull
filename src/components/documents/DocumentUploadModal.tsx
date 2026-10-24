@@ -132,9 +132,9 @@ export const DocumentUploadModal: React.FC<DocumentUploadModalProps> = ({
       role="dialog"
       aria-modal="true"
       aria-labelledby="upload-modal-title"
-      className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4"
+      className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4"
     >
-      <div className="relative bg-white rounded-xl max-w-xl w-full p-6 shadow-2xl border border-slate-200">
+      <div className="relative bg-white rounded-xl max-w-xl w-full p-4 sm:p-6 shadow-2xl border border-slate-200">
         {/* Close Button */}
         <button
           type="button"
@@ -260,13 +260,13 @@ export const DocumentUploadModal: React.FC<DocumentUploadModalProps> = ({
             </div>
           ) : (
             /* Selected File Preview Stage */
-            <div className="p-4 rounded-xl border border-slate-200 bg-slate-50/70 space-y-3">
-              <div className="flex items-start justify-between gap-3">
-                <div className="flex items-center gap-3">
+            <div className="p-3.5 sm:p-4 rounded-xl border border-slate-200 bg-slate-50/70 space-y-3">
+              <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
+                <div className="flex items-center gap-3 min-w-0">
                   <div className="w-10 h-10 rounded-lg bg-teal-100 text-teal-800 flex items-center justify-center flex-shrink-0">
                     {previewUrl ? <Camera className="w-5 h-5" /> : <FileText className="w-5 h-5" />}
                   </div>
-                  <div className="space-y-0.5">
+                  <div className="space-y-0.5 min-w-0">
                     <p className="text-xs font-semibold text-slate-900 truncate max-w-xs sm:max-w-sm">
                       {selectedFile.name}
                     </p>
@@ -283,6 +283,7 @@ export const DocumentUploadModal: React.FC<DocumentUploadModalProps> = ({
                   onClick={handleResetSelection}
                   disabled={isUploading}
                   leftIcon={<RefreshCw className="w-3.5 h-3.5" />}
+                  className="self-end sm:self-auto"
                 >
                   Retake / Change
                 </Button>

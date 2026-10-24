@@ -81,7 +81,7 @@ export const ExtractedDossierSection: React.FC<ExtractedDossierSectionProps> = (
   }
 
   return (
-    <div className="p-6 rounded-xl border border-slate-200 bg-white shadow-sm space-y-5">
+    <div className="p-4 sm:p-6 rounded-xl border border-slate-200 bg-white shadow-sm space-y-5">
       {/* Header */}
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-3">
         <div className="flex items-center gap-2.5">

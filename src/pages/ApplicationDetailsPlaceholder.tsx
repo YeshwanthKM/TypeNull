@@ -211,7 +211,7 @@ export const ApplicationDetailsPlaceholder: React.FC = () => {
           { label: id ? `${id.slice(0, 8)}...` : 'Dossier' },
         ]}
         action={
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto justify-end sm:justify-start">
             <Button
               variant="outline"
               size="sm"
@@ -251,13 +251,13 @@ export const ApplicationDetailsPlaceholder: React.FC = () => {
         {/* Left Column: Application Information & Document Management */}
         <div className="lg:col-span-2 space-y-6">
           {/* Real Application Info Card */}
-          <div className="p-6 rounded-xl border border-slate-200 bg-white shadow-sm space-y-4">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+          <div className="p-4 sm:p-6 rounded-xl border border-slate-200 bg-white shadow-sm space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-3">
               <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
-                <FileText className="w-4 h-4 text-teal-700" />
-                Dossier Metadata &amp; Claims
+                <FileText className="w-4 h-4 text-teal-700 flex-shrink-0" />
+                <span>Dossier Metadata &amp; Claims</span>
               </h3>
-              <span className="text-[11px] font-mono text-slate-500 bg-slate-50 px-2 py-0.5 rounded border border-slate-200">
+              <span className="self-start sm:self-auto text-[11px] font-mono text-slate-500 bg-slate-50 px-2 py-0.5 rounded border border-slate-200">
                 PostgreSQL Active
               </span>
             </div>
@@ -325,8 +325,8 @@ export const ApplicationDetailsPlaceholder: React.FC = () => {
           </div>
 
           {/* Document Management Section */}
-          <div className="p-6 rounded-xl border border-slate-200 bg-white shadow-sm space-y-4">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+          <div className="p-4 sm:p-6 rounded-xl border border-slate-200 bg-white shadow-sm space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-3">
               <div>
                 <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
                   <Camera className="w-4 h-4 text-teal-700" />
@@ -342,6 +342,7 @@ export const ApplicationDetailsPlaceholder: React.FC = () => {
                 size="sm"
                 onClick={() => setIsUploadModalOpen(true)}
                 leftIcon={<UploadCloud className="w-3.5 h-3.5" />}
+                className="w-full sm:w-auto"
               >
                 Add Document
               </Button>
@@ -379,7 +380,7 @@ export const ApplicationDetailsPlaceholder: React.FC = () => {
         {/* Right Column: Vault Security & Pipeline Intelligence */}
         <div className="space-y-6">
           {/* Vault Security Summary Card */}
-          <div className="p-6 rounded-xl border border-slate-200 bg-white shadow-sm space-y-3">
+          <div className="p-4 sm:p-6 rounded-xl border border-slate-200 bg-white shadow-sm space-y-3">
             <div className="flex items-center gap-2 font-bold text-slate-900 text-sm border-b border-slate-100 pb-2.5">
               <Lock className="w-4 h-4 text-teal-700" />
               <span>Storage Vault Status</span>
@@ -405,7 +406,7 @@ export const ApplicationDetailsPlaceholder: React.FC = () => {
           </div>
 
           {/* Active Phase 4: Document Intelligence Status */}
-          <div className="p-6 rounded-xl border border-teal-200 bg-teal-50/30 shadow-sm space-y-3">
+          <div className="p-4 sm:p-6 rounded-xl border border-teal-200 bg-teal-50/30 shadow-sm space-y-3">
             <div className="flex items-center justify-between border-b border-teal-100 pb-2.5">
               <h4 className="text-sm font-bold text-slate-900 flex items-center gap-2">
                 <Layers className="w-4 h-4 text-teal-700" />
@@ -429,7 +430,7 @@ export const ApplicationDetailsPlaceholder: React.FC = () => {
           </div>
 
           {/* Upcoming Phase 5: Regulatory Compliance Preview */}
-          <div className="p-6 rounded-xl border border-slate-200 bg-white shadow-sm space-y-3">
+          <div className="p-4 sm:p-6 rounded-xl border border-slate-200 bg-white shadow-sm space-y-3">
             <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
               <h4 className="text-sm font-bold text-slate-900 flex items-center gap-2">
                 <FileCheck className="w-4 h-4 text-teal-700" />

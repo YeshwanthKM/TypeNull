@@ -119,12 +119,13 @@ export const DocumentList: React.FC<DocumentListProps> = ({
               </p>
             )}
 
-            <div className="flex items-center justify-end gap-2.5 pt-2">
+            <div className="flex flex-col-reverse sm:flex-row items-center justify-end gap-2.5 pt-2">
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={() => setDeletingDoc(null)}
                 disabled={isDeleting}
+                className="w-full sm:w-auto"
               >
                 Cancel
               </Button>
@@ -134,6 +135,7 @@ export const DocumentList: React.FC<DocumentListProps> = ({
                 onClick={confirmDelete}
                 isLoading={isDeleting}
                 leftIcon={<Trash2 className="w-3.5 h-3.5" />}
+                className="w-full sm:w-auto"
               >
                 Confirm Delete
               </Button>
@@ -142,8 +144,84 @@ export const DocumentList: React.FC<DocumentListProps> = ({
         </div>
       )}
 
-      {/* Document Table */}
-      <div className="rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+      {/* Mobile Stacked Cards (< md) */}
+      <div className="block md:hidden space-y-3">
+        {documents.map((doc) => {
+          const isPdf = doc.mime_type === 'application/pdf';
+          return (
+            <div
+              key={doc.id}
+              className="p-4 rounded-xl border border-slate-200 bg-white shadow-xs space-y-3"
+            >
+              <div className="flex items-start justify-between gap-2.5">
+                <div className="flex items-start gap-2.5 min-w-0">
+                  <div className="w-8 h-8 rounded-lg bg-teal-50 border border-teal-200 text-teal-800 flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <FileText className="w-4 h-4" />
+                  </div>
+                  <div className="min-w-0">
+                    <span className="font-semibold text-xs text-slate-900 block truncate">
+                      {doc.original_filename}
+                    </span>
+                    <span className="inline-flex items-center gap-1 text-[10px] font-medium text-slate-600 bg-slate-100 px-1.5 py-0.5 rounded border border-slate-200 mt-1">
+                      <Tag className="w-3 h-3 text-slate-400" />
+                      {getCategoryLabel(doc.document_type)}
+                    </span>
+                  </div>
+                </div>
+
+                <StatusBadge status={doc.processing_status} size="sm" />
+              </div>
+
+              <div className="flex items-center justify-between text-[11px] text-slate-500 font-mono pt-1 border-t border-slate-100">
+                <span>{formatBytes(doc.file_size_bytes)} &bull; {isPdf ? 'PDF' : 'Image'}</span>
+                <div className="flex items-center gap-1">
+                  <Clock className="w-3 h-3 text-slate-400" />
+                  <span>{new Date(doc.created_at).toLocaleDateString()}</span>
+                </div>
+              </div>
+
+              <div className="pt-2 border-t border-slate-100 flex flex-wrap items-center justify-between gap-2">
+                <div className="flex items-center gap-1.5 flex-1">
+                  {onExtractDocument && (
+                    <Button
+                      variant={doc.processing_status === 'completed' ? 'outline' : 'secondary'}
+                      size="sm"
+                      onClick={() => onExtractDocument(doc)}
+                      leftIcon={<Sparkles className="w-3.5 h-3.5 text-teal-600" />}
+                      className="flex-1 sm:flex-initial text-xs"
+                    >
+                      {doc.processing_status === 'completed' ? 'Review Data' : 'Extract Data'}
+                    </Button>
+                  )}
+
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => onPreviewDocument(doc)}
+                    leftIcon={<Eye className="w-3.5 h-3.5" />}
+                    className="flex-1 sm:flex-initial text-xs"
+                  >
+                    Preview
+                  </Button>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => setDeletingDoc(doc)}
+                  className="p-2 text-slate-400 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors flex-shrink-0 min-h-[38px] min-w-[38px] flex items-center justify-center"
+                  title="Delete document"
+                  aria-label={`Delete ${doc.original_filename}`}
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Desktop Document Table (>= md) */}
+      <div className="hidden md:block rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-slate-200 text-left text-xs">
             <thead className="bg-slate-50 text-slate-600 font-semibold uppercase tracking-wider text-[11px]">

@@ -46,7 +46,7 @@ export const FormSelect: React.FC<FormSelectProps> = ({
           disabled={disabled}
           aria-invalid={Boolean(error)}
           aria-describedby={error ? `${selectId}-error` : helperText ? `${selectId}-desc` : undefined}
-          className={`block w-full rounded-lg border text-sm px-3.5 py-2.5 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-1 disabled:bg-slate-100 disabled:cursor-not-allowed bg-white ${
+          className={`block w-full rounded-lg border text-base md:text-sm px-3.5 py-2.5 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-1 disabled:bg-slate-100 disabled:cursor-not-allowed bg-white ${
             error
               ? 'border-red-300 text-red-900 focus:border-red-500 focus:ring-red-500 bg-red-50/20'
               : 'border-slate-300 text-slate-900 focus:border-teal-600 focus:ring-teal-600'

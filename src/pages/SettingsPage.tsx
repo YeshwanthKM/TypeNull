@@ -90,11 +90,11 @@ export const SettingsPage: React.FC = () => {
         {/* Section 1: Officer Account */}
         <section
           aria-labelledby="account-settings-heading"
-          className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm space-y-4"
+          className="rounded-xl border border-slate-200 bg-white p-4 sm:p-6 shadow-sm space-y-4"
         >
-          <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-3">
             <div className="flex items-center gap-2.5">
-              <User className="w-5 h-5 text-teal-700" />
+              <User className="w-5 h-5 text-teal-700 flex-shrink-0" />
               <div>
                 <h2 id="account-settings-heading" className="text-sm font-bold text-slate-900">
                   Officer Account &amp; Profile
@@ -109,7 +109,7 @@ export const SettingsPage: React.FC = () => {
               size="sm"
               onClick={handleSignOut}
               leftIcon={<LogOut className="w-3.5 h-3.5 text-red-600" />}
-              className="text-red-700 hover:bg-red-50 hover:border-red-200"
+              className="text-red-700 hover:bg-red-50 hover:border-red-200 self-start sm:self-auto"
             >
               Sign Out
             </Button>

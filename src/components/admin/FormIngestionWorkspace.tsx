@@ -387,11 +387,11 @@ export const FormIngestionWorkspace: React.FC = () => {
       )}
 
       {/* Subtab Navigation */}
-      <div className="flex flex-wrap border-b border-slate-200 gap-2 sm:gap-6 text-xs sm:text-sm font-semibold">
+      <div className="flex border-b border-slate-200 gap-4 sm:gap-6 text-xs sm:text-sm font-semibold overflow-x-auto whitespace-nowrap scrollbar-none pb-0.5">
         <button
           type="button"
           onClick={() => setActiveSubTab('lifecycle')}
-          className={`pb-3 flex items-center gap-1.5 border-b-2 transition-colors ${
+          className={`pb-3 flex items-center gap-1.5 border-b-2 transition-colors flex-shrink-0 ${
             activeSubTab === 'lifecycle'
               ? 'border-indigo-600 text-indigo-700'
               : 'border-transparent text-slate-500 hover:text-slate-800'
@@ -407,7 +407,7 @@ export const FormIngestionWorkspace: React.FC = () => {
         <button
           type="button"
           onClick={() => setActiveSubTab('sources')}
-          className={`pb-3 flex items-center gap-1.5 border-b-2 transition-colors ${
+          className={`pb-3 flex items-center gap-1.5 border-b-2 transition-colors flex-shrink-0 ${
             activeSubTab === 'sources'
               ? 'border-indigo-600 text-indigo-700'
               : 'border-transparent text-slate-500 hover:text-slate-800'
@@ -423,7 +423,7 @@ export const FormIngestionWorkspace: React.FC = () => {
         <button
           type="button"
           onClick={() => setActiveSubTab('pipeline')}
-          className={`pb-3 flex items-center gap-1.5 border-b-2 transition-colors ${
+          className={`pb-3 flex items-center gap-1.5 border-b-2 transition-colors flex-shrink-0 ${
             activeSubTab === 'pipeline'
               ? 'border-indigo-600 text-indigo-700'
               : 'border-transparent text-slate-500 hover:text-slate-800'
@@ -436,7 +436,7 @@ export const FormIngestionWorkspace: React.FC = () => {
         <button
           type="button"
           onClick={() => setActiveSubTab('metrics')}
-          className={`pb-3 flex items-center gap-1.5 border-b-2 transition-colors ${
+          className={`pb-3 flex items-center gap-1.5 border-b-2 transition-colors flex-shrink-0 ${
             activeSubTab === 'metrics'
               ? 'border-indigo-600 text-indigo-700'
               : 'border-transparent text-slate-500 hover:text-slate-800'

@@ -236,7 +236,56 @@ export const DashboardPage: React.FC = () => {
           </div>
         ) : (
           <div className="rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden">
-            <div className="overflow-x-auto">
+            {/* Mobile View: Stacked Cards */}
+            <div className="block md:hidden divide-y divide-slate-100">
+              {applications.map((app) => (
+                <div
+                  key={app.id}
+                  className="p-4 hover:bg-slate-50 transition-colors space-y-2.5 cursor-pointer"
+                  onClick={() => navigate(`/applications/${app.id}`)}
+                >
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="space-y-0.5">
+                      <h3 className="font-semibold text-slate-900 text-sm">{app.title}</h3>
+                      <div className="text-slate-500 text-xs flex items-center gap-1.5">
+                        <Building className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
+                        <span className="truncate">{app.organisation_name}</span>
+                      </div>
+                    </div>
+                    <StatusBadge status={app.status} size="sm" />
+                  </div>
+
+                  <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-slate-500 pt-1">
+                    <span className="capitalize bg-slate-100 px-2 py-0.5 rounded text-[11px] font-medium text-slate-700">
+                      {app.category.replace(/_/g, ' ')}
+                    </span>
+                    <span>{app.jurisdiction}</span>
+                    <div className="flex items-center gap-1 font-mono text-[11px] text-slate-400">
+                      <Clock className="w-3 h-3" />
+                      {new Date(app.created_at).toLocaleDateString(undefined, {
+                        month: 'short',
+                        day: 'numeric',
+                        year: 'numeric',
+                      })}
+                    </div>
+                  </div>
+
+                  <div className="pt-1 flex justify-end">
+                    <Link
+                      to={`/applications/${app.id}`}
+                      onClick={(e) => e.stopPropagation()}
+                      className="inline-flex items-center gap-1 text-xs text-teal-700 hover:text-teal-900 font-semibold py-1 px-2 rounded hover:bg-teal-50 transition-colors"
+                    >
+                      View Dossier
+                      <ArrowRight className="w-3.5 h-3.5" />
+                    </Link>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Desktop View: Full Table */}
+            <div className="hidden md:block overflow-x-auto">
               <table className="min-w-full divide-y divide-slate-200 text-left text-xs">
                 <thead className="bg-slate-50 text-slate-600 font-semibold uppercase tracking-wider text-[11px]">
                   <tr>

@@ -247,11 +247,11 @@ export const AdminWorkspacePage: React.FC = () => {
       )}
 
       {/* Tab Navigation */}
-      <div className="flex border-b border-slate-200 gap-6 text-sm font-semibold">
+      <div className="flex border-b border-slate-200 gap-4 sm:gap-6 text-sm font-semibold overflow-x-auto whitespace-nowrap scrollbar-none pb-0.5">
         <button
           type="button"
           onClick={() => setActiveTab('users')}
-          className={`pb-3 flex items-center gap-2 border-b-2 transition-colors ${
+          className={`pb-3 flex items-center gap-2 border-b-2 transition-colors flex-shrink-0 ${
             activeTab === 'users'
               ? 'border-indigo-600 text-indigo-700'
               : 'border-transparent text-slate-500 hover:text-slate-800'
@@ -267,7 +267,7 @@ export const AdminWorkspacePage: React.FC = () => {
         <button
           type="button"
           onClick={() => setActiveTab('organisations')}
-          className={`pb-3 flex items-center gap-2 border-b-2 transition-colors ${
+          className={`pb-3 flex items-center gap-2 border-b-2 transition-colors flex-shrink-0 ${
             activeTab === 'organisations'
               ? 'border-indigo-600 text-indigo-700'
               : 'border-transparent text-slate-500 hover:text-slate-800'
@@ -280,7 +280,7 @@ export const AdminWorkspacePage: React.FC = () => {
         <button
           type="button"
           onClick={() => setActiveTab('rules')}
-          className={`pb-3 flex items-center gap-2 border-b-2 transition-colors ${
+          className={`pb-3 flex items-center gap-2 border-b-2 transition-colors flex-shrink-0 ${
             activeTab === 'rules'
               ? 'border-indigo-600 text-indigo-700'
               : 'border-transparent text-slate-500 hover:text-slate-800'
@@ -293,7 +293,7 @@ export const AdminWorkspacePage: React.FC = () => {
         <button
           type="button"
           onClick={() => setActiveTab('ingestion')}
-          className={`pb-3 flex items-center gap-2 border-b-2 transition-colors ${
+          className={`pb-3 flex items-center gap-2 border-b-2 transition-colors flex-shrink-0 ${
             activeTab === 'ingestion'
               ? 'border-indigo-600 text-indigo-700'
               : 'border-transparent text-slate-500 hover:text-slate-800'
@@ -309,7 +309,7 @@ export const AdminWorkspacePage: React.FC = () => {
         <button
           type="button"
           onClick={() => setActiveTab('security')}
-          className={`pb-3 flex items-center gap-2 border-b-2 transition-colors ${
+          className={`pb-3 flex items-center gap-2 border-b-2 transition-colors flex-shrink-0 ${
             activeTab === 'security'
               ? 'border-indigo-600 text-indigo-700'
               : 'border-transparent text-slate-500 hover:text-slate-800'
@@ -358,8 +358,77 @@ export const AdminWorkspacePage: React.FC = () => {
             </Button>
           </div>
 
-          {/* Users Table */}
-          <div className="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+          {/* Users List: Mobile Cards (< md) */}
+          <div className="block md:hidden space-y-3">
+            {filteredUsers.map((u) => {
+              const isCurrentUser = u.id === user?.id;
+              const isUpdating = updatingUserId === u.id;
+
+              return (
+                <div
+                  key={u.id}
+                  className="p-4 rounded-xl border border-slate-200 bg-white shadow-xs space-y-3"
+                >
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        <span className="font-semibold text-xs text-slate-900">
+                          {u.full_name || 'Unspecified'}
+                        </span>
+                        {isCurrentUser && (
+                          <span className="text-[10px] text-indigo-700 font-sans font-semibold bg-indigo-50 px-1.5 py-0.2 rounded border border-indigo-200">
+                            Your Account
+                          </span>
+                        )}
+                      </div>
+                      <span className="font-mono text-[11px] text-slate-500 block truncate mt-0.5 max-w-[220px]">
+                        {u.id}
+                      </span>
+                    </div>
+
+                    <span
+                      className={`text-[10px] font-mono font-semibold px-2 py-0.5 rounded-full capitalize flex-shrink-0 ${
+                        u.role === 'administrator'
+                          ? 'bg-indigo-100 text-indigo-800'
+                          : u.role === 'officer'
+                          ? 'bg-teal-100 text-teal-800'
+                          : 'bg-slate-100 text-slate-700'
+                      }`}
+                    >
+                      {u.role}
+                    </span>
+                  </div>
+
+                  <div className="flex items-center justify-between text-[11px] text-slate-500 font-mono pt-1 border-t border-slate-100">
+                    <span>Registered: {new Date(u.created_at).toLocaleDateString()}</span>
+                  </div>
+
+                  <div className="pt-2 border-t border-slate-100 flex items-center justify-between gap-2">
+                    <span className="text-xs font-semibold text-slate-600">Assign Clearance:</span>
+                    <select
+                      disabled={isUpdating}
+                      value={u.role}
+                      onChange={(e) => handleAssignRole(u.id, e.target.value as UserRole)}
+                      className="text-base sm:text-xs px-2.5 py-1.5 rounded-lg border border-slate-300 bg-white font-medium focus:outline-none focus:ring-1 focus:ring-indigo-600 disabled:opacity-50"
+                    >
+                      <option value="applicant">Applicant</option>
+                      <option value="officer">Officer</option>
+                      <option value="administrator">Administrator</option>
+                    </select>
+                  </div>
+                </div>
+              );
+            })}
+
+            {filteredUsers.length === 0 && (
+              <div className="p-8 text-center text-xs text-slate-400 bg-white rounded-xl border border-slate-200">
+                No user profiles found.
+              </div>
+            )}
+          </div>
+
+          {/* Users Table: Desktop (>= md) */}
+          <div className="hidden md:block rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs">
                 <thead className="bg-slate-50 border-b border-slate-200 text-slate-500 font-semibold uppercase tracking-wider text-[10px]">

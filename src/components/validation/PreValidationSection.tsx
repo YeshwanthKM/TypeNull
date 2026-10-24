@@ -215,8 +215,8 @@ export const PreValidationSection: React.FC<PreValidationSectionProps> = ({
           bg: 'bg-emerald-50 border-emerald-200 text-emerald-800',
           icon: CheckCircle2,
           iconColor: 'text-emerald-600',
-          label: 'Pre-Validation Advisory: Ready for Official Filing',
-          desc: 'All applicable automated statutory and documentary pre-checks passed. No blocking submission defects detected. Note: Official statutory acceptance is determined exclusively by the competent government authority.',
+          label: 'No Configured Validation Issues Detected',
+          desc: 'All applicable automated pre-checks passed against configured requirements and successfully assessed evidence. Note: Pre-validation checks do not guarantee official statutory approval or constitute legal certification.',
         };
       case 'Minor Issues':
         return {
@@ -568,7 +568,7 @@ export const PreValidationSection: React.FC<PreValidationSectionProps> = ({
           <div className="p-3 bg-white/70 rounded-lg border border-slate-200/50 text-[11px] leading-relaxed text-slate-600 flex items-start gap-2">
             <Info className="w-4 h-4 text-slate-500 flex-shrink-0 mt-0.5" />
             <span>
-              <strong>Advisory Pre-Validation Disclaimer:</strong> TypeNull pre-checks your dossier against published statutory rules to help you identify omissions, format errors, and inconsistencies before submission. Final statutory determinations remain strictly within the sovereign authority of the competent government department.
+              <strong>Advisory Pre-Validation Disclaimer:</strong> TypeNull pre-checks your dossier against configured regulatory requirements to identify detectable omissions, syntax discrepancies, and cross-document inconsistencies. Pre-validation checks do not guarantee government approval, prove legal document authenticity, or replace official statutory determinations, which remain exclusively with the competent government authority.
             </span>
           </div>
         </div>

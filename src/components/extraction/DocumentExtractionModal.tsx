@@ -165,14 +165,14 @@ export const DocumentExtractionModal: React.FC<DocumentExtractionModalProps> = (
     >
       <div className="relative bg-white rounded-2xl max-w-4xl w-full shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-[92vh]">
         {/* Header */}
-        <div className="px-6 py-4 border-b border-slate-200 bg-slate-50 flex items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
+        <div className="px-4 sm:px-6 py-3 sm:py-4 border-b border-slate-200 bg-slate-50 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div className="flex items-center gap-3 min-w-0">
             <div className="w-10 h-10 rounded-xl bg-teal-100/70 border border-teal-200 text-teal-800 flex items-center justify-center flex-shrink-0">
               <Sparkles className="w-5 h-5 text-teal-700" />
             </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <h3 className="text-base font-bold text-slate-900 truncate max-w-md">
+            <div className="min-w-0">
+              <div className="flex items-center gap-2 flex-wrap">
+                <h3 className="text-base font-bold text-slate-900 truncate max-w-xs sm:max-w-md">
                   Document Intelligence: {doc.original_filename}
                 </h3>
                 <StatusBadge status={doc.processing_status} size="sm" />
@@ -186,7 +186,7 @@ export const DocumentExtractionModal: React.FC<DocumentExtractionModalProps> = (
           <button
             type="button"
             onClick={onClose}
-            className="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-200 rounded-lg transition-colors"
+            className="self-end sm:self-auto p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-200 rounded-lg transition-colors"
             aria-label="Close modal"
           >
             <X className="w-5 h-5" />
@@ -194,7 +194,7 @@ export const DocumentExtractionModal: React.FC<DocumentExtractionModalProps> = (
         </div>
 
         {/* Modal Body */}
-        <div className="p-6 overflow-y-auto space-y-6 flex-1">
+        <div className="p-4 sm:p-6 overflow-y-auto space-y-6 flex-1">
           {/* Active Processing State */}
           {isProcessing && (
             <div className="p-8 rounded-xl border border-teal-200 bg-teal-50/50 text-center space-y-4">
@@ -315,8 +315,8 @@ export const DocumentExtractionModal: React.FC<DocumentExtractionModalProps> = (
               </div>
 
               {/* Review Statistics & Batch Actions Toolbar */}
-              <div className="flex flex-wrap items-center justify-between gap-3 bg-slate-50 p-3 rounded-xl border border-slate-200">
-                <div className="flex items-center gap-4 text-xs">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-50 p-3 rounded-xl border border-slate-200">
+                <div className="flex flex-wrap items-center gap-3 sm:gap-4 text-xs">
                   <div>
                     <span className="text-slate-500">Identified Fields: </span>
                     <strong className="text-slate-900 font-mono">{fields.length}</strong>
@@ -331,7 +331,7 @@ export const DocumentExtractionModal: React.FC<DocumentExtractionModalProps> = (
                   </div>
                 </div>
 
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 flex-wrap">
                   {needsReviewCount > 0 && (
                     <Button
                       variant="outline"
@@ -407,13 +407,13 @@ export const DocumentExtractionModal: React.FC<DocumentExtractionModalProps> = (
         </div>
 
         {/* Footer */}
-        <div className="px-6 py-3.5 border-t border-slate-200 bg-slate-50 flex items-center justify-between">
-          <div className="text-[11px] text-slate-500 flex items-center gap-1.5">
-            <Clock className="w-3.5 h-3.5 text-slate-400" />
+        <div className="px-4 sm:px-6 py-3.5 border-t border-slate-200 bg-slate-50 flex flex-col-reverse sm:flex-row items-center justify-between gap-2.5">
+          <div className="text-[11px] text-slate-500 flex items-center gap-1.5 text-center sm:text-left">
+            <Clock className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
             <span>Original raw extracted values are permanently preserved for regulatory compliance.</span>
           </div>
 
-          <Button variant="outline" size="sm" onClick={onClose}>
+          <Button variant="outline" size="sm" onClick={onClose} className="w-full sm:w-auto">
             Close
           </Button>
         </div>

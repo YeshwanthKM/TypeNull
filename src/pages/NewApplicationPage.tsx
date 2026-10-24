@@ -314,17 +314,17 @@ export const NewApplicationPage: React.FC = () => {
       )}
 
       {/* SECTION 1: OFFICIAL GOVERNMENT SERVICE DISCOVERY SELECTOR */}
-      <div className="p-6 rounded-2xl border border-indigo-200 bg-gradient-to-r from-indigo-50/60 via-white to-slate-50 shadow-sm space-y-4">
-        <div className="flex items-center justify-between">
+      <div className="p-4 sm:p-6 rounded-2xl border border-indigo-200 bg-gradient-to-r from-indigo-50/60 via-white to-slate-50 shadow-sm space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
           <div className="flex items-center gap-2">
-            <span className="p-1.5 rounded-lg bg-indigo-600 text-white">
+            <span className="p-1.5 rounded-lg bg-indigo-600 text-white flex-shrink-0">
               <Globe className="w-4 h-4" />
             </span>
             <h3 className="text-sm font-bold text-slate-900">
               Select Authoritative Government Service (Knowledge Base)
             </h3>
           </div>
-          <span className="text-[10px] font-mono font-bold bg-indigo-100 text-indigo-900 px-2 py-0.5 rounded-full border border-indigo-200">
+          <span className="self-start sm:self-auto text-[10px] font-mono font-bold bg-indigo-100 text-indigo-900 px-2 py-0.5 rounded-full border border-indigo-200">
             SIH 2026 Engine
           </span>
         </div>
@@ -380,13 +380,13 @@ export const NewApplicationPage: React.FC = () => {
 
       {/* SECTION 2: DYNAMIC CONDITIONAL QUESTIONS (IF SERVICE SELECTED) */}
       {selectedVariant && (selectedVariant.conditionalQuestions || []).length > 0 && (
-        <div className="p-6 rounded-2xl border border-indigo-200 bg-white shadow-sm space-y-4">
-          <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+        <div className="p-4 sm:p-6 rounded-2xl border border-indigo-200 bg-white shadow-sm space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-3">
             <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
-              <HelpCircle className="w-4 h-4 text-indigo-600" />
-              Situational &amp; Conditional Eligibility Questions
+              <HelpCircle className="w-4 h-4 text-indigo-600 flex-shrink-0" />
+              <span>Situational &amp; Conditional Eligibility Questions</span>
             </h3>
-            <span className="text-[10px] font-semibold text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded">
+            <span className="self-start sm:self-auto text-[10px] font-semibold text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded">
               Tailors Document Checklist
             </span>
           </div>
@@ -399,7 +399,7 @@ export const NewApplicationPage: React.FC = () => {
               return (
                 <div
                   key={q.id}
-                  className="p-4 rounded-xl border border-slate-200 bg-slate-50/50 space-y-2"
+                  className="p-3 sm:p-4 rounded-xl border border-slate-200 bg-slate-50/50 space-y-2"
                 >
                   <label className="block font-semibold text-slate-900">
                     {q.questionText}
@@ -409,25 +409,25 @@ export const NewApplicationPage: React.FC = () => {
                   {/* Radio options for boolean */}
                   {(q.questionType === 'boolean' || q.responseType === 'boolean') ? (
                     <div className="flex items-center gap-4 pt-1">
-                      <label className="flex items-center gap-1.5 cursor-pointer">
+                      <label className="flex items-center gap-2 min-h-[44px] cursor-pointer py-1 px-2 rounded-lg hover:bg-slate-100/70 transition-colors">
                         <input
                           type="radio"
                           name={qKey}
                           value="yes"
                           checked={currentVal === 'yes'}
                           onChange={() => handleAnswerChange(qKey, 'yes')}
-                          className="text-indigo-600 focus:ring-indigo-500"
+                          className="w-4 h-4 text-indigo-600 focus:ring-indigo-500"
                         />
                         <span className="font-medium text-slate-700">Yes</span>
                       </label>
-                      <label className="flex items-center gap-1.5 cursor-pointer">
+                      <label className="flex items-center gap-2 min-h-[44px] cursor-pointer py-1 px-2 rounded-lg hover:bg-slate-100/70 transition-colors">
                         <input
                           type="radio"
                           name={qKey}
                           value="no"
                           checked={currentVal === 'no'}
                           onChange={() => handleAnswerChange(qKey, 'no')}
-                          className="text-indigo-600 focus:ring-indigo-500"
+                          className="w-4 h-4 text-indigo-600 focus:ring-indigo-500"
                         />
                         <span className="font-medium text-slate-700">No</span>
                       </label>
@@ -436,7 +436,7 @@ export const NewApplicationPage: React.FC = () => {
                     <select
                       value={currentVal || ''}
                       onChange={(e) => handleAnswerChange(qKey, e.target.value)}
-                      className="px-3 py-1.5 rounded-lg border border-slate-300 bg-white text-xs focus:ring-1 focus:ring-indigo-600"
+                      className="w-full sm:w-auto px-3 py-2 rounded-lg border border-slate-300 bg-white text-base sm:text-xs focus:ring-1 focus:ring-indigo-600"
                     >
                       {(q.options || []).map((opt, oIdx) => {
                         const optVal = typeof opt === 'string' ? opt : opt.value;
@@ -458,15 +458,15 @@ export const NewApplicationPage: React.FC = () => {
 
       {/* SECTION 3: PERSONALIZED REQUIRED DOCUMENT CHECKLIST (LIVE PREVIEW) */}
       {personalizedChecklist && (
-        <div className="p-6 rounded-2xl border border-emerald-200 bg-emerald-50/30 shadow-sm space-y-4">
-          <div className="flex items-center justify-between border-b border-emerald-100 pb-3">
+        <div className="p-4 sm:p-6 rounded-2xl border border-emerald-200 bg-emerald-50/30 shadow-sm space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-emerald-100 pb-3">
             <div className="flex items-center gap-2">
-              <ShieldCheck className="w-5 h-5 text-emerald-600" />
+              <ShieldCheck className="w-5 h-5 text-emerald-600 flex-shrink-0" />
               <h3 className="text-sm font-bold text-slate-900">
                 Personalized Document Checklist ({personalizedChecklist.totalRequiredCount} Required)
               </h3>
             </div>
-            <span className="text-[10px] font-mono font-bold bg-emerald-100 text-emerald-900 px-2 py-0.5 rounded-full border border-emerald-300">
+            <span className="self-start sm:self-auto text-[10px] font-mono font-bold bg-emerald-100 text-emerald-900 px-2 py-0.5 rounded-full border border-emerald-300">
               Live Tailored Preview
             </span>
           </div>
@@ -548,7 +548,7 @@ export const NewApplicationPage: React.FC = () => {
       <form
         onSubmit={handleSubmit}
         noValidate
-        className="rounded-2xl border border-slate-200 bg-white p-6 sm:p-8 shadow-sm space-y-6"
+        className="rounded-2xl border border-slate-200 bg-white p-4 sm:p-8 shadow-sm space-y-6"
       >
         <div className="space-y-4">
           <FormInput

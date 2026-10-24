@@ -97,13 +97,13 @@ export const DocumentPreviewModal: React.FC<DocumentPreviewModalProps> = ({
     >
       <div className="relative bg-white rounded-xl max-w-4xl w-full max-h-[92vh] flex flex-col shadow-2xl border border-slate-200 overflow-hidden">
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200 bg-slate-50">
-          <div className="flex items-center gap-3">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between px-4 sm:px-6 py-3 sm:py-4 border-b border-slate-200 bg-slate-50 gap-3">
+          <div className="flex items-center gap-3 min-w-0">
             <div className="w-9 h-9 rounded-lg bg-teal-100 text-teal-800 flex items-center justify-center flex-shrink-0">
               {isPdf ? <FileText className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
             </div>
-            <div className="space-y-0.5">
-              <h3 id="preview-modal-title" className="text-sm font-bold text-slate-900 truncate max-w-md">
+            <div className="space-y-0.5 min-w-0">
+              <h3 id="preview-modal-title" className="text-sm font-bold text-slate-900 truncate max-w-xs sm:max-w-md">
                 {doc.original_filename}
               </h3>
               <p className="text-[11px] text-slate-500 font-mono">
@@ -112,7 +112,7 @@ export const DocumentPreviewModal: React.FC<DocumentPreviewModalProps> = ({
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap justify-end">
             <Button
               variant="outline"
               size="sm"

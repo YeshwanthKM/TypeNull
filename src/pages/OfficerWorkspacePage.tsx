@@ -360,11 +360,11 @@ export const OfficerWorkspacePage: React.FC = () => {
       </div>
 
       {/* Workspace Tabs Navigation */}
-      <div className="flex border-b border-slate-200 gap-6 text-sm font-semibold">
+      <div className="flex border-b border-slate-200 gap-4 sm:gap-6 text-sm font-semibold overflow-x-auto whitespace-nowrap scrollbar-none pb-0.5">
         <button
           type="button"
           onClick={() => setActiveTab('screening')}
-          className={`pb-3 flex items-center gap-2 border-b-2 transition-colors ${
+          className={`pb-3 flex items-center gap-2 border-b-2 transition-colors flex-shrink-0 ${
             activeTab === 'screening'
               ? 'border-teal-700 text-teal-800'
               : 'border-transparent text-slate-500 hover:text-slate-800'
@@ -382,7 +382,7 @@ export const OfficerWorkspacePage: React.FC = () => {
         <button
           type="button"
           onClick={() => setActiveTab('results')}
-          className={`pb-3 flex items-center gap-2 border-b-2 transition-colors ${
+          className={`pb-3 flex items-center gap-2 border-b-2 transition-colors flex-shrink-0 ${
             activeTab === 'results'
               ? 'border-teal-700 text-teal-800'
               : 'border-transparent text-slate-500 hover:text-slate-800'
@@ -400,7 +400,7 @@ export const OfficerWorkspacePage: React.FC = () => {
         <button
           type="button"
           onClick={() => setActiveTab('history')}
-          className={`pb-3 flex items-center gap-2 border-b-2 transition-colors ${
+          className={`pb-3 flex items-center gap-2 border-b-2 transition-colors flex-shrink-0 ${
             activeTab === 'history'
               ? 'border-teal-700 text-teal-800'
               : 'border-transparent text-slate-500 hover:text-slate-800'
@@ -417,7 +417,7 @@ export const OfficerWorkspacePage: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {/* Left 2 Cols: Staging & Upload Controls */}
             <div className="md:col-span-2 space-y-5">
-              <div className="p-6 rounded-2xl border border-slate-200 bg-white shadow-sm space-y-5">
+              <div className="p-4 sm:p-6 rounded-2xl border border-slate-200 bg-white shadow-sm space-y-5">
                 <div className="space-y-1">
                   <h4 className="text-sm font-bold text-slate-900">
                     Step 1: Configure Target Category &amp; Requirements
@@ -578,7 +578,7 @@ export const OfficerWorkspacePage: React.FC = () => {
 
             {/* Right Column: Staged Dossiers Summary */}
             <div className="space-y-5">
-              <div className="p-6 rounded-2xl border border-slate-200 bg-white shadow-sm space-y-4">
+              <div className="p-4 sm:p-6 rounded-2xl border border-slate-200 bg-white shadow-sm space-y-4">
                 <div className="flex items-center justify-between border-b border-slate-100 pb-3">
                   <h4 className="text-sm font-bold text-slate-900">Staged Intake Dossiers</h4>
                   <span className="font-mono text-xs font-semibold bg-slate-100 text-slate-700 px-2 py-0.5 rounded">
@@ -710,7 +710,7 @@ export const OfficerWorkspacePage: React.FC = () => {
               </div>
 
               {/* The 4 Standardized Outcome KPI Metric Cards */}
-              <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
                 {/* 1. Complete */}
                 <div
                   onClick={() => setOutcomeFilter(outcomeFilter === 'Complete' ? 'All' : 'Complete')}
@@ -841,8 +841,76 @@ export const OfficerWorkspacePage: React.FC = () => {
                 </div>
               </div>
 
-              {/* Screened Applicants Table */}
-              <div className="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+              {/* Screened Applicants: Mobile Cards (< md) */}
+              <div className="block md:hidden space-y-3">
+                {filteredItems.map((item) => {
+                  const isComplete = item.outcome === 'Complete';
+                  const isMinor = item.outcome === 'Minor Issues';
+                  const isMajor = item.outcome === 'Major Issues';
+
+                  return (
+                    <div
+                      key={item.id}
+                      className="p-4 rounded-xl border border-slate-200 bg-white shadow-xs space-y-3"
+                    >
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="min-w-0">
+                          <span className="font-bold text-xs text-slate-900 font-mono block truncate">
+                            {item.applicantIdentifier}
+                          </span>
+                          <span className="text-[11px] text-slate-500 capitalize block mt-0.5">
+                            {item.targetCategory.replace(/_/g, ' ')}
+                          </span>
+                        </div>
+
+                        <span
+                          className={`text-[10px] font-mono font-semibold px-2 py-0.5 rounded-full inline-flex items-center gap-1 flex-shrink-0 ${
+                            isComplete
+                              ? 'bg-emerald-100 text-emerald-800'
+                              : isMinor
+                              ? 'bg-amber-100 text-amber-800'
+                              : isMajor
+                              ? 'bg-rose-100 text-rose-800'
+                              : 'bg-purple-100 text-purple-800'
+                          }`}
+                        >
+                          {isComplete && <CheckCircle2 className="w-3 h-3" />}
+                          {isMinor && <AlertTriangle className="w-3 h-3" />}
+                          {isMajor && <AlertOctagon className="w-3 h-3" />}
+                          {!isComplete && !isMinor && !isMajor && <HelpCircle className="w-3 h-3" />}
+                          {item.outcome}
+                        </span>
+                      </div>
+
+                      <div className="flex items-center justify-between text-[11px] text-slate-500 font-mono pt-1 border-t border-slate-100">
+                        <span>{item.documentCount} files</span>
+                        <span>{item.counts.passed} Passed &bull; {item.counts.majorIssues + item.counts.minorIssues} Issues</span>
+                      </div>
+
+                      <div className="pt-2 border-t border-slate-100">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setInspectingItem(item)}
+                          rightIcon={<ArrowRight className="w-3.5 h-3.5" />}
+                          className="w-full text-xs"
+                        >
+                          Inspect Evidence
+                        </Button>
+                      </div>
+                    </div>
+                  );
+                })}
+
+                {filteredItems.length === 0 && (
+                  <div className="p-8 text-center text-xs text-slate-400 bg-white rounded-xl border border-slate-200">
+                    No applicant dossiers match the selected outcome filter or query.
+                  </div>
+                )}
+              </div>
+
+              {/* Screened Applicants Table: Desktop (>= md) */}
+              <div className="hidden md:block rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
                 <div className="overflow-x-auto">
                   <table className="w-full text-left text-xs">
                     <thead className="bg-slate-50 border-b border-slate-200 text-slate-500 font-semibold uppercase tracking-wider text-[10px]">
@@ -996,13 +1064,13 @@ export const OfficerWorkspacePage: React.FC = () => {
 
       {/* EVIDENCE & FINDINGS INSPECTION MODAL / DRAWER */}
       {inspectingItem && (
-        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl shadow-2xl border border-slate-200 w-full max-w-3xl max-h-[90vh] flex flex-col overflow-hidden">
+        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4">
+          <div className="bg-white rounded-2xl shadow-2xl border border-slate-200 w-full max-w-3xl max-h-[92vh] flex flex-col overflow-hidden">
             {/* Modal Header */}
-            <div className="p-5 border-b border-slate-200 flex items-center justify-between bg-slate-50">
-              <div className="space-y-0.5">
-                <div className="flex items-center gap-2">
-                  <h3 className="text-base font-bold text-slate-900">
+            <div className="p-4 sm:p-5 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-50">
+              <div className="space-y-0.5 min-w-0">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <h3 className="text-base font-bold text-slate-900 truncate max-w-xs sm:max-w-md">
                     Dossier Inspection: {inspectingItem.applicantIdentifier}
                   </h3>
                   <span
@@ -1027,14 +1095,14 @@ export const OfficerWorkspacePage: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setInspectingItem(null)}
-                className="p-1.5 text-slate-400 hover:text-slate-800 rounded-lg hover:bg-slate-200 transition-colors"
+                className="self-end sm:self-auto p-1.5 text-slate-400 hover:text-slate-800 rounded-lg hover:bg-slate-200 transition-colors"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
             {/* Modal Body */}
-            <div className="p-6 overflow-y-auto space-y-5 text-xs">
+            <div className="p-4 sm:p-6 overflow-y-auto space-y-5 text-xs">
               {/* Officer Statutory Disclaimer */}
               <div className="p-3.5 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 text-xs flex items-start gap-2.5">
                 <Info className="w-4 h-4 text-amber-700 flex-shrink-0 mt-0.5" />
@@ -1141,11 +1209,11 @@ export const OfficerWorkspacePage: React.FC = () => {
             </div>
 
             {/* Modal Footer */}
-            <div className="p-4 border-t border-slate-200 bg-slate-50 flex items-center justify-between">
-              <span className="text-[11px] text-slate-500 font-mono">
+            <div className="p-3.5 sm:p-4 border-t border-slate-200 bg-slate-50 flex flex-col-reverse sm:flex-row items-center justify-between gap-2.5">
+              <span className="text-[11px] text-slate-500 font-mono text-center sm:text-left">
                 Dossier Identifier: {inspectingItem.applicantIdentifier}
               </span>
-              <Button variant="primary" size="sm" onClick={() => setInspectingItem(null)}>
+              <Button variant="primary" size="sm" onClick={() => setInspectingItem(null)} className="w-full sm:w-auto">
                 Close Inspection
               </Button>
             </div>

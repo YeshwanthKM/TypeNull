@@ -175,7 +175,7 @@ export const GovernmentApplicationsCataloguePage: React.FC = () => {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search by application name, department, or statutory keyword (e.g., SPICe+, GST, Passport, MCA)..."
-              className="w-full pl-10 pr-9 py-2 text-sm bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-600 focus:bg-white transition-all text-slate-900 placeholder:text-slate-400"
+              className="w-full pl-10 pr-9 py-2 text-base sm:text-sm bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-600 focus:bg-white transition-all text-slate-900 placeholder:text-slate-400"
             />
             {searchQuery && (
               <button
@@ -370,10 +370,11 @@ export const GovernmentApplicationsCataloguePage: React.FC = () => {
                 </div>
 
                 {/* Card Action Buttons */}
-                <div className="p-4 bg-slate-50 border-t border-slate-100 flex items-center justify-between gap-2">
+                <div className="p-4 bg-slate-50 border-t border-slate-100 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2">
                   <Button
                     variant="outline"
                     size="sm"
+                    className="w-full sm:w-auto justify-center"
                     onClick={() => setActiveDetailItem(item)}
                     leftIcon={<Info className="w-3.5 h-3.5" />}
                   >
@@ -382,6 +383,7 @@ export const GovernmentApplicationsCataloguePage: React.FC = () => {
                   <Button
                     variant="primary"
                     size="sm"
+                    className="w-full sm:w-auto justify-center"
                     onClick={() => handleStartValidation(item)}
                     rightIcon={<ArrowRight className="w-3.5 h-3.5" />}
                   >
@@ -427,16 +429,16 @@ const ApplicationDetailModal: React.FC<ApplicationDetailModalProps> = ({
 
   return (
     <div
-      className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6"
+      className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6"
       role="dialog"
       aria-modal="true"
       aria-labelledby="app-detail-title"
     >
-      <div className="relative bg-white rounded-2xl max-w-3xl w-full p-6 sm:p-8 shadow-2xl border border-slate-200 max-h-[90vh] flex flex-col overflow-hidden">
+      <div className="relative bg-white rounded-2xl max-w-3xl w-full p-4 sm:p-6 md:p-8 shadow-2xl border border-slate-200 max-h-[90vh] flex flex-col overflow-hidden">
         {/* Modal Header */}
         <div className="flex items-start justify-between pb-4 border-b border-slate-200">
           <div className="space-y-1">
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 flex-wrap">
               <span className="text-xs font-semibold px-2 py-0.5 rounded bg-teal-50 text-teal-800 border border-teal-200 font-mono">
                 {variant.variantCode}
               </span>
@@ -615,12 +617,13 @@ const ApplicationDetailModal: React.FC<ApplicationDetailModalProps> = ({
         </div>
 
         {/* Modal Footer Actions */}
-        <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-200">
-          <Button variant="outline" onClick={onClose}>
+        <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-2 sm:gap-3 pt-4 border-t border-slate-200">
+          <Button variant="outline" className="w-full sm:w-auto justify-center" onClick={onClose}>
             Close
           </Button>
           <Button
             variant="primary"
+            className="w-full sm:w-auto justify-center"
             onClick={onStartValidation}
             rightIcon={<ArrowRight className="w-4 h-4" />}
           >
