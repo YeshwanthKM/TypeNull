@@ -13,6 +13,7 @@ import {
   Plus,
   Info,
   Check,
+  Globe,
 } from 'lucide-react';
 import { PageHeader } from '../components/ui/PageHeader';
 import { Button } from '../components/ui/Button';
@@ -24,11 +25,12 @@ import {
   KNOWLEDGE_BASE_REGISTRY,
   KnowledgeBaseEntry,
 } from '../services/knowledgeBase';
+import { FormIngestionWorkspace } from '../components/admin/FormIngestionWorkspace';
 
 export const AdminWorkspacePage: React.FC = () => {
   const { user, profile } = useAuth();
 
-  const [activeTab, setActiveTab] = useState<'users' | 'organisations' | 'rules' | 'security'>('users');
+  const [activeTab, setActiveTab] = useState<'users' | 'organisations' | 'rules' | 'ingestion' | 'security'>('users');
 
   // Users state
   const [users, setUsers] = useState<UserProfile[]>([]);
@@ -286,6 +288,22 @@ export const AdminWorkspacePage: React.FC = () => {
         >
           <BookOpen className="w-4 h-4" />
           <span>Knowledge Base &amp; Rules</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setActiveTab('ingestion')}
+          className={`pb-3 flex items-center gap-2 border-b-2 transition-colors ${
+            activeTab === 'ingestion'
+              ? 'border-indigo-600 text-indigo-700'
+              : 'border-transparent text-slate-500 hover:text-slate-800'
+          }`}
+        >
+          <Globe className="w-4 h-4" />
+          <span>Form Ingestion &amp; Review</span>
+          <span className="text-[10px] bg-indigo-100 text-indigo-800 font-mono px-1.5 py-0.5 rounded-full font-bold">
+            SIH
+          </span>
         </button>
 
         <button
@@ -677,7 +695,10 @@ export const AdminWorkspacePage: React.FC = () => {
         </div>
       )}
 
-      {/* TAB 4: SECURITY & AUDIT STATUS */}
+      {/* TAB 4: FORM INGESTION & DISCOVERY (SIH 2026) */}
+      {activeTab === 'ingestion' && <FormIngestionWorkspace />}
+
+      {/* TAB 5: SECURITY & AUDIT STATUS */}
       {activeTab === 'security' && (
         <div className="space-y-5 text-xs">
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">

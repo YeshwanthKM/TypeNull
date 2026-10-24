@@ -1,5 +1,6 @@
 import {
   ApplicationDocument,
+  ApplicationDocumentRequirement,
   DocumentExtractionRecord,
   ExtractedFieldRecord,
   ScreeningOutcome,
@@ -21,6 +22,8 @@ export interface ValidationEngineInput {
   documents: ApplicationDocument[];
   extractions?: DocumentExtractionRecord[];
   fields?: ExtractedFieldRecord[];
+  personalizedRequirements?: ApplicationDocumentRequirement[];
+  serviceName?: string;
 }
 
 /**
@@ -104,45 +107,106 @@ export function runValidationEngine(input: ValidationEngineInput): ValidationRun
   }
 
   // -------------------------------------------------------------
-  // 1. Mandatory Supporting Document Checklist
+  // 1. Mandatory & Tailored Supporting Document Checklist
   // -------------------------------------------------------------
-  for (const reqDoc of kb.mandatoryDocuments) {
-    const matchingDocs = documents.filter((d) => d.document_type === reqDoc.type);
-    const ruleId = `DOC-REQ-${reqDoc.type.toUpperCase()}`;
+  if (input.personalizedRequirements && input.personalizedRequirements.length > 0) {
+    for (const req of input.personalizedRequirements) {
+      const canonicalKey = (req.canonicalDocumentKey || req.documentType || req.documentName || '').toLowerCase();
+      const altSet = new Set((req.acceptedAlternatives || []).map((a) => a.toLowerCase()));
 
-    if (matchingDocs.length === 0) {
-      findings.push({
-        id: `finding-${ruleId}-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
-        ruleId,
-        ruleVersion: kb.version,
-        title: `Mandatory Document Missing: ${reqDoc.name}`,
-        status: 'failed',
-        severity: 'blocking',
-        explanation: `Statutory requirement: Application lacks ${reqDoc.name}. ${reqDoc.description}`,
-        expectedValue: `Uploaded file of category "${reqDoc.type}" (${reqDoc.acceptableFormats.join(', ')})`,
-        observedValue: 'No document uploaded',
-        recommendedAction: `Upload a clear, legible copy of ${reqDoc.name} in PDF or image format.`,
-        isBlocking: true,
-        requiresManualReview: false,
-        referenceCitation: `${kb.citation.authority} (${kb.citation.statute}, ${kb.citation.section})`,
+      const matchingDoc = documents.find((d) => {
+        const docType = (d.document_type || '').toLowerCase();
+        const docName = (d.original_filename || '').toLowerCase();
+        return (
+          docType === canonicalKey ||
+          altSet.has(docType) ||
+          docName.includes(canonicalKey) ||
+          Array.from(altSet).some((alt) => docName.includes(alt))
+        );
       });
-    } else {
-      const targetDoc = matchingDocs[0];
-      findings.push({
-        id: `finding-${ruleId}-pass-${Math.random().toString(36).slice(2, 6)}`,
-        ruleId,
-        ruleVersion: kb.version,
-        title: `Mandatory Document Present: ${reqDoc.name}`,
-        status: 'passed',
-        severity: 'info',
-        explanation: `${reqDoc.name} is uploaded and registered in dossier.`,
-        sourceDocument: targetDoc.original_filename,
-        expectedValue: reqDoc.name,
-        observedValue: `${targetDoc.original_filename} (${targetDoc.document_type})`,
-        isBlocking: false,
-        requiresManualReview: false,
-        referenceCitation: kb.citation.statute,
-      });
+
+      const ruleId = `GOV-REQ-${canonicalKey.toUpperCase() || 'DOC'}`;
+      const isMandatory = req.isMandatory || req.classification === 'mandatory' || req.classification === 'alternative';
+
+      if (!matchingDoc) {
+        findings.push({
+          id: `finding-${ruleId}-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+          ruleId,
+          ruleVersion: 'gov-2024.1',
+          title: `Required Document Missing: ${req.documentName}`,
+          status: 'failed',
+          severity: isMandatory ? 'blocking' : 'major',
+          explanation: `Statutory requirement: Application lacks ${req.documentName}. ${
+            req.acceptedAlternatives && req.acceptedAlternatives.length > 0
+              ? `Acceptable alternatives: ${req.acceptedAlternatives.join(' OR ')}.`
+              : ''
+          } ${req.sourceEvidenceSnippet ? `(Official rule: "${req.sourceEvidenceSnippet}")` : ''}`,
+          expectedValue: req.acceptedAlternatives && req.acceptedAlternatives.length > 0
+            ? req.acceptedAlternatives.join(' OR ')
+            : req.documentName,
+          observedValue: 'No matching document uploaded in dossier',
+          recommendedAction: `Upload a clear, legible copy of ${req.documentName} or an accepted alternative.`,
+          isBlocking: isMandatory,
+          requiresManualReview: false,
+          referenceCitation: input.serviceName || 'Authoritative Official Government Checklist',
+        });
+      } else {
+        findings.push({
+          id: `finding-${ruleId}-pass-${Math.random().toString(36).slice(2, 6)}`,
+          ruleId,
+          ruleVersion: 'gov-2024.1',
+          title: `Required Document Present: ${req.documentName}`,
+          status: 'passed',
+          severity: 'info',
+          explanation: `${req.documentName} is uploaded and registered (${matchingDoc.original_filename}).`,
+          sourceDocument: matchingDoc.original_filename,
+          expectedValue: req.documentName,
+          observedValue: `${matchingDoc.original_filename} (${matchingDoc.document_type})`,
+          isBlocking: false,
+          requiresManualReview: false,
+          referenceCitation: input.serviceName || 'Authoritative Official Government Checklist',
+        });
+      }
+    }
+  } else {
+    for (const reqDoc of kb.mandatoryDocuments) {
+      const matchingDocs = documents.filter((d) => d.document_type === reqDoc.type);
+      const ruleId = `DOC-REQ-${reqDoc.type.toUpperCase()}`;
+
+      if (matchingDocs.length === 0) {
+        findings.push({
+          id: `finding-${ruleId}-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+          ruleId,
+          ruleVersion: kb.version,
+          title: `Mandatory Document Missing: ${reqDoc.name}`,
+          status: 'failed',
+          severity: 'blocking',
+          explanation: `Statutory requirement: Application lacks ${reqDoc.name}. ${reqDoc.description}`,
+          expectedValue: `Uploaded file of category "${reqDoc.type}" (${reqDoc.acceptableFormats.join(', ')})`,
+          observedValue: 'No document uploaded',
+          recommendedAction: `Upload a clear, legible copy of ${reqDoc.name} in PDF or image format.`,
+          isBlocking: true,
+          requiresManualReview: false,
+          referenceCitation: `${kb.citation.authority} (${kb.citation.statute}, ${kb.citation.section})`,
+        });
+      } else {
+        const targetDoc = matchingDocs[0];
+        findings.push({
+          id: `finding-${ruleId}-pass-${Math.random().toString(36).slice(2, 6)}`,
+          ruleId,
+          ruleVersion: kb.version,
+          title: `Mandatory Document Present: ${reqDoc.name}`,
+          status: 'passed',
+          severity: 'info',
+          explanation: `${reqDoc.name} is uploaded and registered in dossier.`,
+          sourceDocument: targetDoc.original_filename,
+          expectedValue: reqDoc.name,
+          observedValue: `${targetDoc.original_filename} (${targetDoc.document_type})`,
+          isBlocking: false,
+          requiresManualReview: false,
+          referenceCitation: kb.citation.statute,
+        });
+      }
     }
   }
 

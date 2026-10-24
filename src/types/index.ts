@@ -339,3 +339,188 @@ export interface CategoryRequirement {
   }>;
 }
 
+/**
+ * Government Services & Ingestion System Types
+ */
+export type GovernmentSourceType =
+  | 'portal'
+  | 'directory'
+  | 'department_site'
+  | 'gazette'
+  | 'statutory_code'
+  | 'national_services_portal'
+  | 'statutory_repository';
+
+export type SourceRetrievalStatus = 'active' | 'limited' | 'inaccessible' | 'rate_limited' | 'pending_verification';
+
+export type LifecycleStatus =
+  | 'discovered'
+  | 'downloaded'
+  | 'extracted'
+  | 'needs_verification'
+  | 'verified'
+  | 'published'
+  | 'superseded'
+  | 'inactive';
+
+export type RequirementClassification =
+  | 'mandatory'
+  | 'conditional'
+  | 'alternative'
+  | 'optional';
+
+export interface GovernmentSource {
+  id: string;
+  authority: string;
+  sourceUrl: string;
+  sourceType: GovernmentSourceType;
+  jurisdiction: string;
+  supportedCategories: string[];
+  retrievalStatus: SourceRetrievalStatus;
+  verificationStatus?: 'verified' | 'provisional' | 'unverified';
+  isVerifiedOfficial?: boolean;
+  accessLimitations?: string;
+  lastDiscoveredAt: string;
+  lastCheckedAt: string;
+  createdAt: string;
+  updatedAt?: string;
+}
+
+export interface GovernmentService {
+  id: string;
+  sourceId?: string;
+  serviceName: string;
+  serviceCode: string;
+  department: string;
+  jurisdiction: string;
+  officialUrl: string;
+  description: string;
+  category: string;
+  status: 'active' | 'inactive' | 'deprecated';
+  applicationTypes: ServiceApplicationType[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ServiceApplicationType {
+  id: string;
+  serviceId: string;
+  applicationName: string;
+  variantCode: string;
+  applicantCategory?: string;
+  requirementsVersion: string;
+  lifecycleStatus: LifecycleStatus;
+  publishedAt?: string | null;
+  verifiedBy?: string | null;
+  verifiedAt?: string | null;
+  adminNotes?: string | null;
+  officialDocuments?: OfficialDocumentCatalogEntry[];
+  requirements: ApplicationDocumentRequirement[];
+  conditionalQuestions: ApplicationConditionalQuestion[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface OfficialDocumentCatalogEntry {
+  id: string;
+  applicationTypeId?: string;
+  sourceId?: string;
+  formIdentifier: string;
+  title: string;
+  sourceUrl: string;
+  fileFormat: 'pdf' | 'html' | 'docx' | 'csv' | 'json' | 'xml' | 'other';
+  contentHashSha256: string;
+  fileSizeBytes: number;
+  effectiveDate?: string | null;
+  extractionStatus: 'discovered' | 'downloaded' | 'extracted' | 'failed';
+  extractionMetadata: Record<string, any>;
+  lastCheckedAt: string;
+  createdAt: string;
+}
+
+export interface ApplicationDocumentRequirement {
+  id: string;
+  applicationTypeId?: string;
+  documentName: string;
+  documentType?: DocumentCategory;
+  canonicalDocumentKey?: string;
+  requirementClassification?: RequirementClassification;
+  classification?: RequirementClassification;
+  isMandatory?: boolean;
+  conditionExpression?: string | null;
+  acceptedAlternatives?: string[];
+  requiredFields?: string[];
+  sourceEvidence?: string | null;
+  sourceEvidenceSnippet?: string | null;
+  sourceUrl?: string | null;
+  extractionConfidence?: number;
+  verificationStatus?: 'extracted' | 'needs_review' | 'verified' | 'rejected';
+  createdAt?: string;
+}
+
+export interface ApplicationConditionalQuestion {
+  id: string;
+  applicationTypeId?: string;
+  questionKey?: string;
+  questionCode?: string;
+  questionText: string;
+  responseType?: 'boolean' | 'select' | 'text' | 'number';
+  questionType?: 'boolean' | 'select' | 'text' | 'number';
+  options?: Array<{ value: string; label: string } | string>;
+  defaultValue?: string | null;
+  helpText?: string | null;
+  triggerCondition?: string;
+  triggeredRequirementKeys?: string[];
+  activatesDocumentTypes?: string[];
+  displayOrder?: number;
+  createdAt?: string;
+}
+
+export interface IngestionRunSummary {
+  sourcesScanned: number;
+  resourcesDiscovered: number;
+  resourcesDownloaded: number;
+  resourcesParsed: number;
+  errorsCount: number;
+  verifiedCount: number;
+  publishedCount: number;
+  breakdownBySource: Record<string, { discovered: number; downloaded: number; failed: number }>;
+}
+
+export interface IngestionRun {
+  id: string;
+  startedBy?: string | null;
+  runType: 'manual' | 'scheduled' | 'incremental_resume';
+  sourcesScanned: number;
+  resourcesDiscovered: number;
+  resourcesDownloaded: number;
+  resourcesParsed: number;
+  errorsCount: number;
+  reportSummary: IngestionRunSummary | Record<string, any>;
+  status: 'running' | 'completed' | 'interrupted' | 'failed';
+  createdAt: string;
+}
+
+export interface PersonalizedChecklistResult {
+  applicationTypeId: string;
+  serviceName: string;
+  mandatoryDocuments: ApplicationDocumentRequirement[];
+  conditionalDocuments: Array<{
+    requirement: ApplicationDocumentRequirement;
+    triggeredByQuestion: string;
+    userAnswer: any;
+  }>;
+  alternativeDocumentGroups: Array<{
+    groupName: string;
+    options: ApplicationDocumentRequirement[];
+    isSatisfied: boolean;
+  }>;
+  optionalDocuments: ApplicationDocumentRequirement[];
+  unresolvedRequirements: Array<{
+    requirement: ApplicationDocumentRequirement;
+    reason: string;
+  }>;
+  totalRequiredCount: number;
+}
+
+

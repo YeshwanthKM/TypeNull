@@ -11,7 +11,10 @@ import { createClient, SupabaseClient } from '@supabase/supabase-js';
  * NEVER expose service-role keys or database passwords in frontend code.
  */
 
-const env = import.meta.env as Record<string, string | undefined>;
+const env = (
+  (typeof import.meta !== 'undefined' && (import.meta as any).env) ||
+  ((typeof globalThis !== 'undefined' && (globalThis as any).process?.env) || {})
+) as Record<string, string | undefined>;
 
 const supabaseUrl = (
   env.VITE_SUPABASE_URL ||
@@ -58,7 +61,7 @@ export function getSupabase(): SupabaseClient {
   return supabase;
 }
 
-if (!isSupabaseConfigured && import.meta.env.DEV) {
+if (!isSupabaseConfigured && (import.meta as any)?.env?.DEV) {
   console.warn(
     '[TypeNull: Phase 2] Supabase is unconfigured. Real authentication and persistence require Supabase environment variables.'
   );

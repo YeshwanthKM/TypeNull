@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   ShieldCheck,
   AlertTriangle,
@@ -12,6 +12,7 @@ import {
   ChevronUp,
   Info,
   CheckCircle,
+  Globe,
 } from 'lucide-react';
 import { Button } from '../ui/Button';
 import {
@@ -21,9 +22,12 @@ import {
   ExtractedFieldRecord,
   ScreeningOutcome,
   ValidationRun,
+  PersonalizedChecklistResult,
 } from '../../types';
 import { runValidationEngine } from '../../services/validation/engine';
 import { fetchValidationRuns, saveValidationRun } from '../../services/validationService';
+import { CANDIDATE_GOVERNMENT_SERVICES } from '../../services/ingestion/ingestionService';
+import { evaluateConditionalChecklist } from '../../services/conditionalEvaluator';
 
 interface PreValidationSectionProps {
   application: DbApplication;
@@ -46,6 +50,44 @@ export const PreValidationSection: React.FC<PreValidationSectionProps> = ({
   const [filter, setFilter] = useState<'all' | 'issues' | 'passed' | 'warnings'>('all');
   const [showHistory, setShowHistory] = useState(false);
 
+  // Check if this application dossier was created from an official government service
+  const parsedGovMeta = useMemo(() => {
+    if (!application.description) return null;
+    try {
+      const obj = JSON.parse(application.description);
+      if (obj && typeof obj === 'object' && obj.governmentService) {
+        return obj.governmentService;
+      }
+    } catch {
+      // plain text description
+    }
+    return null;
+  }, [application.description]);
+
+  // Compute live tailored checklist based on applicant answers and uploaded documents
+  const tailoredChecklist: PersonalizedChecklistResult | null = useMemo(() => {
+    if (!parsedGovMeta) return null;
+    const srv = CANDIDATE_GOVERNMENT_SERVICES.find(
+      (s) => s.id === parsedGovMeta.id || s.serviceCode === parsedGovMeta.serviceCode
+    );
+    if (!srv) return null;
+
+    const variant =
+      srv.applicationTypes.find(
+        (v) => v.id === parsedGovMeta.applicationTypeId || v.variantCode === parsedGovMeta.variantCode
+      ) || srv.applicationTypes[0];
+
+    if (!variant) return null;
+
+    const uploadedTypes = documents.map((d) => d.document_type);
+
+    return evaluateConditionalChecklist({
+      applicationType: variant,
+      userAnswers: parsedGovMeta.conditionalAnswers || {},
+      uploadedDocumentTypes: uploadedTypes,
+    });
+  }, [parsedGovMeta, documents]);
+
   // Load prior validation history on mount
   useEffect(() => {
     let mounted = true;
@@ -67,6 +109,14 @@ export const PreValidationSection: React.FC<PreValidationSectionProps> = ({
       // Simulate slight processing delay for responsive tactile feel
       await new Promise((r) => setTimeout(r, 600));
 
+      const allPersonalizedReqs = tailoredChecklist
+        ? [
+            ...tailoredChecklist.mandatoryDocuments,
+            ...tailoredChecklist.conditionalDocuments.map((c) => c.requirement),
+            ...tailoredChecklist.alternativeDocumentGroups.flatMap((g) => g.options),
+          ]
+        : undefined;
+
       const result = runValidationEngine({
         applicationId: application.id,
         category: application.category,
@@ -79,6 +129,8 @@ export const PreValidationSection: React.FC<PreValidationSectionProps> = ({
         documents,
         extractions,
         fields,
+        personalizedRequirements: allPersonalizedReqs,
+        serviceName: tailoredChecklist?.serviceName || application.title,
       });
 
       setCurrentRun(result);
@@ -170,6 +222,142 @@ export const PreValidationSection: React.FC<PreValidationSectionProps> = ({
           {currentRun ? 'Re-Run Pre-Validation' : 'Run Pre-Validation'}
         </Button>
       </div>
+
+      {/* Official Government Tailored Requirements Card */}
+      {tailoredChecklist && (
+        <div className="p-5 rounded-2xl border border-indigo-200 bg-gradient-to-r from-indigo-50/50 via-white to-slate-50 space-y-3.5">
+          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-indigo-100 pb-2.5">
+            <div className="flex items-center gap-2">
+              <span className="p-1 rounded-md bg-indigo-600 text-white">
+                <Globe className="w-3.5 h-3.5" />
+              </span>
+              <h4 className="text-xs font-bold text-slate-900">
+                Official Statutory Requirements: {tailoredChecklist.serviceName}
+              </h4>
+            </div>
+            <span className="text-[10px] font-mono font-bold bg-indigo-100 text-indigo-900 px-2 py-0.5 rounded border border-indigo-200">
+              {tailoredChecklist.totalRequiredCount} Tailored Rules Active
+            </span>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+            {/* Mandatory Base Requirements */}
+            <div className="p-3 bg-white rounded-xl border border-slate-200 space-y-2">
+              <span className="font-bold text-slate-900 text-[11px] uppercase tracking-wider block">
+                Mandatory Base Proofs ({tailoredChecklist.mandatoryDocuments.length})
+              </span>
+              <div className="space-y-1.5">
+                {tailoredChecklist.mandatoryDocuments.map((doc, idx) => {
+                  const key = (doc.canonicalDocumentKey || doc.documentType || doc.documentName).toLowerCase();
+                  const isUploaded = documents.some(
+                    (d) =>
+                      d.document_type.toLowerCase() === key ||
+                      d.original_filename.toLowerCase().includes(key)
+                  );
+                  return (
+                    <div
+                      key={idx}
+                      className="flex items-center justify-between p-2 rounded-lg bg-slate-50 border border-slate-100"
+                    >
+                      <div className="flex items-center gap-2">
+                        {isUploaded ? (
+                          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 flex-shrink-0" />
+                        ) : (
+                          <AlertTriangle className="w-3.5 h-3.5 text-rose-500 flex-shrink-0" />
+                        )}
+                        <span className="font-medium text-slate-800">{doc.documentName}</span>
+                      </div>
+                      <span
+                        className={`text-[9px] font-mono px-2 py-0.5 rounded font-bold uppercase ${
+                          isUploaded ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'
+                        }`}
+                      >
+                        {isUploaded ? 'Uploaded' : 'Missing'}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Conditional Requirements Triggered by Applicant's Answers */}
+            <div className="p-3 bg-white rounded-xl border border-slate-200 space-y-2">
+              <span className="font-bold text-slate-900 text-[11px] uppercase tracking-wider block">
+                Conditional Requirements ({tailoredChecklist.conditionalDocuments.length})
+              </span>
+              {tailoredChecklist.conditionalDocuments.length === 0 ? (
+                <p className="text-[11px] text-slate-400 italic p-3">
+                  No additional conditional documents triggered by your answers.
+                </p>
+              ) : (
+                <div className="space-y-1.5">
+                  {tailoredChecklist.conditionalDocuments.map((cDoc, idx) => {
+                    const key = (cDoc.requirement.canonicalDocumentKey || cDoc.requirement.documentType || cDoc.requirement.documentName).toLowerCase();
+                    const isUploaded = documents.some(
+                      (d) =>
+                        d.document_type.toLowerCase() === key ||
+                        d.original_filename.toLowerCase().includes(key)
+                    );
+                    return (
+                      <div
+                        key={idx}
+                        className="p-2 rounded-lg bg-amber-50/60 border border-amber-200 space-y-1"
+                      >
+                        <div className="flex items-center justify-between">
+                          <span className="font-semibold text-slate-900">
+                            {cDoc.requirement.documentName}
+                          </span>
+                          <span
+                            className={`text-[9px] font-mono px-2 py-0.5 rounded font-bold uppercase ${
+                              isUploaded ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'
+                            }`}
+                          >
+                            {isUploaded ? 'Uploaded' : 'Required'}
+                          </span>
+                        </div>
+                        <p className="text-[10px] text-amber-900">
+                          Activated because: {cDoc.triggeredByQuestion} = <strong>{String(cDoc.userAnswer)}</strong>
+                        </p>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+
+            {/* Alternative Document Groups */}
+            {tailoredChecklist.alternativeDocumentGroups.length > 0 && (
+              <div className="p-3 bg-white rounded-xl border border-slate-200 space-y-2 md:col-span-2">
+                <span className="font-bold text-slate-900 text-[11px] uppercase tracking-wider block">
+                  Alternative Document Groups (1 of Any Accepted)
+                </span>
+                <div className="space-y-1.5">
+                  {tailoredChecklist.alternativeDocumentGroups.map((group, idx) => (
+                    <div
+                      key={idx}
+                      className="p-2.5 rounded-lg bg-blue-50/50 border border-blue-100 flex items-center justify-between"
+                    >
+                      <div>
+                        <span className="font-semibold text-slate-900">{group.groupName}</span>
+                        <p className="text-[11px] text-slate-500 mt-0.5">
+                          Accepts: {group.options[0]?.acceptedAlternatives?.join(' OR ') || 'Proof document'}
+                        </p>
+                      </div>
+                      <span
+                        className={`text-[10px] font-mono px-2 py-0.5 rounded font-bold uppercase ${
+                          group.isSatisfied ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-200 text-slate-700'
+                        }`}
+                      >
+                        {group.isSatisfied ? 'Satisfied' : 'Pending Upload'}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* When no validation has been run yet */}
       {!currentRun && !isRunning && (
