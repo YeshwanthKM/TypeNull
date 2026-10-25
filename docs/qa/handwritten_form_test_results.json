@@ -1,0 +1,1026 @@
+[
+  {
+    "caseId": 1,
+    "title": "Neatly Handwritten Answers",
+    "formName": "MEA Passport Annexure E (Applicant Declaration)",
+    "formSource": "Ministry of External Affairs — Passport Seva Portal",
+    "formType": "Government Statutory Declaration / Identity Verification",
+    "testCondition": "Clean, upright, uppercase block handwriting on horizontal baseline lines (Noteworthy font).",
+    "targetFile": "01_neatly_handwritten_answers.png",
+    "ocrConfidence": 0.77,
+    "rawTextLength": 410,
+    "rawTextSnippet": "GOVERNMENT OF INDIA - MINISTRY OF EXTERNAL AFFAIRS\nANNEXURE 'E\"\nSPECIMEN DECLARATION OF THE APPLICANT ON A PLAIN PAPER\nApplicant Name: QURESH KUMAR\nFathers Name: RAMESH KUMAR\nPAN / Tax ID: ABCDEI234F pateotBin: [2/04/1985\nResidential Address: 128 MG ROAD INDIRANAGAR BANGALORE 560038\n1 olemnly aff th",
+    "classifiedCategory": "application_form",
+    "classificationConfidence": 0.85,
+    "extractedFields": [
+      {
+        "fieldName": "organisation_name",
+        "fieldLabel": "Organisation / Entity Name",
+        "extractedValue": "QURESH KUMAR",
+        "pageNumber": 1,
+        "evidenceSnippet": "Applicant Name: QURESH KUMAR",
+        "extractionMethod": "ocr",
+        "confidenceScore": 0.77
+      },
+      {
+        "fieldName": "issuing_authority",
+        "fieldLabel": "Issuing Authority / Regulatory Body",
+        "extractedValue": "Government of India",
+        "pageNumber": 1,
+        "evidenceSnippet": "GOVERNMENT OF INDIA - MINISTRY OF EXTERNAL AFFAIRS",
+        "extractionMethod": "ocr",
+        "confidenceScore": 0.95
+      },
+      {
+        "fieldName": "address",
+        "fieldLabel": "Registered Address / Domicile",
+        "extractedValue": "128 MG ROAD INDIRANAGAR BANGALORE 560038",
+        "pageNumber": 1,
+        "evidenceSnippet": "Residential Address: 128 MG ROAD INDIRANAGAR BANGALORE 560038",
+        "extractionMethod": "ocr",
+        "confidenceScore": 0.86
+      }
+    ],
+    "normalizedFields": {
+      "organisation_name": {
+        "normalizedValue": "QURESH KUMAR",
+        "normalizationApplied": null,
+        "confidence": 0.95,
+        "isIllegible": false
+      },
+      "issuing_authority": {
+        "normalizedValue": "Government of India",
+        "normalizationApplied": null,
+        "confidence": 0.95,
+        "isIllegible": false
+      },
+      "address": {
+        "normalizedValue": "128 MG ROAD INDIRANAGAR BANGALORE 560038",
+        "normalizationApplied": null,
+        "confidence": 0.95,
+        "isIllegible": false
+      }
+    },
+    "correctlyExtracted": [
+      {
+        "field": "address",
+        "expected": "128 MG ROAD INDIRANAGAR BANGALORE 560038",
+        "observed": "128 MG ROAD INDIRANAGAR BANGALORE 560038"
+      }
+    ],
+    "missedOrIncorrect": [
+      {
+        "field": "documentTitle",
+        "expected": "Passport Applicant Declaration (Annexure E)",
+        "observed": "NOT_DETECTED",
+        "reason": "Field not recognized by regex or OCR failed"
+      },
+      {
+        "field": "applicantName",
+        "expected": "SURESH KUMAR",
+        "observed": "NOT_DETECTED",
+        "reason": "Field not recognized by regex or OCR failed"
+      },
+      {
+        "field": "registrationNumber",
+        "expected": "ABCDE1234F",
+        "observed": "NOT_DETECTED",
+        "reason": "Field not recognized by regex or OCR failed"
+      },
+      {
+        "field": "issueDate",
+        "expected": "15/07/2024",
+        "observed": "NOT_DETECTED",
+        "reason": "Field not recognized by regex or OCR failed"
+      }
+    ],
+    "unreadableHandling": {
+      "safeGating": false,
+      "manualReviewTriggered": false,
+      "blockingFailures": [
+        "Mandatory Document Missing: Institutional Registration or Charter",
+        "Mandatory Document Missing: Supporting Compliance Evidence",
+        "Required Field Missing: Registration or License Number"
+      ],
+      "unassessedFindings": []
+    },
+    "validationSummary": {
+      "outcome": "Major Issues",
+      "totalFindings": 3,
+      "blockingCount": 3,
+      "majorCount": 3,
+      "minorCount": 0,
+      "unableToAssessCount": 0
+    }
+  },
+  {
+    "caseId": 2,
+    "title": "Ordinary Handwriting",
+    "formName": "Income Tax Form 49A (Application for Allotment of PAN)",
+    "formSource": "Income Tax Department, Government of India",
+    "formType": "Statutory Direct Tax Registration Form",
+    "testCondition": "Typical natural human handwriting with mixed upper/lowercase, minor slant, and proportional spacing (Chalkboard font).",
+    "targetFile": "02_ordinary_handwriting.png",
+    "ocrConfidence": 0.87,
+    "rawTextLength": 336,
+    "rawTextSnippet": "INCOME TAX DEPARTMENT - GOVERNMENT OF INDIA\nFORM NO. 49A\nApplication for Allotment of Permanent Account Number\n1. Full Name: Priya Sharma\n2.FathersName: Mohan Lal Sharma\n3.DawofBith: 24/11/1990 Registration No: DL-04-2022-0091823\n4. Address for Communication: Flat 302, Green Valley Apartments, Rohin",
+    "classifiedCategory": "identity_document",
+    "classificationConfidence": 0.95,
+    "extractedFields": [
+      {
+        "fieldName": "document_title",
+        "fieldLabel": "Document Title / Form Type",
+        "extractedValue": "Permanent Account Number (PAN) Card",
+        "pageNumber": 1,
+        "evidenceSnippet": "Application for Allotment of Permanent Account Number",
+        "extractionMethod": "ocr",
+        "confidenceScore": 0.87
+      },
+      {
+        "fieldName": "registration_number",
+        "fieldLabel": "Registration / Certificate Number",
+        "extractedValue": "DL-04-2022-0091823",
+        "pageNumber": 1,
+        "evidenceSnippet": "3.DawofBith: 24/11/1990 Registration No: DL-04-2022-0091823",
+        "extractionMethod": "ocr",
+        "confidenceScore": 0.87
+      },
+      {
+        "fieldName": "organisation_name",
+        "fieldLabel": "Organisation / Entity Name",
+        "extractedValue": "Priya Sharma",
+        "pageNumber": 1,
+        "evidenceSnippet": "1. Full Name: Priya Sharma",
+        "extractionMethod": "ocr",
+        "confidenceScore": 0.87
+      },
+      {
+        "fieldName": "issuing_authority",
+        "fieldLabel": "Issuing Authority / Regulatory Body",
+        "extractedValue": "Government of India",
+        "pageNumber": 1,
+        "evidenceSnippet": "INCOME TAX DEPARTMENT - GOVERNMENT OF INDIA",
+        "extractionMethod": "ocr",
+        "confidenceScore": 0.95
+      },
+      {
+        "fieldName": "address",
+        "fieldLabel": "Registered Address / Domicile",
+        "extractedValue": "for Communication",
+        "pageNumber": 1,
+        "evidenceSnippet": "4. Address for Communication: Flat 302, Green Valley Apartments, Rohini, New Delhi",
+        "extractionMethod": "ocr",
+        "confidenceScore": 0.86
+      }
+    ],
+    "normalizedFields": {
+      "document_title": {
+        "normalizedValue": "Permanent Account Number (PAN) Card",
+        "normalizationApplied": null,
+        "confidence": 0.95,
+        "isIllegible": false
+      },
+      "registration_number": {
+        "normalizedValue": "DL-04-2022-0091823",
+        "normalizationApplied": null,
+        "confidence": 0.95,
+        "isIllegible": false
+      },
+      "organisation_name": {
+        "normalizedValue": "Priya Sharma",
+        "normalizationApplied": null,
+        "confidence": 0.95,
+        "isIllegible": false
+      },
+      "issuing_authority": {
+        "normalizedValue": "Government of India",
+        "normalizationApplied": null,
+        "confidence": 0.95,
+        "isIllegible": false
+      },
+      "address": {
+        "normalizedValue": "for Communication",
+        "normalizationApplied": null,
+        "confidence": 0.95,
+        "isIllegible": false
+      }
+    },
+    "correctlyExtracted": [
+      {
+        "field": "documentTitle",
+        "expected": "Permanent Account Number (PAN) Card",
+        "observed": "Permanent Account Number (PAN) Card"
+      },
+      {
+        "field": "registrationNumber",
+        "expected": "DL-04-2022-0091823",
+        "observed": "DL-04-2022-0091823"
+      }
+    ],
+    "missedOrIncorrect": [
+      {
+        "field": "applicantName",
+        "expected": "Priya Sharma",
+        "observed": "NOT_DETECTED",
+        "reason": "Field not recognized by regex or OCR failed"
+      },
+      {
+        "field": "issueDate",
+        "expected": "24/11/2022",
+        "observed": "NOT_DETECTED",
+        "reason": "Field not recognized by regex or OCR failed"
+      }
+    ],
+    "unreadableHandling": {
+      "safeGating": false,
+      "manualReviewTriggered": false,
+      "blockingFailures": [
+        "Mandatory Document Missing: Institutional Registration or Charter",
+        "Mandatory Document Missing: Supporting Compliance Evidence"
+      ],
+      "unassessedFindings": []
+    },
+    "validationSummary": {
+      "outcome": "Major Issues",
+      "totalFindings": 2,
+      "blockingCount": 2,
+      "majorCount": 2,
+      "minorCount": 0,
+      "unableToAssessCount": 0
+    }
+  },
+  {
+    "caseId": 3,
+    "title": "Difficult-to-Read Handwriting",
+    "formName": "Municipal Trade Licence Clearance Application",
+    "formSource": "Urban Local Body Municipal Authority",
+    "formType": "Municipal Trade & Operational Clearance",
+    "testCondition": "Fast cursive script with high slant (25°), connected loops, uneven line thickness, and cursive ligatures (Brush Script MT font).",
+    "targetFile": "03_difficult_to_read_handwriting.png",
+    "ocrConfidence": 0.65,
+    "rawTextLength": 255,
+    "rawTextSnippet": "MUNICIPAL CORPORATION - TRADE LICENSING DEPARTMENT\nAPPLICATION FOR TRADE LICENCE REGISTRATION\nEstablishment Name: ‘Vewbateshwana Engineering Works\nProprietor Name: Dn. Awandlhan Rajagopalan\nLicence Number: ~~ BBP - TL -2023- 8591\nvate otissve: 05/09/2023\n",
+    "classifiedCategory": "supporting_evidence",
+    "classificationConfidence": 0.65,
+    "extractedFields": [
+      {
+        "fieldName": "registration_number",
+        "fieldLabel": "Registration / Certificate Number",
+        "extractedValue": "REGISTRATION",
+        "pageNumber": 1,
+        "evidenceSnippet": "APPLICATION FOR TRADE LICENCE REGISTRATION",
+        "extractionMethod": "ocr",
+        "confidenceScore": 0.65
+      }
+    ],
+    "normalizedFields": {
+      "registration_number": {
+        "normalizedValue": "REGISTRATION",
+        "normalizationApplied": null,
+        "confidence": 0.95,
+        "isIllegible": false
+      }
+    },
+    "correctlyExtracted": [],
+    "missedOrIncorrect": [
+      {
+        "field": "documentTitle",
+        "expected": "Municipal Trade & Operational Licence",
+        "observed": "NOT_DETECTED",
+        "reason": "Field not recognized by regex or OCR failed"
+      },
+      {
+        "field": "organisationName",
+        "expected": "Venkateshwara Engineering Works",
+        "observed": "NOT_DETECTED",
+        "reason": "Field not recognized by regex or OCR failed"
+      },
+      {
+        "field": "applicantName",
+        "expected": "Dr. Anandhan Rajagopalan",
+        "observed": "NOT_DETECTED",
+        "reason": "Field not recognized by regex or OCR failed"
+      },
+      {
+        "field": "registrationNumber",
+        "expected": "BBMP-TL-2023-8891",
+        "observed": "REGISTRATION",
+        "reason": "Value corrupted or partial match"
+      },
+      {
+        "field": "issueDate",
+        "expected": "05/09/2023",
+        "observed": "NOT_DETECTED",
+        "reason": "Field not recognized by regex or OCR failed"
+      }
+    ],
+    "unreadableHandling": {
+      "safeGating": false,
+      "manualReviewTriggered": false,
+      "blockingFailures": [
+        "Mandatory Document Missing: Institutional Registration or Charter",
+        "Required Field Missing: Organization Name"
+      ],
+      "unassessedFindings": []
+    },
+    "validationSummary": {
+      "outcome": "Major Issues",
+      "totalFindings": 3,
+      "blockingCount": 2,
+      "majorCount": 2,
+      "minorCount": 0,
+      "unableToAssessCount": 0
+    }
+  },
+  {
+    "caseId": 4,
+    "title": "Photograph Taken at an Angle",
+    "formName": "MEA Passport Annexure D (Parental Minor Consent)",
+    "formSource": "Ministry of External Affairs — Passport Seva Portal",
+    "formType": "Government Statutory Affidavit",
+    "testCondition": "Photograph taken with mobile device at approximately 15° perspective angle with keystone skew and uneven background gradient.",
+    "targetFile": "04_photograph_taken_at_an_angle.png",
+    "ocrConfidence": 0.45,
+    "rawTextLength": 182,
+    "rawTextSnippet": "PASSPORT SEvA COVERNNENT OF INDIA\nANNEXURE bg\nOAT FoR pi HORT Ao cain\nMinor Appigang Name; AARAY SHARMA\nFL Log Nope SUREQyy SHARMA\nPaS500rt Numpey, 2 1928374\nDate of gg, 14, 06/2073\n",
+    "classifiedCategory": "identity_document",
+    "classificationConfidence": 0.92,
+    "extractedFields": [
+      {
+        "fieldName": "document_title",
+        "fieldLabel": "Document Title / Form Type",
+        "extractedValue": "Indian Passport",
+        "pageNumber": 1,
+        "evidenceSnippet": "PASSPORT SEvA COVERNNENT OF INDIA",
+        "extractionMethod": "ocr",
+        "confidenceScore": 0.45
+      }
+    ],
+    "normalizedFields": {
+      "document_title": {
+        "normalizedValue": "Indian Passport",
+        "normalizationApplied": null,
+        "confidence": 0.95,
+        "isIllegible": false
+      }
+    },
+    "correctlyExtracted": [],
+    "missedOrIncorrect": [
+      {
+        "field": "documentTitle",
+        "expected": "Passport Applicant Declaration",
+        "observed": "Indian Passport",
+        "reason": "Value corrupted or partial match"
+      },
+      {
+        "field": "applicantName",
+        "expected": "AARAV SHARMA",
+        "observed": "NOT_DETECTED",
+        "reason": "Field not recognized by regex or OCR failed"
+      },
+      {
+        "field": "registrationNumber",
+        "expected": "Z1928374",
+        "observed": "NOT_DETECTED",
+        "reason": "Field not recognized by regex or OCR failed"
+      }
+    ],
+    "unreadableHandling": {
+      "safeGating": false,
+      "manualReviewTriggered": false,
+      "blockingFailures": [
+        "Mandatory Document Missing: Institutional Registration or Charter",
+        "Mandatory Document Missing: Supporting Compliance Evidence",
+        "Required Field Missing: Organization Name",
+        "Required Field Missing: Registration or License Number"
+      ],
+      "unassessedFindings": []
+    },
+    "validationSummary": {
+      "outcome": "Major Issues",
+      "totalFindings": 4,
+      "blockingCount": 4,
+      "majorCount": 4,
+      "minorCount": 0,
+      "unableToAssessCount": 0
+    }
+  },
+  {
+    "caseId": 5,
+    "title": "Low-Resolution Scan",
+    "formName": "BBMP Municipal Trade Licence Certificate",
+    "formSource": "Bruhat Bengaluru Mahanagara Palike",
+    "formType": "Municipal Trade Clearance Certificate",
+    "testCondition": "Severely downsampled raster image (100 DPI) with heavy blurring, loss of fine strokes, and pixelation artifacts.",
+    "targetFile": "05_low_resolution_scan.png",
+    "ocrConfidence": 0.49,
+    "rawTextLength": 77,
+    "rawTextSnippet": "BRUHAT BENGALURU MAHANAGARA PALIE.\nTaian APEX LOGICS SERUCES\nOmen 12/08/2024\n",
+    "classifiedCategory": "supporting_evidence",
+    "classificationConfidence": 0.65,
+    "extractedFields": [],
+    "normalizedFields": {},
+    "correctlyExtracted": [],
+    "missedOrIncorrect": [
+      {
+        "field": "documentTitle",
+        "expected": "Municipal Trade & Operational Licence",
+        "observed": "NOT_DETECTED",
+        "reason": "Field not recognized by regex or OCR failed"
+      },
+      {
+        "field": "organisationName",
+        "expected": "APEX LOGISTICS SERVICES",
+        "observed": "NOT_DETECTED",
+        "reason": "Field not recognized by regex or OCR failed"
+      },
+      {
+        "field": "registrationNumber",
+        "expected": "BBMP-TL-2024-5512",
+        "observed": "NOT_DETECTED",
+        "reason": "Field not recognized by regex or OCR failed"
+      },
+      {
+        "field": "issueDate",
+        "expected": "12/03/2024",
+        "observed": "NOT_DETECTED",
+        "reason": "Field not recognized by regex or OCR failed"
+      }
+    ],
+    "unreadableHandling": {
+      "safeGating": false,
+      "manualReviewTriggered": false,
+      "blockingFailures": [
+        "Mandatory Document Missing: Institutional Registration or Charter",
+        "Required Field Missing: Organization Name",
+        "Required Field Missing: Registration or License Number"
+      ],
+      "unassessedFindings": []
+    },
+    "validationSummary": {
+      "outcome": "Major Issues",
+      "totalFindings": 4,
+      "blockingCount": 3,
+      "majorCount": 3,
+      "minorCount": 0,
+      "unableToAssessCount": 0
+    }
+  },
+  {
+    "caseId": 6,
+    "title": "Standard Form with Printed Text and Handwritten Entries",
+    "formName": "Form GST REG-01 (Application for Registration under GST)",
+    "formSource": "Central Board of Indirect Taxes and Customs (CBIC) & GST Council",
+    "formType": "Statutory Indirect Tax Registration Application",
+    "testCondition": "Extensive machine-printed legal boilerplate, statutory clauses, table grid borders, and designated boxed fill-ins containing handwritten responses.",
+    "targetFile": "06_standard_form_with_printed_text_and_handwritten_entries.png",
+    "ocrConfidence": 0.72,
+    "rawTextLength": 601,
+    "rawTextSnippet": "GOODS AND SERVICES TAX NETWORK\nFORM GST REG-01\n\n[See Rule (1) of Central Goods and Services Tax Rules, 2017]\nPART A: APPLICANT PARTICULARS & JURISDICTION\nLegal Name of the Business Trad Namo (f diferent\nNEXUS ENTERPRISES PRIVATE LIMITED NEXUS CLOUD SOLUTIONS\nGSTIN Registration Number Dato of issu / ",
+    "classifiedCategory": "registration_certificate",
+    "classificationConfidence": 0.94,
+    "extractedFields": [
+      {
+        "fieldName": "document_title",
+        "fieldLabel": "Document Title / Form Type",
+        "extractedValue": "GST Registration Certificate",
+        "pageNumber": 1,
+        "evidenceSnippet": "GOODS AND SERVICES TAX NETWORK",
+        "extractionMethod": "ocr",
+        "confidenceScore": 0.72
+      },
+      {
+        "fieldName": "registration_number",
+        "fieldLabel": "Registration / Certificate Number",
+        "extractedValue": "Number",
+        "pageNumber": 1,
+        "evidenceSnippet": "GSTIN Registration Number Dato of issu / Commencement",
+        "extractionMethod": "ocr",
+        "confidenceScore": 0.72
+      },
+      {
+        "fieldName": "issuing_authority",
+        "fieldLabel": "Issuing Authority / Regulatory Body",
+        "extractedValue": "Goods and Services Tax Network",
+        "pageNumber": 1,
+        "evidenceSnippet": "GOODS AND SERVICES TAX NETWORK",
+        "extractionMethod": "ocr",
+        "confidenceScore": 0.95
+      }
+    ],
+    "normalizedFields": {
+      "document_title": {
+        "normalizedValue": "GST Registration Certificate",
+        "normalizationApplied": null,
+        "confidence": 0.95,
+        "isIllegible": false
+      },
+      "registration_number": {
+        "normalizedValue": "Number",
+        "normalizationApplied": null,
+        "confidence": 0.95,
+        "isIllegible": false
+      },
+      "issuing_authority": {
+        "normalizedValue": "Goods and Services Tax Network",
+        "normalizationApplied": null,
+        "confidence": 0.95,
+        "isIllegible": false
+      }
+    },
+    "correctlyExtracted": [
+      {
+        "field": "documentTitle",
+        "expected": "GST Registration Certificate",
+        "observed": "GST Registration Certificate"
+      }
+    ],
+    "missedOrIncorrect": [
+      {
+        "field": "organisationName",
+        "expected": "NEXUS ENTERPRISES PRIVATE LIMITED",
+        "observed": "NOT_DETECTED",
+        "reason": "Field not recognized by regex or OCR failed"
+      },
+      {
+        "field": "registrationNumber",
+        "expected": "29ABCDE1234F1Z5",
+        "observed": "Number",
+        "reason": "Value corrupted or partial match"
+      },
+      {
+        "field": "issueDate",
+        "expected": "01/06/2024",
+        "observed": "NOT_DETECTED",
+        "reason": "Field not recognized by regex or OCR failed"
+      }
+    ],
+    "unreadableHandling": {
+      "safeGating": false,
+      "manualReviewTriggered": false,
+      "blockingFailures": [
+        "Mandatory Document Missing: Supporting Compliance Evidence",
+        "Required Field Missing: Organization Name"
+      ],
+      "unassessedFindings": []
+    },
+    "validationSummary": {
+      "outcome": "Major Issues",
+      "totalFindings": 3,
+      "blockingCount": 2,
+      "majorCount": 2,
+      "minorCount": 0,
+      "unableToAssessCount": 0
+    }
+  },
+  {
+    "caseId": 7,
+    "title": "Form with an Empty Field That Should Have Been Completed",
+    "formName": "MEA Passport Annexure E (Blank Mandatory Identifier)",
+    "formSource": "Ministry of External Affairs — Passport Seva Portal",
+    "formType": "Government Statutory Declaration",
+    "testCondition": "Applicant completed all fields except mandatory Registration Number / Reference ID which was left entirely blank (empty underline).",
+    "targetFile": "07_form_with_an_empty_field_that_should_have_been_completed.png",
+    "ocrConfidence": 0.89,
+    "rawTextLength": 193,
+    "rawTextSnippet": "PASSPORT SEVA - MINISTRY OF EXTERNAL AFFAIRS\nANNEXURE 'E'- STATUTORY APPLICANT DECLARATION\nApplicant Name: SURESH KUMAR\nRegistration Number:\nDate of Birth: 12/04/1985\nDate of Issue: 15/07/2024\n",
+    "classifiedCategory": "identity_document",
+    "classificationConfidence": 0.92,
+    "extractedFields": [
+      {
+        "fieldName": "document_title",
+        "fieldLabel": "Document Title / Form Type",
+        "extractedValue": "Indian Passport",
+        "pageNumber": 1,
+        "evidenceSnippet": "PASSPORT SEVA - MINISTRY OF EXTERNAL AFFAIRS",
+        "extractionMethod": "ocr",
+        "confidenceScore": 0.89
+      },
+      {
+        "fieldName": "registration_number",
+        "fieldLabel": "Registration / Certificate Number",
+        "extractedValue": "Number",
+        "pageNumber": 1,
+        "evidenceSnippet": "Registration Number:",
+        "extractionMethod": "ocr",
+        "confidenceScore": 0.88
+      },
+      {
+        "fieldName": "organisation_name",
+        "fieldLabel": "Organisation / Entity Name",
+        "extractedValue": "SURESH KUMAR",
+        "pageNumber": 1,
+        "evidenceSnippet": "Applicant Name: SURESH KUMAR",
+        "extractionMethod": "ocr",
+        "confidenceScore": 0.89
+      },
+      {
+        "fieldName": "issue_date",
+        "fieldLabel": "Document Issue Date",
+        "extractedValue": "12/04/1985",
+        "pageNumber": 1,
+        "evidenceSnippet": "Date of Birth: 12/04/1985",
+        "extractionMethod": "ocr",
+        "confidenceScore": 0.92
+      }
+    ],
+    "normalizedFields": {
+      "document_title": {
+        "normalizedValue": "Indian Passport",
+        "normalizationApplied": null,
+        "confidence": 0.95,
+        "isIllegible": false
+      },
+      "registration_number": {
+        "normalizedValue": "Number",
+        "normalizationApplied": null,
+        "confidence": 0.95,
+        "isIllegible": false
+      },
+      "organisation_name": {
+        "normalizedValue": "SURESH KUMAR",
+        "normalizationApplied": null,
+        "confidence": 0.95,
+        "isIllegible": false
+      },
+      "issue_date": {
+        "normalizedValue": "12/04/1985",
+        "normalizationApplied": null,
+        "confidence": 0.95,
+        "isIllegible": false
+      }
+    },
+    "correctlyExtracted": [],
+    "missedOrIncorrect": [
+      {
+        "field": "documentTitle",
+        "expected": "Passport Applicant Declaration (Annexure E)",
+        "observed": "Indian Passport",
+        "reason": "Value corrupted or partial match"
+      },
+      {
+        "field": "applicantName",
+        "expected": "SURESH KUMAR",
+        "observed": "NOT_DETECTED",
+        "reason": "Field not recognized by regex or OCR failed"
+      },
+      {
+        "field": "registrationNumber",
+        "expected": "OMITTED / BLANK",
+        "observed": "Number",
+        "reason": "False positive detection on empty line"
+      },
+      {
+        "field": "issueDate",
+        "expected": "15/07/2024",
+        "observed": "12/04/1985",
+        "reason": "Value corrupted or partial match"
+      }
+    ],
+    "unreadableHandling": {
+      "safeGating": false,
+      "manualReviewTriggered": false,
+      "blockingFailures": [
+        "Mandatory Document Missing: Institutional Registration or Charter",
+        "Mandatory Document Missing: Supporting Compliance Evidence"
+      ],
+      "unassessedFindings": []
+    },
+    "validationSummary": {
+      "outcome": "Major Issues",
+      "totalFindings": 2,
+      "blockingCount": 2,
+      "majorCount": 2,
+      "minorCount": 0,
+      "unableToAssessCount": 0
+    }
+  },
+  {
+    "caseId": 8,
+    "title": "Numbers That Could Be Misread (1 vs 7, 0 vs O, 5 vs S)",
+    "formName": "Income Tax PAN Card Application with Ambiguous Glyphs",
+    "formSource": "Income Tax Department — Statutory Taxpayer Enrollment",
+    "formType": "Identity & Tax Credential Record",
+    "testCondition": "Handwritten alphanumeric characters featuring classic OCR confusion glyphs: 1 vs 7, 0 vs O, and 5 vs S in tax code A71051705F and birthdate 17/01/1971.",
+    "targetFile": "08_numbers_that_could_be_misread_1_vs_7_0_vs_o_5_vs_s_.png",
+    "ocrConfidence": 0.92,
+    "rawTextLength": 179,
+    "rawTextSnippet": "INCOME TAX DEPARTMENT - GOVERNMENT OF INDIA\nPERMANENT ACCOUNT NUMBER CARD VERIFICATION\nPermanent Account Number: AT1051705F\nCardholder Name: AARAV SHARMA\nDate of Birth 17/01/1971\n",
+    "classifiedCategory": "identity_document",
+    "classificationConfidence": 0.95,
+    "extractedFields": [
+      {
+        "fieldName": "document_title",
+        "fieldLabel": "Document Title / Form Type",
+        "extractedValue": "Permanent Account Number (PAN) Card",
+        "pageNumber": 1,
+        "evidenceSnippet": "PERMANENT ACCOUNT NUMBER CARD VERIFICATION",
+        "extractionMethod": "ocr",
+        "confidenceScore": 0.92
+      },
+      {
+        "fieldName": "applicant_name",
+        "fieldLabel": "Applicant / Cardholder Name",
+        "extractedValue": "AARAV SHARMA",
+        "pageNumber": 1,
+        "evidenceSnippet": "Cardholder Name: AARAV SHARMA",
+        "extractionMethod": "ocr",
+        "confidenceScore": 0.9
+      },
+      {
+        "fieldName": "issue_date",
+        "fieldLabel": "Document Issue Date",
+        "extractedValue": "17/01/1971",
+        "pageNumber": 1,
+        "evidenceSnippet": "Date of Birth 17/01/1971",
+        "extractionMethod": "ocr",
+        "confidenceScore": 0.92
+      },
+      {
+        "fieldName": "issuing_authority",
+        "fieldLabel": "Issuing Authority / Regulatory Body",
+        "extractedValue": "Government of India",
+        "pageNumber": 1,
+        "evidenceSnippet": "INCOME TAX DEPARTMENT - GOVERNMENT OF INDIA",
+        "extractionMethod": "ocr",
+        "confidenceScore": 0.95
+      }
+    ],
+    "normalizedFields": {
+      "document_title": {
+        "normalizedValue": "Permanent Account Number (PAN) Card",
+        "normalizationApplied": null,
+        "confidence": 0.95,
+        "isIllegible": false
+      },
+      "applicant_name": {
+        "normalizedValue": "AARAV SHARMA",
+        "normalizationApplied": null,
+        "confidence": 0.95,
+        "isIllegible": false
+      },
+      "issue_date": {
+        "normalizedValue": "17/01/1971",
+        "normalizationApplied": null,
+        "confidence": 0.95,
+        "isIllegible": false
+      },
+      "issuing_authority": {
+        "normalizedValue": "Government of India",
+        "normalizationApplied": null,
+        "confidence": 0.95,
+        "isIllegible": false
+      }
+    },
+    "correctlyExtracted": [
+      {
+        "field": "documentTitle",
+        "expected": "Permanent Account Number (PAN) Card",
+        "observed": "Permanent Account Number (PAN) Card"
+      }
+    ],
+    "missedOrIncorrect": [
+      {
+        "field": "registrationNumber",
+        "expected": "A71051705F",
+        "observed": "NOT_DETECTED",
+        "reason": "Field not recognized by regex or OCR failed"
+      },
+      {
+        "field": "dob",
+        "expected": "17/01/1971",
+        "observed": "NOT_DETECTED",
+        "reason": "Field not recognized by regex or OCR failed"
+      }
+    ],
+    "unreadableHandling": {
+      "safeGating": false,
+      "manualReviewTriggered": false,
+      "blockingFailures": [
+        "Mandatory Document Missing: Institutional Registration or Charter",
+        "Mandatory Document Missing: Supporting Compliance Evidence",
+        "Required Field Missing: Organization Name",
+        "Required Field Missing: Registration or License Number"
+      ],
+      "unassessedFindings": []
+    },
+    "validationSummary": {
+      "outcome": "Major Issues",
+      "totalFindings": 4,
+      "blockingCount": 4,
+      "majorCount": 4,
+      "minorCount": 0,
+      "unableToAssessCount": 0
+    }
+  },
+  {
+    "caseId": 9,
+    "title": "Dates Written in Different Formats",
+    "formName": "MCA Director Statutory Filing (Multi-Format Date Specimen)",
+    "formSource": "Ministry of Corporate Affairs — Corporate Governance",
+    "formType": "Corporate Statutory Filing Record",
+    "testCondition": "Evaluates extraction of diverse date representations: alphanumeric with ordinal (\"15th August 2024\"), hyphen-delimited (\"15-08-2024\"), US format (\"08/15/2024\"), and dot-delimited (\"2024.08.15\").",
+    "targetFile": "09_dates_written_in_different_formats.png",
+    "ocrConfidence": 0.88,
+    "rawTextLength": 319,
+    "rawTextSnippet": "MINISTRY OF CORPORATE AFFAIRS - STATUTORY RECORD\nDIRECTOR DECLARATION & COMPLIANCE DATES\nFormat 1 (Ordinal Text): Date of Incorporation: 15th August 2024\nFormat 2 (Hyphen-Delimited): Registration Date: 15-08-2024\nFormat 3 (US Month-First): Date of Issue: 08/15/2024\nFormat 4 (Dot-Delimited ISO): Expi",
+    "classifiedCategory": "registration_certificate",
+    "classificationConfidence": 0.96,
+    "extractedFields": [
+      {
+        "fieldName": "registration_number",
+        "fieldLabel": "Registration / Certificate Number",
+        "extractedValue": "istration",
+        "pageNumber": 1,
+        "evidenceSnippet": "Format 2 (Hyphen-Delimited): Registration Date: 15-08-2024",
+        "extractionMethod": "ocr",
+        "confidenceScore": 0.88
+      },
+      {
+        "fieldName": "issue_date",
+        "fieldLabel": "Document Issue Date",
+        "extractedValue": "15-08-2024",
+        "pageNumber": 1,
+        "evidenceSnippet": "Format 2 (Hyphen-Delimited): Registration Date: 15-08-2024",
+        "extractionMethod": "ocr",
+        "confidenceScore": 0.92
+      },
+      {
+        "fieldName": "issuing_authority",
+        "fieldLabel": "Issuing Authority / Regulatory Body",
+        "extractedValue": "Ministry of Corporate Affairs",
+        "pageNumber": 1,
+        "evidenceSnippet": "MINISTRY OF CORPORATE AFFAIRS - STATUTORY RECORD",
+        "extractionMethod": "ocr",
+        "confidenceScore": 0.95
+      }
+    ],
+    "normalizedFields": {
+      "registration_number": {
+        "normalizedValue": "istration",
+        "normalizationApplied": null,
+        "confidence": 0.95,
+        "isIllegible": false
+      },
+      "issue_date": {
+        "normalizedValue": "15-08-2024",
+        "normalizationApplied": null,
+        "confidence": 0.95,
+        "isIllegible": false
+      },
+      "issuing_authority": {
+        "normalizedValue": "Ministry of Corporate Affairs",
+        "normalizationApplied": null,
+        "confidence": 0.95,
+        "isIllegible": false
+      }
+    },
+    "correctlyExtracted": [
+      {
+        "field": "date",
+        "expected": "15th August 2024",
+        "observed": "15th August 2024"
+      },
+      {
+        "field": "date",
+        "expected": "15-08-2024",
+        "observed": "15-08-2024"
+      },
+      {
+        "field": "date",
+        "expected": "08/15/2024",
+        "observed": "08/15/2024"
+      }
+    ],
+    "missedOrIncorrect": [
+      {
+        "field": "documentTitle",
+        "expected": "Certificate of Incorporation",
+        "observed": "NOT_DETECTED",
+        "reason": "Field not recognized by regex or OCR failed"
+      },
+      {
+        "field": "date",
+        "expected": "2024.08.15",
+        "observed": "Not extracted or parsed",
+        "reason": "Regex failed to match format"
+      }
+    ],
+    "unreadableHandling": {
+      "safeGating": false,
+      "manualReviewTriggered": false,
+      "blockingFailures": [
+        "Mandatory Document Missing: Supporting Compliance Evidence",
+        "Required Field Missing: Organization Name"
+      ],
+      "unassessedFindings": []
+    },
+    "validationSummary": {
+      "outcome": "Major Issues",
+      "totalFindings": 3,
+      "blockingCount": 2,
+      "majorCount": 2,
+      "minorCount": 0,
+      "unableToAssessCount": 0
+    }
+  },
+  {
+    "caseId": 10,
+    "title": "Scanned PDF Without a Text Layer",
+    "formName": "Passport Seva Annexure M (Employer No Objection Certificate)",
+    "formSource": "Ministry of External Affairs — Passport Seva Portal",
+    "formType": "Government No Objection Certificate (PDF Container)",
+    "testCondition": "Pure scanned raster image enclosed inside a PDF container with zero digital text operators (0 characters selectable). Evaluates TypeNull digital text check threshold (< 25 chars) and automatic OCR fallback.",
+    "targetFile": "10_scanned_pdf_without_a_text_layer.pdf",
+    "ocrConfidence": 0.84,
+    "rawTextLength": 286,
+    "rawTextSnippet": "MINISTRY OF EXTERNAL AFFAIRS - PASSPORT SEVA\nANNEXURE M\nNO OBJECTION CERTIFICATE FROM EMPLOYER / STATUTORY CADRE\n1. Employer / Organisation Name: BHARAT ELECTRONICS LIMITED\n2. Employee / Applicant Name: SURESH KUMAR\n3. Reference / NOG Number: PRU-NOC-2024-9182\n4.Daeotlssue: [0/05/2024\n",
+    "classifiedCategory": "identity_document",
+    "classificationConfidence": 0.92,
+    "extractedFields": [
+      {
+        "fieldName": "document_title",
+        "fieldLabel": "Document Title / Form Type",
+        "extractedValue": "Indian Passport",
+        "pageNumber": 1,
+        "evidenceSnippet": "MINISTRY OF EXTERNAL AFFAIRS - PASSPORT SEVA",
+        "extractionMethod": "ocr",
+        "confidenceScore": 0.84
+      },
+      {
+        "fieldName": "organisation_name",
+        "fieldLabel": "Organisation / Entity Name",
+        "extractedValue": "SURESH KUMAR",
+        "pageNumber": 1,
+        "evidenceSnippet": "2. Employee / Applicant Name: SURESH KUMAR",
+        "extractionMethod": "ocr",
+        "confidenceScore": 0.84
+      }
+    ],
+    "normalizedFields": {
+      "document_title": {
+        "normalizedValue": "Indian Passport",
+        "normalizationApplied": null,
+        "confidence": 0.95,
+        "isIllegible": false
+      },
+      "organisation_name": {
+        "normalizedValue": "SURESH KUMAR",
+        "normalizationApplied": null,
+        "confidence": 0.95,
+        "isIllegible": false
+      }
+    },
+    "correctlyExtracted": [],
+    "missedOrIncorrect": [
+      {
+        "field": "documentTitle",
+        "expected": "Passport Applicant Declaration",
+        "observed": "Indian Passport",
+        "reason": "Value corrupted or partial match"
+      },
+      {
+        "field": "organisationName",
+        "expected": "BHARAT ELECTRONICS LIMITED",
+        "observed": "SURESH KUMAR",
+        "reason": "Value corrupted or partial match"
+      },
+      {
+        "field": "applicantName",
+        "expected": "SURESH KUMAR",
+        "observed": "NOT_DETECTED",
+        "reason": "Field not recognized by regex or OCR failed"
+      },
+      {
+        "field": "registrationNumber",
+        "expected": "PSU-NOC-2024-9182",
+        "observed": "NOT_DETECTED",
+        "reason": "Field not recognized by regex or OCR failed"
+      },
+      {
+        "field": "issueDate",
+        "expected": "10/05/2024",
+        "observed": "NOT_DETECTED",
+        "reason": "Field not recognized by regex or OCR failed"
+      }
+    ],
+    "unreadableHandling": {
+      "safeGating": false,
+      "manualReviewTriggered": false,
+      "blockingFailures": [
+        "Mandatory Document Missing: Institutional Registration or Charter",
+        "Mandatory Document Missing: Supporting Compliance Evidence",
+        "Required Field Missing: Registration or License Number"
+      ],
+      "unassessedFindings": []
+    },
+    "validationSummary": {
+      "outcome": "Major Issues",
+      "totalFindings": 3,
+      "blockingCount": 3,
+      "majorCount": 3,
+      "minorCount": 0,
+      "unableToAssessCount": 0
+    }
+  }
+]

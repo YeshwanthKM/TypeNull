@@ -1,0 +1,571 @@
+{
+  "timestamp": "2026-10-25T04:53:09.722Z",
+  "benchmarkVersion": "1.0.0-phase1",
+  "datasetInventory": {
+    "directory": "test_corpus/handwritten_eval",
+    "totalFiles": 10,
+    "preservationStatus": "verified_unchanged"
+  },
+  "aggregateMetrics": {
+    "totalScenarios": 10,
+    "aggregateCER": 0.2681803224744982,
+    "aggregateWER": 0.39351851851851855,
+    "aggregateFAA": 0.46153846153846156,
+    "aggregateFEA": 0.15789473684210525,
+    "nominalVDA": 0.1,
+    "causeAlignedVDA": 0,
+    "totalCharEditDistance": 815,
+    "totalRefCharCount": 3039,
+    "totalWordEditDistance": 170,
+    "totalRefWordCount": 432,
+    "totalCorrectlyAssociatedCandidates": 12,
+    "totalCandidatesExtracted": 26,
+    "totalCorrectlyExtractedFields": 6,
+    "totalTargetFields": 38
+  },
+  "scenarios": [
+    {
+      "caseId": 1,
+      "title": "Neatly Handwritten Answers",
+      "formName": "MEA Passport Annexure E (Applicant Declaration)",
+      "condition": "Clean, upright, uppercase block handwriting on horizontal baseline lines (Noteworthy font).",
+      "fullTextMetrics": {
+        "cer": 0.30641330166270786,
+        "wer": 0.4461538461538462,
+        "editDistance": 129,
+        "refCharCount": 421,
+        "wordEditDistance": 29,
+        "refWordCount": 65
+      },
+      "fieldAssociation": {
+        "faa": 0.6666666666666666,
+        "correctlyAssociatedCandidates": 2,
+        "totalExtractedCandidates": 3,
+        "extractedCandidatesList": [
+          {
+            "field": "organisation_name",
+            "value": "QURESH KUMAR",
+            "confidence": 0.77
+          },
+          {
+            "field": "issuing_authority",
+            "value": "Government of India",
+            "confidence": 0.95
+          },
+          {
+            "field": "address",
+            "value": "128 MG ROAD INDIRANAGAR BANGALORE 560038",
+            "confidence": 0.86
+          }
+        ]
+      },
+      "fieldExtraction": {
+        "fea": 0.2,
+        "correctlyExtractedCount": 1,
+        "totalTargetFields": 5,
+        "targetFieldsEvaluated": [
+          "documentTitle",
+          "applicantName",
+          "registrationNumber",
+          "issueDate",
+          "address"
+        ]
+      },
+      "blankFieldOmission": null,
+      "validationDecision": {
+        "expectedOutcome": "complete",
+        "actualOutcome": "Major Issues",
+        "nominalMatch": false,
+        "causeAlignedMatch": false,
+        "blockingCount": 3,
+        "totalFindings": 3
+      }
+    },
+    {
+      "caseId": 2,
+      "title": "Ordinary Handwriting",
+      "formName": "Income Tax Form 49A (Application for Allotment of PAN)",
+      "condition": "Typical natural human handwriting with mixed upper/lowercase, minor slant, and proportional spacing (Chalkboard font).",
+      "fullTextMetrics": {
+        "cer": 0.13583815028901733,
+        "wer": 0.2692307692307692,
+        "editDistance": 47,
+        "refCharCount": 346,
+        "wordEditDistance": 14,
+        "refWordCount": 52
+      },
+      "fieldAssociation": {
+        "faa": 0.6,
+        "correctlyAssociatedCandidates": 3,
+        "totalExtractedCandidates": 5,
+        "extractedCandidatesList": [
+          {
+            "field": "document_title",
+            "value": "Permanent Account Number (PAN) Card",
+            "confidence": 0.87
+          },
+          {
+            "field": "registration_number",
+            "value": "DL-04-2022-0091823",
+            "confidence": 0.87
+          },
+          {
+            "field": "organisation_name",
+            "value": "Priya Sharma",
+            "confidence": 0.87
+          },
+          {
+            "field": "issuing_authority",
+            "value": "Government of India",
+            "confidence": 0.95
+          },
+          {
+            "field": "address",
+            "value": "for Communication",
+            "confidence": 0.86
+          }
+        ]
+      },
+      "fieldExtraction": {
+        "fea": 0.5,
+        "correctlyExtractedCount": 2,
+        "totalTargetFields": 4,
+        "targetFieldsEvaluated": [
+          "documentTitle",
+          "applicantName",
+          "registrationNumber",
+          "issueDate"
+        ]
+      },
+      "blankFieldOmission": null,
+      "validationDecision": {
+        "expectedOutcome": "complete",
+        "actualOutcome": "Major Issues",
+        "nominalMatch": false,
+        "causeAlignedMatch": false,
+        "blockingCount": 2,
+        "totalFindings": 2
+      }
+    },
+    {
+      "caseId": 3,
+      "title": "Difficult-to-Read Handwriting",
+      "formName": "Municipal Trade Licence Clearance Application",
+      "condition": "Fast cursive script with high slant (25°), connected loops, uneven line thickness, and cursive ligatures (Brush Script MT font).",
+      "fullTextMetrics": {
+        "cer": 0.08502024291497975,
+        "wer": 0.39285714285714285,
+        "editDistance": 21,
+        "refCharCount": 247,
+        "wordEditDistance": 11,
+        "refWordCount": 28
+      },
+      "fieldAssociation": {
+        "faa": 0,
+        "correctlyAssociatedCandidates": 0,
+        "totalExtractedCandidates": 1,
+        "extractedCandidatesList": [
+          {
+            "field": "registration_number",
+            "value": "REGISTRATION",
+            "confidence": 0.65
+          }
+        ]
+      },
+      "fieldExtraction": {
+        "fea": 0,
+        "correctlyExtractedCount": 0,
+        "totalTargetFields": 5,
+        "targetFieldsEvaluated": [
+          "documentTitle",
+          "organisationName",
+          "applicantName",
+          "registrationNumber",
+          "issueDate"
+        ]
+      },
+      "blankFieldOmission": null,
+      "validationDecision": {
+        "expectedOutcome": "complete",
+        "actualOutcome": "Major Issues",
+        "nominalMatch": false,
+        "causeAlignedMatch": false,
+        "blockingCount": 2,
+        "totalFindings": 3
+      }
+    },
+    {
+      "caseId": 4,
+      "title": "Photograph Taken at an Angle",
+      "formName": "MEA Passport Annexure D (Parental Minor Consent)",
+      "condition": "Photograph taken with mobile device at approximately 15° perspective angle with keystone skew and uneven background gradient.",
+      "fullTextMetrics": {
+        "cer": 0.35545023696682465,
+        "wer": 0.7333333333333333,
+        "editDistance": 75,
+        "refCharCount": 211,
+        "wordEditDistance": 22,
+        "refWordCount": 30
+      },
+      "fieldAssociation": {
+        "faa": 0,
+        "correctlyAssociatedCandidates": 0,
+        "totalExtractedCandidates": 1,
+        "extractedCandidatesList": [
+          {
+            "field": "document_title",
+            "value": "Indian Passport",
+            "confidence": 0.45
+          }
+        ]
+      },
+      "fieldExtraction": {
+        "fea": 0,
+        "correctlyExtractedCount": 0,
+        "totalTargetFields": 3,
+        "targetFieldsEvaluated": [
+          "documentTitle",
+          "applicantName",
+          "registrationNumber"
+        ]
+      },
+      "blankFieldOmission": null,
+      "validationDecision": {
+        "expectedOutcome": "complete",
+        "actualOutcome": "Major Issues",
+        "nominalMatch": false,
+        "causeAlignedMatch": false,
+        "blockingCount": 4,
+        "totalFindings": 4
+      }
+    },
+    {
+      "caseId": 5,
+      "title": "Low-Resolution Scan",
+      "formName": "BBMP Municipal Trade Licence Certificate",
+      "condition": "Severely downsampled raster image (100 DPI) with heavy blurring, loss of fine strokes, and pixelation artifacts.",
+      "fullTextMetrics": {
+        "cer": 0.591715976331361,
+        "wer": 0.8,
+        "editDistance": 100,
+        "refCharCount": 169,
+        "wordEditDistance": 16,
+        "refWordCount": 20
+      },
+      "fieldAssociation": {
+        "faa": 0,
+        "correctlyAssociatedCandidates": 0,
+        "totalExtractedCandidates": 0,
+        "extractedCandidatesList": []
+      },
+      "fieldExtraction": {
+        "fea": 0,
+        "correctlyExtractedCount": 0,
+        "totalTargetFields": 4,
+        "targetFieldsEvaluated": [
+          "documentTitle",
+          "organisationName",
+          "registrationNumber",
+          "issueDate"
+        ]
+      },
+      "blankFieldOmission": null,
+      "validationDecision": {
+        "expectedOutcome": "unable_to_assess",
+        "actualOutcome": "Major Issues",
+        "nominalMatch": false,
+        "causeAlignedMatch": false,
+        "blockingCount": 3,
+        "totalFindings": 4
+      }
+    },
+    {
+      "caseId": 6,
+      "title": "Standard Form with Printed Text and Handwritten Entries",
+      "formName": "Form GST REG-01 (Application for Registration under GST)",
+      "condition": "Extensive machine-printed legal boilerplate, statutory clauses, table grid borders, and designated boxed fill-ins containing handwritten responses.",
+      "fullTextMetrics": {
+        "cer": 0.6195488721804512,
+        "wer": 0.6534653465346535,
+        "editDistance": 412,
+        "refCharCount": 665,
+        "wordEditDistance": 66,
+        "refWordCount": 101
+      },
+      "fieldAssociation": {
+        "faa": 0.6666666666666666,
+        "correctlyAssociatedCandidates": 2,
+        "totalExtractedCandidates": 3,
+        "extractedCandidatesList": [
+          {
+            "field": "document_title",
+            "value": "GST Registration Certificate",
+            "confidence": 0.72
+          },
+          {
+            "field": "registration_number",
+            "value": "Number",
+            "confidence": 0.72
+          },
+          {
+            "field": "issuing_authority",
+            "value": "Goods and Services Tax Network",
+            "confidence": 0.95
+          }
+        ]
+      },
+      "fieldExtraction": {
+        "fea": 0.25,
+        "correctlyExtractedCount": 1,
+        "totalTargetFields": 4,
+        "targetFieldsEvaluated": [
+          "documentTitle",
+          "organisationName",
+          "registrationNumber",
+          "issueDate"
+        ]
+      },
+      "blankFieldOmission": null,
+      "validationDecision": {
+        "expectedOutcome": "complete",
+        "actualOutcome": "Major Issues",
+        "nominalMatch": false,
+        "causeAlignedMatch": false,
+        "blockingCount": 2,
+        "totalFindings": 3
+      }
+    },
+    {
+      "caseId": 7,
+      "title": "Form with an Empty Field That Should Have Been Completed",
+      "formName": "MEA Passport Annexure E (Blank Mandatory Identifier)",
+      "condition": "Applicant completed all fields except mandatory Registration Number / Reference ID which was left entirely blank (empty underline).",
+      "fullTextMetrics": {
+        "cer": 0,
+        "wer": 0,
+        "editDistance": 0,
+        "refCharCount": 192,
+        "wordEditDistance": 0,
+        "refWordCount": 26
+      },
+      "fieldAssociation": {
+        "faa": 0,
+        "correctlyAssociatedCandidates": 0,
+        "totalExtractedCandidates": 4,
+        "extractedCandidatesList": [
+          {
+            "field": "document_title",
+            "value": "Indian Passport",
+            "confidence": 0.89
+          },
+          {
+            "field": "registration_number",
+            "value": "Number",
+            "confidence": 0.88
+          },
+          {
+            "field": "organisation_name",
+            "value": "SURESH KUMAR",
+            "confidence": 0.89
+          },
+          {
+            "field": "issue_date",
+            "value": "12/04/1985",
+            "confidence": 0.92
+          }
+        ]
+      },
+      "fieldExtraction": {
+        "fea": 0,
+        "correctlyExtractedCount": 0,
+        "totalTargetFields": 3,
+        "targetFieldsEvaluated": [
+          "documentTitle",
+          "applicantName",
+          "issueDate"
+        ]
+      },
+      "blankFieldOmission": {
+        "targetField": "registrationNumber",
+        "expected": "OMITTED / BLANK",
+        "observed": "Number",
+        "success": false,
+        "reason": "False-positive capture of label word \"Number\""
+      },
+      "validationDecision": {
+        "expectedOutcome": "issues_detected",
+        "actualOutcome": "Major Issues",
+        "nominalMatch": true,
+        "causeAlignedMatch": false,
+        "blockingCount": 2,
+        "totalFindings": 2
+      }
+    },
+    {
+      "caseId": 8,
+      "title": "Numbers That Could Be Misread (1 vs 7, 0 vs O, 5 vs S)",
+      "formName": "Income Tax PAN Card Application with Ambiguous Glyphs",
+      "condition": "Handwritten alphanumeric characters featuring classic OCR confusion glyphs: 1 vs 7, 0 vs O, and 5 vs S in tax code A71051705F and birthdate 17/01/1971.",
+      "fullTextMetrics": {
+        "cer": 0.0056179775280898875,
+        "wer": 0.041666666666666664,
+        "editDistance": 1,
+        "refCharCount": 178,
+        "wordEditDistance": 1,
+        "refWordCount": 24
+      },
+      "fieldAssociation": {
+        "faa": 0.75,
+        "correctlyAssociatedCandidates": 3,
+        "totalExtractedCandidates": 4,
+        "extractedCandidatesList": [
+          {
+            "field": "document_title",
+            "value": "Permanent Account Number (PAN) Card",
+            "confidence": 0.92
+          },
+          {
+            "field": "applicant_name",
+            "value": "AARAV SHARMA",
+            "confidence": 0.9
+          },
+          {
+            "field": "issue_date",
+            "value": "17/01/1971",
+            "confidence": 0.92
+          },
+          {
+            "field": "issuing_authority",
+            "value": "Government of India",
+            "confidence": 0.95
+          }
+        ]
+      },
+      "fieldExtraction": {
+        "fea": 0.3333333333333333,
+        "correctlyExtractedCount": 1,
+        "totalTargetFields": 3,
+        "targetFieldsEvaluated": [
+          "documentTitle",
+          "registrationNumber",
+          "dob"
+        ]
+      },
+      "blankFieldOmission": null,
+      "validationDecision": {
+        "expectedOutcome": "complete",
+        "actualOutcome": "Major Issues",
+        "nominalMatch": false,
+        "causeAlignedMatch": false,
+        "blockingCount": 4,
+        "totalFindings": 4
+      }
+    },
+    {
+      "caseId": 9,
+      "title": "Dates Written in Different Formats",
+      "formName": "MCA Director Statutory Filing (Multi-Format Date Specimen)",
+      "condition": "Evaluates extraction of diverse date representations: alphanumeric with ordinal (\"15th August 2024\"), hyphen-delimited (\"15-08-2024\"), US format (\"08/15/2024\"), and dot-delimited (\"2024.08.15\").",
+      "fullTextMetrics": {
+        "cer": 0.05956112852664577,
+        "wer": 0.06976744186046512,
+        "editDistance": 19,
+        "refCharCount": 319,
+        "wordEditDistance": 3,
+        "refWordCount": 43
+      },
+      "fieldAssociation": {
+        "faa": 0.6666666666666666,
+        "correctlyAssociatedCandidates": 2,
+        "totalExtractedCandidates": 3,
+        "extractedCandidatesList": [
+          {
+            "field": "registration_number",
+            "value": "istration",
+            "confidence": 0.88
+          },
+          {
+            "field": "issue_date",
+            "value": "15-08-2024",
+            "confidence": 0.92
+          },
+          {
+            "field": "issuing_authority",
+            "value": "Ministry of Corporate Affairs",
+            "confidence": 0.95
+          }
+        ]
+      },
+      "fieldExtraction": {
+        "fea": 0.5,
+        "correctlyExtractedCount": 1,
+        "totalTargetFields": 2,
+        "targetFieldsEvaluated": [
+          "documentTitle",
+          "date2_hyphen"
+        ]
+      },
+      "blankFieldOmission": null,
+      "validationDecision": {
+        "expectedOutcome": "complete",
+        "actualOutcome": "Major Issues",
+        "nominalMatch": false,
+        "causeAlignedMatch": false,
+        "blockingCount": 2,
+        "totalFindings": 3
+      }
+    },
+    {
+      "caseId": 10,
+      "title": "Scanned PDF Without a Text Layer",
+      "formName": "Passport Seva Annexure M (Employer No Objection Certificate)",
+      "condition": "Pure scanned raster image enclosed inside a PDF container with zero digital text operators (0 characters selectable). Evaluates TypeNull digital text check threshold (< 25 chars) and automatic OCR fallback.",
+      "fullTextMetrics": {
+        "cer": 0.037800687285223365,
+        "wer": 0.18604651162790697,
+        "editDistance": 11,
+        "refCharCount": 291,
+        "wordEditDistance": 8,
+        "refWordCount": 43
+      },
+      "fieldAssociation": {
+        "faa": 0,
+        "correctlyAssociatedCandidates": 0,
+        "totalExtractedCandidates": 2,
+        "extractedCandidatesList": [
+          {
+            "field": "document_title",
+            "value": "Indian Passport",
+            "confidence": 0.84
+          },
+          {
+            "field": "organisation_name",
+            "value": "SURESH KUMAR",
+            "confidence": 0.84
+          }
+        ]
+      },
+      "fieldExtraction": {
+        "fea": 0,
+        "correctlyExtractedCount": 0,
+        "totalTargetFields": 5,
+        "targetFieldsEvaluated": [
+          "documentTitle",
+          "organisationName",
+          "applicantName",
+          "registrationNumber",
+          "issueDate"
+        ]
+      },
+      "blankFieldOmission": null,
+      "validationDecision": {
+        "expectedOutcome": "complete",
+        "actualOutcome": "Major Issues",
+        "nominalMatch": false,
+        "causeAlignedMatch": false,
+        "blockingCount": 3,
+        "totalFindings": 3
+      }
+    }
+  ]
+}
