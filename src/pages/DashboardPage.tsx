@@ -289,22 +289,22 @@ export const DashboardPage: React.FC = () => {
               <table className="min-w-full divide-y divide-slate-200 text-left text-xs">
                 <thead className="bg-slate-50 text-slate-600 font-semibold uppercase tracking-wider text-[11px]">
                   <tr>
-                    <th scope="col" className="px-6 py-3.5">
+                    <th scope="col" className="px-6 py-3.5 min-w-[200px]">
                       Application Title &amp; Entity
                     </th>
-                    <th scope="col" className="px-6 py-3.5">
+                    <th scope="col" className="px-6 py-3.5 whitespace-nowrap">
                       Category
                     </th>
-                    <th scope="col" className="px-6 py-3.5">
+                    <th scope="col" className="px-6 py-3.5 whitespace-nowrap">
                       Jurisdiction
                     </th>
-                    <th scope="col" className="px-6 py-3.5">
+                    <th scope="col" className="px-6 py-3.5 whitespace-nowrap">
                       Status
                     </th>
-                    <th scope="col" className="px-6 py-3.5">
+                    <th scope="col" className="px-6 py-3.5 whitespace-nowrap">
                       Created
                     </th>
-                    <th scope="col" className="px-6 py-3.5 text-right">
+                    <th scope="col" className="px-6 py-3.5 text-right whitespace-nowrap">
                       Actions
                     </th>
                   </tr>
@@ -319,42 +319,44 @@ export const DashboardPage: React.FC = () => {
                       <td className="px-6 py-4 font-medium text-slate-900">
                         <div className="font-semibold text-slate-900">{app.title}</div>
                         <div className="text-slate-500 text-[11px] flex items-center gap-1.5 mt-0.5">
-                          <Building className="w-3 h-3 text-slate-400" />
-                          <span>{app.organisation_name}</span>
+                          <Building className="w-3 h-3 text-slate-400 flex-shrink-0" />
+                          <span className="truncate">{app.organisation_name}</span>
                           {app.registration_number && (
-                            <span className="font-mono text-slate-400">
+                            <span className="font-mono text-slate-400 whitespace-nowrap">
                               &bull; {app.registration_number}
                             </span>
                           )}
                         </div>
                       </td>
-                      <td className="px-6 py-4 text-slate-600">
+                      <td className="px-6 py-4 text-slate-600 whitespace-nowrap">
                         <span className="capitalize">{app.category.replace(/_/g, ' ')}</span>
                       </td>
-                      <td className="px-6 py-4 text-slate-600">
+                      <td className="px-6 py-4 text-slate-600 whitespace-nowrap">
                         {app.jurisdiction}
                       </td>
-                      <td className="px-6 py-4">
+                      <td className="px-6 py-4 whitespace-nowrap">
                         <StatusBadge status={app.status} size="sm" />
                       </td>
-                      <td className="px-6 py-4 text-slate-500 font-mono text-[11px]">
+                      <td className="px-6 py-4 text-slate-500 font-mono text-[11px] whitespace-nowrap">
                         <div className="flex items-center gap-1">
-                          <Clock className="w-3 h-3 text-slate-400" />
-                          {new Date(app.created_at).toLocaleDateString(undefined, {
-                            year: 'numeric',
-                            month: 'short',
-                            day: 'numeric',
-                          })}
+                          <Clock className="w-3 h-3 text-slate-400 flex-shrink-0" />
+                          <span>
+                            {new Date(app.created_at).toLocaleDateString(undefined, {
+                              year: 'numeric',
+                              month: 'short',
+                              day: 'numeric',
+                            })}
+                          </span>
                         </div>
                       </td>
-                      <td className="px-6 py-4 text-right">
+                      <td className="px-6 py-4 text-right whitespace-nowrap">
                         <Link
                           to={`/applications/${app.id}`}
                           onClick={(e) => e.stopPropagation()}
-                          className="inline-flex items-center gap-1 text-teal-700 hover:text-teal-900 font-semibold hover:underline"
+                          className="inline-flex items-center justify-end gap-1 text-teal-700 hover:text-teal-900 font-semibold hover:underline whitespace-nowrap"
                         >
                           View Dossier
-                          <ArrowRight className="w-3.5 h-3.5" />
+                          <ArrowRight className="w-3.5 h-3.5 flex-shrink-0" />
                         </Link>
                       </td>
                     </tr>
