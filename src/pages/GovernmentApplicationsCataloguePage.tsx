@@ -516,9 +516,19 @@ export const GovernmentApplicationsCataloguePage: React.FC = () => {
                       size="sm"
                       disabled
                       className="w-full sm:w-auto justify-center opacity-60 cursor-not-allowed bg-slate-100 text-slate-500 border-slate-200"
-                      title="Pre-validation is restricted until statutory rules are verified by an authorized officer"
+                      title={(() => {
+                        const explanations: Record<string, string> = {
+                          published: "Service is fully published and ready for validation.",
+                          needs_verification: "Service needs verification before validation can occur.",
+                          extracted: "Service's source documents have been extracted but not yet verified.",
+                          discovered: "Service has been discovered but not yet processed.",
+                          superseded: "Service has been superseded by a newer version.",
+                        };
+                        const defaultMsg = "Service is not currently available for validation.";
+                        return explanations[variant.lifecycleStatus] ?? defaultMsg;
+                      })()}
                     >
-                      Validation Unavailable
+                      Validation Unavailable ({variant.lifecycleStatus})
                     </Button>
                   )}
                 </div>
