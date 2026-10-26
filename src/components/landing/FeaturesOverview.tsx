@@ -23,10 +23,12 @@ import {
   AlertCircle,
   Building2,
   Check,
+  BookOpen,
+  Landmark,
 } from 'lucide-react';
 
 export const FeaturesOverview: React.FC = () => {
-  // Section 2: The Challenge (5 cards)
+  // Section 3: The Challenge (5 cards)
   const challenges = [
     {
       id: 'volume',
@@ -65,7 +67,7 @@ export const FeaturesOverview: React.FC = () => {
     },
   ];
 
-  // Section 5: Document Validation Capabilities (7 cards)
+  // Section 4: Document Validation Capabilities (7 cards)
   const validationCapabilities = [
     {
       id: 'pre-submission',
@@ -118,7 +120,7 @@ export const FeaturesOverview: React.FC = () => {
     },
   ];
 
-  // Section 6: How the EoA Workflow Works (8 stages)
+  // Section 5: How the EoA Workflow Works (8 stages)
   const eoaWorkflow = [
     {
       step: '01',
@@ -186,7 +188,7 @@ export const FeaturesOverview: React.FC = () => {
     },
   ];
 
-  // Section 8: Trust & Governance Pillars
+  // Section 7: Trust & Governance Pillars
   const trustPillars = [
     {
       title: 'Role-Based Access Control',
@@ -233,7 +235,7 @@ export const FeaturesOverview: React.FC = () => {
     <div className="space-y-24 py-16 sm:py-24 bg-slate-50 text-slate-900">
       
       {/* =========================================================================
-          SECTION 1: AICTE APPROVAL APPLICATIONS (Prioritize Extension of Approval)
+          SECTION 1: AICTE APPROVAL APPLICATIONS (Prioritizing Extension of Approval)
          ========================================================================= */}
       <section id="applications" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 scroll-mt-20">
         <div className="text-center max-w-3xl mx-auto mb-12">
@@ -317,7 +319,7 @@ export const FeaturesOverview: React.FC = () => {
                 <div>
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-[10px] font-mono uppercase tracking-wider text-teal-300 font-bold bg-teal-950/80 px-2 py-0.5 rounded border border-teal-800">
-                      Applicant Self-Service
+                      Institution Self-Service
                     </span>
                     <Building2 className="w-5 h-5 text-teal-400" />
                   </div>
@@ -355,34 +357,135 @@ export const FeaturesOverview: React.FC = () => {
             </div>
           </div>
         </div>
+      </section>
 
-        {/* SECONDARY SECTION: Other AICTE-Related Applications in Catalogue */}
-        <div className="rounded-2xl border border-slate-200 bg-white p-6 sm:p-8 shadow-xs">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-            <div className="space-y-2 max-w-3xl">
-              <div className="flex items-center gap-2">
-                <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-blue-900 bg-blue-50 px-2.5 py-0.5 rounded border border-blue-200">
-                  Institutional Catalogue Scope
-                </span>
-                <span className="text-xs text-slate-500 font-medium">
-                  Regulatory Requirements Engine
+      {/* =========================================================================
+          SECTION 2: TWO DEDICATED PORTALS (Institution & AICTE Officer Portals)
+         ========================================================================= */}
+      <section id="portals" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 scroll-mt-20">
+        <div className="text-center max-w-3xl mx-auto mb-12">
+          <span className="text-xs font-bold tracking-wider text-teal-900 uppercase bg-teal-50 px-3.5 py-1.5 rounded-full border border-teal-200">
+            Role-Specific Environments
+          </span>
+          <h2 className="mt-3 text-2xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">
+            Two Dedicated Portals: Institution &amp; Officer Workspaces
+          </h2>
+          <p className="mt-3 text-sm sm:text-base text-slate-600 leading-relaxed">
+            TypeNull enforces strict separation between institutional self-service application preparation and regulatory officer evaluation desks.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {/* Portal 1: Institution Portal */}
+          <div className="p-8 rounded-3xl bg-white border border-slate-200 shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow">
+            <div className="space-y-5">
+              <div className="flex items-center justify-between">
+                <div className="w-12 h-12 rounded-2xl bg-blue-50 border border-blue-200 flex items-center justify-center text-blue-700">
+                  <Building2 className="w-6 h-6" />
+                </div>
+                <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-blue-900 bg-blue-50 px-2.5 py-1 rounded border border-blue-200">
+                  Institution Portal
                 </span>
               </div>
-              <h4 className="text-base sm:text-lg font-bold text-slate-900">
-                Additional AICTE Institutional Approval Categories
-              </h4>
-              <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
-                Additional institutional approval categories—such as <em>Establishment of New Technical Institutions</em>, <em>Introduction of New Courses / Divisions</em>, and <em>Variation in Intake</em>—are indexed in our statutory catalogue for proforma inspection and checklist verification. Extension of Approval (EoA) is currently the active, fully supported institutional validation workflow.
-              </p>
+
+              <div>
+                <h3 className="text-xl font-bold text-slate-900">
+                  Institutional Applicant Workspace
+                </h3>
+                <p className="text-xs sm:text-sm text-slate-600 mt-2 leading-relaxed">
+                  Dedicated self-service environment for colleges, universities, and polytechnics to compile, validate, and track Extension of Approval (EoA) filings.
+                </p>
+              </div>
+
+              <div className="space-y-2.5 pt-2">
+                <div className="flex items-start gap-2.5 text-xs text-slate-700">
+                  <CheckCircle2 className="w-4 h-4 text-teal-600 flex-shrink-0 mt-0.5" />
+                  <span>Permanent Institute ID &amp; Programme intake configuration</span>
+                </div>
+                <div className="flex items-start gap-2.5 text-xs text-slate-700">
+                  <CheckCircle2 className="w-4 h-4 text-teal-600 flex-shrink-0 mt-0.5" />
+                  <span>Mandatory statutory document upload (land title, trust deed, building norms)</span>
+                </div>
+                <div className="flex items-start gap-2.5 text-xs text-slate-700">
+                  <CheckCircle2 className="w-4 h-4 text-teal-600 flex-shrink-0 mt-0.5" />
+                  <span>Instant pre-submission validation identifying missing items before lock</span>
+                </div>
+                <div className="flex items-start gap-2.5 text-xs text-slate-700">
+                  <CheckCircle2 className="w-4 h-4 text-teal-600 flex-shrink-0 mt-0.5" />
+                  <span>Submission receipt with unique reference ID (e.g. AICTE-EOA-2026-XXXX)</span>
+                </div>
+                <div className="flex items-start gap-2.5 text-xs text-slate-700">
+                  <CheckCircle2 className="w-4 h-4 text-teal-600 flex-shrink-0 mt-0.5" />
+                  <span>Real-time status tracking and clarification responses</span>
+                </div>
+              </div>
             </div>
 
-            <div className="flex-shrink-0">
+            <div className="pt-6 mt-6 border-t border-slate-100 flex items-center justify-between">
+              <span className="text-xs text-slate-500 font-medium">Applicant Clearance Required</span>
               <Link
-                to="/applications/explore"
-                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold text-blue-900 bg-blue-50 hover:bg-blue-100 border border-blue-200 transition-colors shadow-2xs whitespace-nowrap"
+                to="/applications/new"
+                className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-bold rounded-xl text-white bg-blue-700 hover:bg-blue-800 transition-colors shadow-xs"
               >
-                <Compass className="w-4 h-4 text-blue-700" />
-                <span>Explore Regulatory Catalogue</span>
+                <span>Launch Institution Portal</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </Link>
+            </div>
+          </div>
+
+          {/* Portal 2: AICTE Officer Portal */}
+          <div className="p-8 rounded-3xl bg-white border border-slate-200 shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow">
+            <div className="space-y-5">
+              <div className="flex items-center justify-between">
+                <div className="w-12 h-12 rounded-2xl bg-teal-50 border border-teal-200 flex items-center justify-center text-teal-800">
+                  <Landmark className="w-6 h-6" />
+                </div>
+                <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-teal-900 bg-teal-50 px-2.5 py-1 rounded border border-teal-200">
+                  AICTE Officer Portal
+                </span>
+              </div>
+
+              <div>
+                <h3 className="text-xl font-bold text-slate-900">
+                  Regulatory Officer Review Desk
+                </h3>
+                <p className="text-xs sm:text-sm text-slate-600 mt-2 leading-relaxed">
+                  High-assurance workspace for authorized screening officials to evaluate submitted institutional dossiers with multi-signal forensics and evidence synthesis.
+                </p>
+              </div>
+
+              <div className="space-y-2.5 pt-2">
+                <div className="flex items-start gap-2.5 text-xs text-slate-700">
+                  <CheckCircle2 className="w-4 h-4 text-teal-600 flex-shrink-0 mt-0.5" />
+                  <span>Central submitted application queue with regional and status filters</span>
+                </div>
+                <div className="flex items-start gap-2.5 text-xs text-slate-700">
+                  <CheckCircle2 className="w-4 h-4 text-teal-600 flex-shrink-0 mt-0.5" />
+                  <span>Dossier inspection: extracted text streams, OCR verification, and document viewer</span>
+                </div>
+                <div className="flex items-start gap-2.5 text-xs text-slate-700">
+                  <CheckCircle2 className="w-4 h-4 text-teal-600 flex-shrink-0 mt-0.5" />
+                  <span>PDF structural analysis, metadata revisions, and image anomaly cues</span>
+                </div>
+                <div className="flex items-start gap-2.5 text-xs text-slate-700">
+                  <CheckCircle2 className="w-4 h-4 text-teal-600 flex-shrink-0 mt-0.5" />
+                  <span>PKCS#7 ByteRange digital signature integrity evaluation</span>
+                </div>
+                <div className="flex items-start gap-2.5 text-xs text-slate-700">
+                  <CheckCircle2 className="w-4 h-4 text-teal-600 flex-shrink-0 mt-0.5" />
+                  <span>Cross-record consistency matrix across applicant claims and official proofs</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="pt-6 mt-6 border-t border-slate-100 flex items-center justify-between">
+              <span className="text-xs text-slate-500 font-medium">Officer Clearance Required</span>
+              <Link
+                to="/officer"
+                className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-bold rounded-xl text-white bg-slate-900 hover:bg-slate-800 transition-colors shadow-xs"
+              >
+                <span>Access Officer Workspace</span>
+                <ArrowRight className="w-3.5 h-3.5" />
               </Link>
             </div>
           </div>
@@ -390,7 +493,7 @@ export const FeaturesOverview: React.FC = () => {
       </section>
 
       {/* =========================================================================
-          SECTION 2: THE CHALLENGE
+          SECTION 3: THE CHALLENGE
          ========================================================================= */}
       <section id="challenge" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 scroll-mt-20">
         <div className="text-center max-w-3xl mx-auto mb-12">
@@ -440,7 +543,7 @@ export const FeaturesOverview: React.FC = () => {
       </section>
 
       {/* =========================================================================
-          SECTION 3: DOCUMENT VALIDATION CAPABILITIES
+          SECTION 4: DOCUMENT VALIDATION CAPABILITIES
          ========================================================================= */}
       <section id="capabilities" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 scroll-mt-20">
         <div className="border border-slate-200 rounded-3xl bg-white p-6 sm:p-12 shadow-sm">
@@ -506,7 +609,7 @@ export const FeaturesOverview: React.FC = () => {
       </section>
 
       {/* =========================================================================
-          SECTION 4: HOW THE EOA WORKFLOW WORKS
+          SECTION 5: HOW THE EOA WORKFLOW WORKS
          ========================================================================= */}
       <section id="workflow" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 scroll-mt-20">
         <div className="border border-slate-200 rounded-3xl bg-white p-6 sm:p-12 shadow-sm space-y-10">
@@ -626,7 +729,88 @@ export const FeaturesOverview: React.FC = () => {
       </section>
 
       {/* =========================================================================
-          SECTION 5: TRUST, SECURITY AND HUMAN OVERSIGHT
+          SECTION 6: AICTE HANDBOOK PREVIEW & REGULATORY ALIGNMENT
+         ========================================================================= */}
+      <section id="handbook-preview" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 scroll-mt-20">
+        <div className="rounded-3xl border border-slate-200 bg-white p-6 sm:p-12 shadow-sm space-y-8">
+          <div className="text-center max-w-3xl mx-auto">
+            <span className="text-xs font-bold tracking-wider text-blue-900 uppercase bg-blue-50 px-3.5 py-1.5 rounded-full border border-blue-200">
+              Regulatory Standards Alignment
+            </span>
+            <h2 className="mt-3 text-2xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">
+              AICTE Approval Process Handbook (APH) Alignment
+            </h2>
+            <p className="mt-3 text-sm sm:text-base text-slate-600 leading-relaxed">
+              Structured pre-validation checklists modeled after verified Approval Process Handbook dimensions, assisting institutions in meeting statutory benchmarks.
+            </p>
+          </div>
+
+          {/* 3 Handbook Dimension Preview Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="p-6 rounded-2xl bg-slate-50/80 border border-slate-200 space-y-3">
+              <div className="w-10 h-10 rounded-xl bg-blue-100 text-blue-800 flex items-center justify-center font-bold">
+                <BookOpen className="w-5 h-5" />
+              </div>
+              <h3 className="text-base font-bold text-slate-900">
+                Land &amp; Built-up Area Norms
+              </h3>
+              <p className="text-xs text-slate-600 leading-relaxed">
+                Verification of non-encumbered land title deeds, registered lease agreements, barrier-free access, and approved institutional architectural plans against campus area norms.
+              </p>
+            </div>
+
+            <div className="p-6 rounded-2xl bg-slate-50/80 border border-slate-200 space-y-3">
+              <div className="w-10 h-10 rounded-xl bg-teal-100 text-teal-800 flex items-center justify-center font-bold">
+                <Scale className="w-5 h-5" />
+              </div>
+              <h3 className="text-base font-bold text-slate-900">
+                Faculty Cadre Ratio Standards
+              </h3>
+              <p className="text-xs text-slate-600 leading-relaxed">
+                Cross-referencing declared teaching faculty rosters against statutory student-faculty cadre norms (e.g. 1:15 or 1:20 ratios) and principal qualification records.
+              </p>
+            </div>
+
+            <div className="p-6 rounded-2xl bg-slate-50/80 border border-slate-200 space-y-3">
+              <div className="w-10 h-10 rounded-xl bg-indigo-100 text-indigo-800 flex items-center justify-center font-bold">
+                <FileCheck2 className="w-5 h-5" />
+              </div>
+              <h3 className="text-base font-bold text-slate-900">
+                Statutory Safety Certificates
+              </h3>
+              <p className="text-xs text-slate-600 leading-relaxed">
+                Checking mandatory validity cutoff periods for Building Occupancy, Fire Safety NOC, Environmental Clearances, and Society/Trust Deeds before filing lock.
+              </p>
+            </div>
+          </div>
+
+          {/* Prototype Demonstration & Educational Disclaimer */}
+          <div className="p-4 sm:p-5 rounded-2xl bg-slate-100/90 border border-slate-200 text-slate-600 text-xs flex items-start gap-3">
+            <Info className="w-5 h-5 text-slate-500 mt-0.5 flex-shrink-0" />
+            <div className="space-y-1">
+              <p className="font-semibold text-slate-800">
+                Demonstration Prototype Notice &amp; Regulatory Accuracy:
+              </p>
+              <p className="leading-relaxed">
+                TypeNull is a technology demonstration prototype assisting application validation. It is not an official AICTE platform and does not claim direct integration with live AICTE portal databases. Handbook requirements are verified against public guidelines and presented for evaluation purposes.
+              </p>
+            </div>
+          </div>
+
+          <div className="text-center pt-2">
+            <Link
+              to="/guides"
+              className="inline-flex items-center gap-2 text-xs font-bold text-teal-700 hover:text-teal-800 transition-colors"
+            >
+              <span>Explore User Guides &amp; Regulatory Protocols</span>
+              &rarr;
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* =========================================================================
+          SECTION 7: TRUST, SECURITY AND HUMAN OVERSIGHT
          ========================================================================= */}
       <section id="trust" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 scroll-mt-20">
         <div className="border border-slate-200 rounded-3xl bg-white p-6 sm:p-12 shadow-sm space-y-10">
@@ -704,7 +888,7 @@ export const FeaturesOverview: React.FC = () => {
       </section>
 
       {/* =========================================================================
-          SECTION 6: FINAL CALL TO ACTION
+          SECTION 8: FINAL CALL TO ACTION
          ========================================================================= */}
       <section id="cta" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="rounded-3xl bg-gradient-to-br from-[#0F1E36] via-slate-900 to-teal-950 text-white p-8 sm:p-16 text-center shadow-xl relative overflow-hidden">

@@ -36,9 +36,31 @@ export const SettingsPage: React.FC = () => {
   const navigate = useNavigate();
 
   const [fullName, setFullName] = useState(profile?.full_name || '');
+  const [institutionName, setInstitutionName] = useState(profile?.institution_name || '');
+  const [aictePid, setAictePid] = useState(profile?.aicte_permanent_id || '');
+  const [institutionType, setInstitutionType] = useState(profile?.institution_type || 'Engineering & Technology');
+  const [address, setAddress] = useState(profile?.address || '');
+  const [state, setState] = useState(profile?.state || 'Delhi');
+  const [designation, setDesignation] = useState(profile?.contact_person_designation || '');
+  const [phone, setPhone] = useState(profile?.contact_phone || '');
+
   const [isUpdating, setIsUpdating] = useState(false);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  // Sync state if profile loads asynchronously
+  useEffect(() => {
+    if (profile) {
+      if (profile.full_name) setFullName(profile.full_name);
+      if (profile.institution_name) setInstitutionName(profile.institution_name);
+      if (profile.aicte_permanent_id) setAictePid(profile.aicte_permanent_id);
+      if (profile.institution_type) setInstitutionType(profile.institution_type);
+      if (profile.address) setAddress(profile.address);
+      if (profile.state) setState(profile.state);
+      if (profile.contact_person_designation) setDesignation(profile.contact_person_designation);
+      if (profile.contact_phone) setPhone(profile.contact_phone);
+    }
+  }, [profile]);
 
   // Organisation Access & Requests State
   const [availableOrgs, setAvailableOrgs] = useState<Organisation[]>([]);
@@ -52,13 +74,6 @@ export const SettingsPage: React.FC = () => {
   const [requestExplanation, setRequestExplanation] = useState('');
   const [isSubmittingRequest, setIsSubmittingRequest] = useState(false);
   const [requestError, setRequestError] = useState<string | null>(null);
-
-  // Sync state if profile loads asynchronously
-  useEffect(() => {
-    if (profile?.full_name && !fullName) {
-      setFullName(profile.full_name);
-    }
-  }, [profile, fullName]);
 
   // Load organisations, user requests, and memberships
   const loadAccessData = async () => {
@@ -111,13 +126,21 @@ export const SettingsPage: React.FC = () => {
     if (!user) return;
 
     setIsUpdating(true);
-    const { error } = await updateProfile(fullName);
+    const { error } = await updateProfile(fullName, {
+      institution_name: institutionName,
+      aicte_permanent_id: aictePid,
+      institution_type: institutionType,
+      address,
+      state,
+      contact_person_designation: designation,
+      contact_phone: phone,
+    });
     setIsUpdating(false);
 
     if (error) {
       setErrorMessage(error.message || 'Failed to update profile.');
     } else {
-      setSuccessMessage('Profile name updated successfully.');
+      setSuccessMessage('Profile and institutional details updated successfully.');
       setTimeout(() => setSuccessMessage(null), 4000);
     }
   };
@@ -159,7 +182,7 @@ export const SettingsPage: React.FC = () => {
     <div className="max-w-4xl mx-auto space-y-6">
       <PageHeader
         title="Settings & Account"
-        description="Manage your profile credentials, inspect session parameters, and configure audit preferences."
+        description="Manage your institutional profile credentials, inspect session parameters, and review verification clearance."
         breadcrumbs={[
           { label: 'Dashboard', href: '/dashboard' },
           { label: 'Settings' },
@@ -206,10 +229,10 @@ export const SettingsPage: React.FC = () => {
               <User className="w-5 h-5 text-teal-700 flex-shrink-0" />
               <div>
                 <h2 id="account-settings-heading" className="text-sm font-bold text-slate-900">
-                  Account &amp; Profile
+                  Account &amp; Institutional Profile
                 </h2>
                 <p className="text-xs text-slate-500">
-                  Manage your display name and review authenticated session details.
+                  Manage your institutional details and review authenticated session clearance.
                 </p>
               </div>
             </div>
@@ -229,12 +252,22 @@ export const SettingsPage: React.FC = () => {
               <FormInput
                 id="fullName"
                 name="fullName"
-                label="Full Name / Display Identity"
+                label="Authorized Contact Person Name"
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
-                placeholder="e.g., Rajesh Sharma"
-                disabled={isUpdating || !isConfigured}
-                helperText="Stored in public.profiles table."
+                placeholder="e.g., Dr. Rajesh Sharma"
+                disabled={isUpdating}
+                helperText="Nodal representative name."
+              />
+
+              <FormInput
+                id="designation"
+                name="designation"
+                label="Designation"
+                value={designation}
+                onChange={(e) => setDesignation(e.target.value)}
+                placeholder="e.g., Principal / Registrar"
+                disabled={isUpdating}
               />
 
               <div>
@@ -250,6 +283,74 @@ export const SettingsPage: React.FC = () => {
                 <p className="text-xs text-slate-400 mt-1">Managed via Supabase Auth.</p>
               </div>
 
+              <FormInput
+                id="phone"
+                name="phone"
+                label="Official Contact Number"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                placeholder="+91 11 2659 1000"
+                disabled={isUpdating}
+              />
+
+              <div className="sm:col-span-2 border-t border-slate-100 pt-3">
+                <span className="block text-xs font-bold text-slate-800 uppercase tracking-wider mb-2">
+                  Institutional Registration Parameters
+                </span>
+              </div>
+
+              <div className="sm:col-span-2">
+                <FormInput
+                  id="institutionName"
+                  name="institutionName"
+                  label="Institution Legal Name"
+                  value={institutionName}
+                  onChange={(e) => setInstitutionName(e.target.value)}
+                  placeholder="e.g. Delhi Institute of Engineering & Technology"
+                  disabled={isUpdating}
+                />
+              </div>
+
+              <FormInput
+                id="aictePid"
+                name="aictePid"
+                label="AICTE Permanent ID"
+                value={aictePid}
+                onChange={(e) => setAictePid(e.target.value)}
+                placeholder="e.g. 1-43289012"
+                disabled={isUpdating}
+              />
+
+              <FormInput
+                id="institutionType"
+                name="institutionType"
+                label="Institution Type"
+                value={institutionType}
+                onChange={(e) => setInstitutionType(e.target.value)}
+                placeholder="e.g. Engineering & Technology"
+                disabled={isUpdating}
+              />
+
+              <FormInput
+                id="address"
+                name="address"
+                label="Campus Address"
+                value={address}
+                onChange={(e) => setAddress(e.target.value)}
+                placeholder="Institutional Area, Sector 14"
+                disabled={isUpdating}
+              />
+
+              <FormInput
+                id="state"
+                name="state"
+                label="State / Union Territory"
+                value={state}
+                onChange={(e) => setState(e.target.value)}
+                placeholder="e.g. Delhi"
+                disabled={isUpdating}
+              />
+
               <div>
                 <label className="block text-[11px] font-semibold text-slate-700 uppercase tracking-wider mb-1">
                   Assigned Application Role
@@ -257,10 +358,40 @@ export const SettingsPage: React.FC = () => {
                 <div className="flex items-center gap-2 px-3.5 py-2.5 rounded-lg border border-slate-200 bg-slate-50 text-slate-800 text-sm font-mono">
                   <span className="w-2 h-2 rounded-full bg-teal-600" />
                   <span className="font-semibold">{getRoleDisplayLabel(profile?.role)}</span>
+                  {profile?.is_admin && (
+                    <span className="ml-auto text-[10px] font-semibold px-2 py-0.5 rounded bg-indigo-100 text-indigo-800">
+                      Admin Clearance
+                    </span>
+                  )}
                 </div>
                 <p className="text-xs text-slate-400 mt-1">
                   Enforced via PostgreSQL RLS &amp; triggers. Non-modifiable by client.
                 </p>
+              </div>
+
+              <div>
+                <label className="block text-[11px] font-semibold text-slate-700 uppercase tracking-wider mb-1">
+                  Verification Status
+                </label>
+                <div className="flex items-center gap-2 px-3.5 py-2.5 rounded-lg border border-slate-200 bg-slate-50 text-slate-800 text-sm font-mono">
+                  <span className={`w-2 h-2 rounded-full ${
+                    profile?.verification_status === 'verified'
+                      ? 'bg-emerald-600'
+                      : profile?.verification_status === 'rejected'
+                      ? 'bg-rose-600'
+                      : profile?.verification_status === 'additional_info_required'
+                      ? 'bg-orange-600'
+                      : 'bg-amber-600'
+                  }`} />
+                  <span className="font-semibold uppercase text-xs">
+                    {(profile?.verification_status || 'pending_verification').replace(/_/g, ' ')}
+                  </span>
+                </div>
+                {profile?.verification_reason && (
+                  <p className="text-xs text-slate-500 mt-1">
+                    Note: {profile.verification_reason}
+                  </p>
+                )}
               </div>
             </div>
 
@@ -270,10 +401,10 @@ export const SettingsPage: React.FC = () => {
                 variant="primary"
                 size="sm"
                 isLoading={isUpdating}
-                disabled={!isConfigured || !user}
+                disabled={!user}
                 leftIcon={<Save className="w-3.5 h-3.5" />}
               >
-                Save Profile Name
+                Save Institutional Profile
               </Button>
             </div>
           </form>

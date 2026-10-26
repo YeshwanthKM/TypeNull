@@ -9,6 +9,7 @@ import { StatusBadge } from '../components/ui/StatusBadge';
 import { useAuth } from '../contexts/AuthContext';
 import { fetchUserApplications } from '../services/applications';
 import { DbApplication } from '../types';
+import { InstitutionVerificationBanner } from '../components/institution/InstitutionVerificationBanner';
 
 export const DashboardPage: React.FC = () => {
   const navigate = useNavigate();
@@ -54,11 +55,11 @@ export const DashboardPage: React.FC = () => {
   ).length;
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       {/* Page Header */}
       <PageHeader
-        title="Applicant Pre-Validation Dashboard"
-        description="Prepare application dossiers, inspect OCR document intelligence, and run pre-validation checks against statutory requirements before formal submission."
+        title="Institution Dashboard — Extension of Approval"
+        description="Prepare institutional Extension of Approval (EoA) applications, upload supporting compliance documents, review validation findings, and monitor verification clearance."
         action={
           <div className="flex flex-wrap items-center gap-2.5">
             <Button
@@ -66,18 +67,21 @@ export const DashboardPage: React.FC = () => {
               onClick={() => navigate('/applications/explore')}
               leftIcon={<Compass className="w-4 h-4 text-teal-700" />}
             >
-              Explore Applications
+              Explore AICTE Handbook
             </Button>
             <Button
               variant="primary"
               onClick={() => navigate('/applications/new')}
               leftIcon={<Plus className="w-4 h-4" />}
             >
-              Prepare Application
+              Prepare EoA Application
             </Button>
           </div>
         }
       />
+
+      {/* Institution Registration Verification Status */}
+      <InstitutionVerificationBanner />
 
       {/* Government Applications Catalogue Quick Discovery Card */}
       <div className="p-5 rounded-xl border border-teal-200 bg-gradient-to-r from-teal-50/80 to-slate-50 text-slate-800 shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">

@@ -59,6 +59,7 @@ import {
   generateScreeningCsvReport,
   saveScreeningBatch,
 } from '../services/validationService';
+import { InstitutionVerificationPanel } from '../components/officer/InstitutionVerificationPanel';
 
 interface CustomBuilderApplicant {
   id: string;
@@ -70,7 +71,7 @@ export const OfficerWorkspacePage: React.FC = () => {
   const { user, profile } = useAuth();
 
   // Active view tab
-  const [activeTab, setActiveTab] = useState<'screening' | 'results' | 'history'>('screening');
+  const [activeTab, setActiveTab] = useState<'screening' | 'results' | 'history' | 'verifications'>('screening');
 
   // Intake Mode: Structured Multi-Application Builder vs Folder/ZIP Archive
   const [intakeMode, setIntakeMode] = useState<'builder' | 'archive'>('builder');
@@ -778,6 +779,22 @@ export const OfficerWorkspacePage: React.FC = () => {
 
       {/* Workspace Tabs Navigation */}
       <div className="flex border-b border-slate-200 gap-4 sm:gap-6 text-sm font-semibold overflow-x-auto whitespace-nowrap scrollbar-none pb-0.5">
+        <button
+          type="button"
+          onClick={() => setActiveTab('verifications')}
+          className={`pb-3 flex items-center gap-2 border-b-2 transition-colors flex-shrink-0 ${
+            activeTab === 'verifications'
+              ? 'border-teal-700 text-teal-800'
+              : 'border-transparent text-slate-500 hover:text-slate-800'
+          }`}
+        >
+          <Building className="w-4 h-4" />
+          <span>Institution Verifications</span>
+          <span className="text-[10px] bg-amber-100 text-amber-800 font-mono px-1.5 py-0.5 rounded-full font-bold">
+            Portal
+          </span>
+        </button>
+
         <button
           type="button"
           onClick={() => setActiveTab('screening')}
@@ -1669,6 +1686,11 @@ export const OfficerWorkspacePage: React.FC = () => {
             )}
           </div>
         </div>
+      )}
+
+      {/* TAB 4: INSTITUTION REGISTRATION VERIFICATIONS */}
+      {activeTab === 'verifications' && (
+        <InstitutionVerificationPanel />
       )}
 
       {/* EVIDENCE & FINDINGS INSPECTION MODAL / DRAWER */}

@@ -78,7 +78,7 @@ export const LoginPage: React.FC = () => {
             Sign In to TypeNull
           </h1>
           <p className="mt-1.5 text-xs text-slate-600">
-            Access your authorized portal as a User, Organisation, or Admin.
+            Access your authorized portal as an Institution or AICTE Officer.
           </p>
         </div>
 
@@ -100,32 +100,36 @@ export const LoginPage: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => {
-                    sessionStorage.setItem('typenull_demo_role', 'applicant');
+                    sessionStorage.setItem('typenull_demo_role', 'institution');
+                    sessionStorage.removeItem('typenull_demo_is_admin');
+                    sessionStorage.setItem('typenull_demo_verif_status', 'pending_verification');
                     window.location.href = '/dashboard';
                   }}
                   className="px-2.5 py-1 text-xs font-semibold rounded bg-teal-700 text-white hover:bg-teal-800 transition-colors"
                 >
-                  User Portal
+                  Institution Portal
                 </button>
                 <button
                   type="button"
                   onClick={() => {
                     sessionStorage.setItem('typenull_demo_role', 'officer');
+                    sessionStorage.removeItem('typenull_demo_is_admin');
                     window.location.href = '/officer';
                   }}
                   className="px-2.5 py-1 text-xs font-semibold rounded bg-white text-slate-700 border border-slate-300 hover:bg-slate-50 transition-colors"
                 >
-                  Organisation Workspace
+                  AICTE Officer Desk
                 </button>
                 <button
                   type="button"
                   onClick={() => {
-                    sessionStorage.setItem('typenull_demo_role', 'administrator');
-                    window.location.href = '/admin';
+                    sessionStorage.setItem('typenull_demo_role', 'officer');
+                    sessionStorage.setItem('typenull_demo_is_admin', 'true');
+                    window.location.href = '/officer';
                   }}
-                  className="px-2.5 py-1 text-xs font-semibold rounded bg-white text-slate-700 border border-slate-300 hover:bg-slate-50 transition-colors"
+                  className="px-2.5 py-1 text-xs font-semibold rounded bg-teal-50 text-teal-900 border border-teal-300 hover:bg-teal-100 transition-colors"
                 >
-                  Admin Console
+                  AICTE Officer (Admin Clearance)
                 </button>
               </div>
             </div>
@@ -197,24 +201,23 @@ export const LoginPage: React.FC = () => {
           <div className="mt-6 pt-5 border-t border-slate-100">
             <div className="rounded-lg bg-slate-50 border border-slate-200/70 p-2.5 text-[11px] text-slate-500 space-y-1">
               <span className="font-semibold text-slate-700 block text-[10px] uppercase tracking-wider">
-                Automatic Role Routing
+                Two-Role System Architecture
               </span>
               <p>
-                &bull; <strong className="text-slate-700">Applicants</strong> &rarr; Application Management Dashboard<br />
-                &bull; <strong className="text-slate-700">Officers</strong> &rarr; Dossier Review Workspace<br />
-                &bull; <strong className="text-slate-700">Administrators</strong> &rarr; System Console
+                &bull; <strong className="text-slate-700">Institution</strong> &rarr; Institutional Dashboard &amp; EoA Dossier Preparation<br />
+                &bull; <strong className="text-slate-700">AICTE Officer</strong> &rarr; Scrutiny, Registration Verification &amp; EoA Review
               </p>
             </div>
           </div>
 
           <div className="mt-4 pt-4 border-t border-slate-100 text-center">
             <p className="text-xs text-slate-600">
-              Need an applicant account?{' '}
+              Need an institution account?{' '}
               <Link
                 to="/register"
                 className="font-semibold text-teal-700 hover:text-teal-800 transition-colors"
               >
-                Register as Applicant
+                Register Institution
               </Link>
             </p>
           </div>

@@ -31,11 +31,11 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
 
   // 2. Supabase Unconfigured Guide & Evaluation Launchpad
   if (!isConfigured && !user) {
-    const recommendedRole: UserRole = allowedRoles?.includes('officer') && !allowedRoles?.includes('applicant')
+    const recommendedRole: UserRole = allowedRoles?.includes('officer')
       ? 'officer'
-      : allowedRoles?.includes('administrator') && !allowedRoles?.includes('applicant')
-      ? 'administrator'
-      : 'applicant';
+      : allowedRoles?.includes('administrator')
+      ? 'officer'
+      : 'institution';
 
     return (
       <div className="max-w-2xl mx-auto my-12 p-6 sm:p-8 rounded-xl border border-amber-200 bg-amber-50/70 text-amber-900 shadow-sm space-y-4">
@@ -67,7 +67,7 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
 
         <div className="pt-2 border-t border-amber-200/80">
           <p className="text-xs font-semibold text-amber-950 mb-2">
-            Local Evaluation &amp; QA Demo Mode:
+            Local Evaluation Demo Mode:
           </p>
           <div className="flex flex-wrap items-center gap-2.5">
             {useAuth().startDemoSession && (
@@ -77,15 +77,15 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
                   size="sm"
                   onClick={() => useAuth().startDemoSession!(recommendedRole)}
                 >
-                  Explore as {getRoleDisplayLabel(recommendedRole)} (Demo)
+                  Explore as {recommendedRole === 'institution' ? 'Institution' : 'AICTE Officer'} (Demo)
                 </Button>
-                {recommendedRole !== 'applicant' && (
+                {recommendedRole !== 'institution' && (
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => useAuth().startDemoSession!('applicant')}
+                    onClick={() => useAuth().startDemoSession!('institution')}
                   >
-                    User Demo
+                    Institution Portal
                   </Button>
                 )}
                 {recommendedRole !== 'officer' && (
@@ -94,7 +94,7 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
                     size="sm"
                     onClick={() => useAuth().startDemoSession!('officer')}
                   >
-                    Organisation Demo
+                    AICTE Officer Desk
                   </Button>
                 )}
               </>
@@ -133,7 +133,7 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
 
     // Role indeterminate or invalid
     const activeRole = role || profile.role;
-    if (!activeRole || !['applicant', 'officer', 'administrator'].includes(activeRole)) {
+    if (!activeRole || !['institution', 'officer', 'applicant', 'administrator'].includes(activeRole)) {
       return (
         <div className="max-w-md mx-auto my-16 p-8 rounded-2xl border border-rose-200 bg-white text-center shadow-lg space-y-5">
           <div className="w-14 h-14 rounded-full bg-rose-50 border border-rose-200 text-rose-600 flex items-center justify-center mx-auto">
@@ -164,8 +164,16 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
       );
     }
 
+    // Check if role is authorized (mapping applicant <-> institution, and admin permission)
+    const isAuthorized =
+      allowedRoles.includes(activeRole) ||
+      ((activeRole === 'institution' || activeRole === 'applicant') &&
+        (allowedRoles.includes('institution') || allowedRoles.includes('applicant'))) ||
+      ((activeRole === 'officer' || activeRole === 'administrator') &&
+        (allowedRoles.includes('officer') || (allowedRoles.includes('administrator') && Boolean(profile.is_admin))));
+
     // Role Not Authorised -> Access Denied Screen
-    if (!allowedRoles.includes(activeRole)) {
+    if (!isAuthorized) {
       const authorizedDestination = getRoleRedirectPath(activeRole);
       return (
         <div className="max-w-lg mx-auto my-16 p-8 rounded-2xl border border-slate-200 bg-white text-center shadow-xl space-y-6">

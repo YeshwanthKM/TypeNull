@@ -37,27 +37,27 @@ export const MobileNavigation: React.FC<MobileNavigationProps> = ({ isOpen, onCl
   const navItems = [
     {
       to: '/dashboard',
-      label: 'Pre-Validation Dashboard',
+      label: 'Institution Dashboard',
       icon: LayoutDashboard,
-      show: role === 'applicant',
+      show: role === 'institution' || role === 'applicant',
     },
     {
       to: '/applications/explore',
-      label: 'Explore Applications',
+      label: 'AICTE Requirements',
       icon: Compass,
-      show: role === 'applicant',
+      show: role === 'institution' || role === 'applicant',
     },
     {
       to: '/applications/new',
-      label: 'Prepare Application',
+      label: 'Prepare EoA Application',
       icon: FilePlus,
-      show: role === 'applicant',
+      show: role === 'institution' || role === 'applicant',
     },
     {
       to: '/officer',
-      label: 'Organisation Screening',
+      label: 'AICTE Officer Desk',
       icon: Shield,
-      show: role === 'officer',
+      show: role === 'officer' || role === 'administrator',
     },
     {
       to: '/admin',
@@ -188,7 +188,7 @@ export const MobileNavigation: React.FC<MobileNavigationProps> = ({ isOpen, onCl
         className="fixed bottom-0 inset-x-0 z-30 md:hidden bg-white/95 backdrop-blur border-t border-slate-200 px-2 py-1.5 flex items-center justify-around shadow-sm"
         aria-label="Mobile quick actions"
       >
-        {role === 'applicant' && (
+        {(role === 'institution' || role === 'applicant') && (
           <>
             <NavLink
               to="/dashboard"
@@ -224,12 +224,12 @@ export const MobileNavigation: React.FC<MobileNavigationProps> = ({ isOpen, onCl
               }
             >
               <FilePlus className="w-5 h-5 mb-0.5" />
-              <span>New App</span>
+              <span>Prepare EoA</span>
             </NavLink>
           </>
         )}
 
-        {role === 'officer' && (
+        {(role === 'officer' || role === 'administrator') && (
           <NavLink
             to="/officer"
             className={({ isActive }) =>
@@ -239,7 +239,7 @@ export const MobileNavigation: React.FC<MobileNavigationProps> = ({ isOpen, onCl
             }
           >
             <Shield className="w-5 h-5 mb-0.5" />
-            <span>Screening</span>
+            <span>Officer Desk</span>
           </NavLink>
         )}
 
