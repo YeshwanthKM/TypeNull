@@ -1,5 +1,4 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
 import {
   ArrowRight,
   ShieldCheck,
@@ -34,17 +33,17 @@ export const Hero: React.FC<HeroProps> = ({
             {/* Institutional Platform Badge */}
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-50 border border-blue-200 text-blue-900 text-xs font-semibold tracking-wide shadow-xs">
               <span className="w-2 h-2 rounded-full bg-teal-600 animate-pulse" />
-              <span>Institutional Verification &bull; Regulatory Technology Platform</span>
+              <span>AICTE Approval &bull; Institutional Verification Platform</span>
             </div>
 
             {/* Main Heading */}
             <h1 className="text-3xl sm:text-5xl lg:text-[46px] font-extrabold text-slate-900 tracking-tight leading-[1.15]">
-              AI-Powered Application Validation &amp; Document Verification
+              AICTE Application Validation &amp; Document Verification
             </h1>
 
             {/* Supporting Text */}
             <p className="text-base sm:text-lg text-slate-600 leading-relaxed max-w-2xl mx-auto lg:mx-0 font-normal">
-              Simplifying institutional approval workflows through intelligent document analysis, cross-document validation, regulatory compliance checks, and evidence-based verification.
+              Streamline institutional approval workflows with intelligent document validation, potential manipulation detection, cross-document consistency checks, and regulatory compliance assistance.
             </p>
 
             {/* Action Buttons */}
@@ -54,25 +53,28 @@ export const Hero: React.FC<HeroProps> = ({
                 onClick={onGetStartedClick}
                 className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3.5 border border-transparent text-sm font-semibold rounded-xl text-white bg-teal-700 hover:bg-teal-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-600 shadow-sm transition-all"
               >
-                <span>Get Started</span>
+                <span>Start EoA Application</span>
                 <ArrowRight className="w-4 h-4" />
               </button>
 
-              <Link
-                to="/applications/explore"
-                onClick={onExploreFeaturesClick}
+              <a
+                href="#workflow"
+                onClick={(e) => {
+                  e.preventDefault();
+                  onExploreFeaturesClick();
+                }}
                 className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3.5 border border-slate-300 text-sm font-semibold rounded-xl text-slate-700 bg-white hover:bg-slate-50 hover:text-slate-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-400 shadow-xs transition-colors"
               >
                 <Compass className="w-4 h-4 text-blue-700" />
-                <span>Explore the Platform</span>
-              </Link>
+                <span>Explore Verification Process</span>
+              </a>
             </div>
 
             {/* Micro Highlights Bar */}
             <div className="pt-4 flex flex-wrap items-center justify-center lg:justify-start gap-y-2 gap-x-6 text-xs text-slate-500">
               <div className="flex items-center gap-1.5 font-medium">
                 <CheckCircle2 className="w-4 h-4 text-teal-600" />
-                <span>Client-Side Privacy OCR</span>
+                <span>Pre-Submission Validation</span>
               </div>
               <div className="flex items-center gap-1.5 font-medium">
                 <CheckCircle2 className="w-4 h-4 text-teal-600" />
@@ -80,7 +82,7 @@ export const Hero: React.FC<HeroProps> = ({
               </div>
               <div className="flex items-center gap-1.5 font-medium">
                 <CheckCircle2 className="w-4 h-4 text-teal-600" />
-                <span>Human-in-the-Loop Oversight</span>
+                <span>Human Regulatory Oversight</span>
               </div>
             </div>
           </div>
@@ -101,11 +103,11 @@ export const Hero: React.FC<HeroProps> = ({
                       <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 inline-block opacity-80" />
                     </div>
                     <span className="text-[11px] font-mono text-slate-300 ml-2 font-medium">
-                      dossier-audit-viewer // INST-2026-089
+                      dossier-audit-viewer // AICTE-EOA-2026-089
                     </span>
                   </div>
                   <span className="text-[10px] font-mono uppercase bg-teal-900/60 text-teal-300 px-2 py-0.5 rounded border border-teal-700">
-                    Live Demo Dossier
+                    Prototype Demonstration
                   </span>
                 </div>
 
@@ -116,12 +118,12 @@ export const Hero: React.FC<HeroProps> = ({
                       Apex Institute of Engineering &amp; Technology
                     </p>
                     <p className="text-[11px] text-slate-500 font-mono mt-0.5">
-                      Statutory Affiliation Dossier &bull; SPICe+ / GST / PAN Pack
+                      AICTE Extension of Approval (EoA) Dossier &bull; APH 2026-27 Norms
                     </p>
                   </div>
                   <span className="inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 flex-shrink-0">
                     <CheckCircle2 className="w-3 h-3 text-emerald-600" />
-                    Compliant Dossier
+                    Pre-Submission Validated
                   </span>
                 </div>
 
@@ -133,10 +135,10 @@ export const Hero: React.FC<HeroProps> = ({
                     <div className="flex items-center justify-between">
                       <span className="font-semibold text-slate-800 flex items-center gap-1.5">
                         <FileText className="w-3.5 h-3.5 text-blue-700" />
-                        Incorporation Certificate (Form SPICe+)
+                        Land &amp; Building Norms / Society Trust Deed
                       </span>
                       <span className="text-[10px] font-mono font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200">
-                        MATCH (Official Gazette)
+                        MATCH (AICTE Proforma)
                       </span>
                     </div>
                     <div className="grid grid-cols-2 gap-2 text-[11px] text-slate-500 font-mono pt-1">
@@ -150,19 +152,19 @@ export const Hero: React.FC<HeroProps> = ({
                     <div className="flex items-center justify-between">
                       <span className="font-semibold text-slate-900 flex items-center gap-1.5">
                         <Layers className="w-3.5 h-3.5 text-indigo-700" />
-                        Multi-Record Alignment Matrix
+                        Multi-Record Alignment Matrix (Faculty &amp; Land)
                       </span>
                       <span className="text-[10px] font-mono font-bold text-blue-800 bg-blue-100 px-1.5 py-0.5 rounded border border-blue-200">
-                        3 Documents Linked
+                        Cross-Checked
                       </span>
                     </div>
                     <div className="space-y-1 text-[11px] text-slate-600">
                       <div className="flex justify-between items-center py-0.5 border-b border-blue-100/70">
-                        <span>PAN &bull; Form GST REG-06:</span>
-                        <span className="font-mono font-semibold text-slate-800">07AAACT2345A1Z5</span>
+                        <span>Faculty Cadre Ratio:</span>
+                        <span className="font-mono font-semibold text-emerald-700">1:15 Meets AICTE Norms</span>
                       </div>
                       <div className="flex justify-between items-center py-0.5">
-                        <span>Entity Name Consistency:</span>
+                        <span>Entity Name &amp; Address:</span>
                         <span className="font-semibold text-emerald-700">100% Disambiguated</span>
                       </div>
                     </div>
@@ -173,10 +175,10 @@ export const Hero: React.FC<HeroProps> = ({
                     <div className="flex items-center justify-between">
                       <span className="font-semibold text-slate-800 flex items-center gap-1.5">
                         <FileCheck2 className="w-3.5 h-3.5 text-teal-700" />
-                        Pre-Validation Checklist
+                        AICTE Regulatory Checklist Pre-Validation
                       </span>
                       <span className="text-[10px] font-semibold text-slate-500">
-                        4 of 4 Mandatory Attached
+                        6 of 6 Mandatory Attached
                       </span>
                     </div>
                     <div className="w-full bg-slate-100 rounded-full h-1.5 overflow-hidden">
@@ -190,10 +192,10 @@ export const Hero: React.FC<HeroProps> = ({
                       <ShieldCheck className="w-4 h-4 text-teal-700 flex-shrink-0" />
                       <div>
                         <p className="font-bold text-teal-950 text-[11px]">
-                          Evidence Dossier Ready
+                          Evidence Dossier Assembled
                         </p>
                         <p className="text-[10px] text-teal-800">
-                          Recommended for authorized officer review
+                          Ready for authorized officer review &bull; Zero blocking anomalies
                         </p>
                       </div>
                     </div>
@@ -202,7 +204,7 @@ export const Hero: React.FC<HeroProps> = ({
                       onClick={onGetStartedClick}
                       className="px-2.5 py-1 text-[11px] font-semibold text-white bg-teal-700 hover:bg-teal-800 rounded-lg shadow-2xs transition-colors whitespace-nowrap"
                     >
-                      View Live Dossier
+                      Start EoA Application
                     </button>
                   </div>
                 </div>
@@ -214,7 +216,7 @@ export const Hero: React.FC<HeroProps> = ({
                     Client-side encrypted evaluation
                   </span>
                   <span className="font-mono text-[10px] text-slate-400">
-                    Rule Engine v2.4
+                    AICTE Norms Engine v2026.1
                   </span>
                 </div>
               </div>
