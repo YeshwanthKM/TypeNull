@@ -16,11 +16,10 @@ export const Navbar: React.FC<NavbarProps> = ({ onGetStartedClick, onStartTourCl
   const isLandingPage = location.pathname === '/';
 
   const navItems = [
-    { label: 'The Challenge', href: '/#challenge' },
-    { label: 'Our Solution', href: '/#solution' },
-    { label: 'How It Works', href: '/#how-it-works' },
+    { label: 'AICTE Applications', href: '/#applications' },
     { label: 'Capabilities', href: '/#capabilities' },
-    { label: 'Trust & Oversight', href: '/#trust' },
+    { label: 'EoA Workflow', href: '/#workflow' },
+    { label: 'Trust & Governance', href: '/#trust' },
     { label: 'Help & Guides', href: '/guides', isRoute: true },
   ];
 
@@ -115,7 +114,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onGetStartedClick, onStartTourCl
                   onClick={onGetStartedClick}
                   className="inline-flex items-center justify-center px-4 py-2 border border-transparent text-xs font-semibold rounded-lg text-white bg-teal-700 hover:bg-teal-800 shadow-sm transition-colors"
                 >
-                  Start Pre-Validation
+                  Start EoA Application
                 </button>
               </>
             )}
@@ -210,7 +209,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onGetStartedClick, onStartTourCl
                   }}
                   className="w-full flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-semibold rounded-lg text-white bg-teal-700 hover:bg-teal-800 shadow-sm transition-colors"
                 >
-                  Start Pre-Validation
+                  Start EoA Application
                 </button>
               </>
             )}

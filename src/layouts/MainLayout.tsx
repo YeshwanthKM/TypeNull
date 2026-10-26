@@ -16,14 +16,14 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
   const [walkthroughOpen, setWalkthroughOpen] = useState(false);
 
   const scrollToFeatures = () => {
-    const featuresElement = document.getElementById('capabilities');
+    const featuresElement = document.getElementById('workflow') || document.getElementById('capabilities') || document.getElementById('applications');
     if (featuresElement) {
       featuresElement.scrollIntoView({ behavior: 'smooth' });
     }
   };
 
   const handleGetStarted = () => {
-    navigate('/applications/explore');
+    navigate('/applications/new');
   };
 
   return (
