@@ -9,6 +9,7 @@ import {
   Key,
   ExternalLink,
   BookOpen,
+  Scale,
 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 
@@ -21,6 +22,12 @@ export const AppSidebar: React.FC = () => {
       label: 'Institution Dashboard',
       icon: LayoutDashboard,
       show: role === 'institution' || role === 'applicant',
+    },
+    {
+      to: '/rulebook',
+      label: 'AICTE Rulebook',
+      icon: Scale,
+      show: true,
     },
     {
       to: '/applications/explore',

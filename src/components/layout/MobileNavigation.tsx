@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, Compass, FilePlus, Settings, ShieldCheck, X, Globe, Shield, Key, BookOpen } from 'lucide-react';
+import { LayoutDashboard, Compass, FilePlus, Settings, ShieldCheck, X, Globe, Shield, Key, BookOpen, Scale } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 
 export interface MobileNavigationProps {
@@ -40,6 +40,12 @@ export const MobileNavigation: React.FC<MobileNavigationProps> = ({ isOpen, onCl
       label: 'Institution Dashboard',
       icon: LayoutDashboard,
       show: role === 'institution' || role === 'applicant',
+    },
+    {
+      to: '/rulebook',
+      label: 'AICTE Rulebook',
+      icon: Scale,
+      show: true,
     },
     {
       to: '/applications/explore',

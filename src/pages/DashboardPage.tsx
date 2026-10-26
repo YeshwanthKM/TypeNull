@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { Plus, FileText, CheckCircle2, ShieldAlert, ArrowRight, RefreshCw, Clock, Building, Compass } from 'lucide-react';
+import { Plus, FileText, CheckCircle2, ShieldAlert, ArrowRight, RefreshCw, Clock, Building, Compass, Scale } from 'lucide-react';
 import { PageHeader } from '../components/ui/PageHeader';
 import { Button } from '../components/ui/Button';
 import { EmptyState } from '../components/ui/EmptyState';
@@ -59,15 +59,15 @@ export const DashboardPage: React.FC = () => {
       {/* Page Header */}
       <PageHeader
         title="Institution Dashboard — Extension of Approval"
-        description="Prepare institutional Extension of Approval (EoA) applications, upload supporting compliance documents, review validation findings, and monitor verification clearance."
+        description="Prepare institutional Extension of Approval (EoA) applications, review verified AICTE Approval Process Handbook (APH) rules, and monitor compliance readiness."
         action={
           <div className="flex flex-wrap items-center gap-2.5">
             <Button
               variant="outline"
-              onClick={() => navigate('/applications/explore')}
-              leftIcon={<Compass className="w-4 h-4 text-teal-700" />}
+              onClick={() => navigate('/rulebook')}
+              leftIcon={<Scale className="w-4 h-4 text-primary-700" />}
             >
-              Explore AICTE Handbook
+              AICTE Rulebook
             </Button>
             <Button
               variant="primary"
@@ -83,33 +83,42 @@ export const DashboardPage: React.FC = () => {
       {/* Institution Registration Verification Status */}
       <InstitutionVerificationBanner />
 
-      {/* Government Applications Catalogue Quick Discovery Card */}
-      <div className="p-5 rounded-xl border border-teal-200 bg-gradient-to-r from-teal-50/80 to-slate-50 text-slate-800 shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+      {/* Dedicated AICTE Rulebook Showcase Banner */}
+      <div className="p-5 rounded-xl border border-primary-200 bg-gradient-to-r from-primary-50/90 via-slate-50 to-teal-50/50 text-slate-800 shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div className="space-y-1">
           <div className="flex items-center gap-2">
-            <span className="p-1.5 rounded-lg bg-teal-100 text-teal-800">
-              <Compass className="w-4 h-4" />
+            <span className="p-1.5 rounded-lg bg-primary-100 text-primary-800">
+              <Scale className="w-4 h-4" />
             </span>
             <h2 className="text-sm font-bold text-slate-900">
-              Government Applications Catalogue
+              AICTE Regulatory Rulebook & Standards Library
             </h2>
-            <span className="text-[10px] font-mono font-semibold px-2 py-0.5 rounded-full bg-teal-100 text-teal-900 border border-teal-200">
-              Published Registry
+            <span className="text-[10px] font-mono font-semibold px-2 py-0.5 rounded-full bg-primary-100 text-primary-900 border border-primary-200">
+              APH 2024–2027 Cycle
             </span>
           </div>
           <p className="text-xs text-slate-600 max-w-2xl leading-relaxed">
-            Need guidance on official application schemes? Browse published statutory forms (SPICe+, GST, Passport), review document checklists, and understand situational eligibility rules before creating a dossier.
+            Access plain-language explanations of statutory rules, multi-year EoA provisions, faculty cadre ratios, and non-judicial stamp affidavits. Understand what is mandatory versus conditional before preparing your submission.
           </p>
         </div>
-        <Button
-          variant="primary"
-          size="sm"
-          onClick={() => navigate('/applications/explore')}
-          rightIcon={<ArrowRight className="w-3.5 h-3.5" />}
-          className="flex-shrink-0"
-        >
-          Explore Catalogue
-        </Button>
+        <div className="flex items-center gap-2.5 flex-shrink-0">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => navigate('/rulebook?tab=checklist')}
+            leftIcon={<CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />}
+          >
+            Checklist
+          </Button>
+          <Button
+            variant="primary"
+            size="sm"
+            onClick={() => navigate('/rulebook')}
+            rightIcon={<ArrowRight className="w-3.5 h-3.5" />}
+          >
+            Open Rulebook
+          </Button>
+        </div>
       </div>
 
       {/* Supabase Unconfigured Banner */}

@@ -17,6 +17,7 @@ import { RegisterPage } from './pages/RegisterPage';
 import { ForgotPasswordPage } from './pages/ForgotPasswordPage';
 import { ResetPasswordPage } from './pages/ResetPasswordPage';
 import { GuidesPage } from './pages/GuidesPage';
+import { RulebookPage } from './pages/RulebookPage';
 import { NotFoundPage } from './pages/NotFoundPage';
 
 export const App: React.FC = () => {
@@ -46,6 +47,16 @@ export const App: React.FC = () => {
               <MainLayout>
                 {() => <GuidesPage />}
               </MainLayout>
+            }
+          />
+
+          {/* AICTE Regulatory Rulebook & Compliance Guide */}
+          <Route
+            path="/rulebook"
+            element={
+              <AppLayout>
+                <RulebookPage />
+              </AppLayout>
             }
           />
 
