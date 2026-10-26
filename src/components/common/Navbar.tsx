@@ -16,10 +16,11 @@ export const Navbar: React.FC<NavbarProps> = ({ onGetStartedClick, onStartTourCl
   const isLandingPage = location.pathname === '/';
 
   const navItems = [
+    { label: 'The Challenge', href: '/#challenge' },
+    { label: 'Our Solution', href: '/#solution' },
     { label: 'How It Works', href: '/#how-it-works' },
     { label: 'Capabilities', href: '/#capabilities' },
-    { label: 'Who It Is For', href: '/#audience' },
-    { label: 'Trust & Limitations', href: '/#trust' },
+    { label: 'Trust & Oversight', href: '/#trust' },
     { label: 'Help & Guides', href: '/guides', isRoute: true },
   ];
 

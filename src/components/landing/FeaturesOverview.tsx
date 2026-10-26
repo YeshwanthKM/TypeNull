@@ -1,120 +1,364 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import {
-  FileText,
-  CheckCircle,
+  FileStack,
+  FileWarning,
+  Copy,
+  GitCompare,
   Scale,
-  Compass,
+  CheckCircle2,
+  FileText,
+  Search,
+  ShieldCheck,
   FileSpreadsheet,
-  ArrowRight,
-  BookOpen,
-  Layers,
-  Building,
   UserCheck,
-  Info
+  ArrowRight,
+  Lock,
+  Layers,
+  Sparkles,
+  Info,
+  KeyRound,
+  FileCheck2,
+  FileSearch,
+  Compass,
 } from 'lucide-react';
-import { PRODUCT_GUIDES } from '../guides/UserGuidesData';
 
 export const FeaturesOverview: React.FC = () => {
-  const workflowSteps = [
+  // Section 2: 5 Challenges
+  const challenges = [
     {
-      step: '01',
-      title: 'Select Application',
-      desc: 'Browse the Government Applications Catalogue and answer tailored conditional questions to generate an accurate statutory checklist.',
-      icon: Compass,
+      id: 'volume',
+      title: 'Manual Volume Verification',
+      desc: 'Manual verification of large volumes of application documents creates backlogs, administrative fatigue, and multi-week approval delays.',
+      icon: FileStack,
+      tag: 'Scale Bottleneck',
     },
     {
-      step: '02',
-      title: 'Upload Documents',
-      desc: 'Attach required identity documents, address proofs, and certificates. In-browser OCR extracts key fields automatically with client-side privacy.',
-      icon: FileText,
+      id: 'missing-expired',
+      title: 'Missing & Expired Records',
+      desc: 'Missing, expired, or inconsistent supporting documents submitted without early pre-checks trigger repetitive rejection cycles.',
+      icon: FileWarning,
+      tag: 'Document Incompleteness',
     },
     {
-      step: '03',
-      title: 'Run Pre-Validation',
-      desc: 'The shared validation engine evaluates dossier completeness, verifies required fields, and performs cross-document consistency checks.',
+      id: 'alterations-duplicates',
+      title: 'Alterations & Duplicate Submissions',
+      desc: 'Potential document alterations, recycled files, and duplicate submissions that evade basic visual spot-checks.',
+      icon: Copy,
+      tag: 'Tampering Anomaly',
+    },
+    {
+      id: 'cross-checking',
+      title: 'Multi-Record Cross-Checking',
+      desc: 'Difficulty cross-checking information across multiple records, disparate identity proofs, and separate regulatory certificates.',
+      icon: GitCompare,
+      tag: 'Information Discrepancy',
+    },
+    {
+      id: 'regulatory-time',
+      title: 'Time-Consuming Compliance',
+      desc: 'Time-consuming regulatory compliance reviews against intricate, fast-evolving statutory checklists and government norms.',
       icon: Scale,
-    },
-    {
-      step: '04',
-      title: 'Review Findings & Fix',
-      desc: 'Inspect categorised findings with severity ratings and specific remediation instructions. Correct documents and revalidate with instant delta tracking.',
-      icon: CheckCircle,
+      tag: 'Statutory Burden',
     },
   ];
 
-  const coreCapabilities = [
+  // Section 3: 7 Solution Capabilities
+  const solutions = [
     {
-      id: 'individual-validation',
-      title: 'Individual Pre-Validation',
-      desc: 'Self-service dossier preparation and automated pre-screening for citizens and business applicants prior to official portal submission.',
-      icon: UserCheck,
-      badge: 'Applicant Workflow',
+      id: 'pre-validation',
+      title: 'Application Pre-Validation',
+      desc: 'Identify missing fields, incomplete documents, and basic inconsistencies before submission to prevent invalid dossier filings.',
+      icon: FileCheck2,
+      badge: 'Pre-Submission',
     },
     {
-      id: 'organisation-screening',
-      title: 'Organisation Bulk Screening',
-      desc: 'High-throughput batched application evaluation for compliance desks, featuring aggregated metrics, issue breakdowns, and CSV reporting.',
-      icon: Building,
-      badge: 'Institutional Desk',
+      id: 'hybrid-extraction',
+      title: 'Hybrid Document Extraction',
+      desc: 'Extract information from digital PDFs and scanned documents using appropriate text extraction and client/server OCR pipelines.',
+      icon: FileSearch,
+      badge: 'OCR & PDF Stream',
     },
     {
-      id: 'catalogue',
-      title: 'Government Applications Catalogue',
-      desc: 'Structured repository of government schemes (SPICe+, GST REG-01, Passport Form 1) with mandatory rules, conditional logic, and official links.',
-      icon: Compass,
-      badge: 'Knowledge Base',
+      id: 'document-forensics',
+      title: 'Document Forensics',
+      desc: 'Examine PDF structure, metadata, image manipulation indicators, and digital-signature integrity where supported.',
+      icon: Search,
+      badge: 'Structural Analysis',
     },
     {
-      id: 'ocr-consistency',
-      title: 'OCR & Cross-Document Consistency',
-      desc: 'In-browser optical character recognition and multi-source alignment cross-checking names, dates, PAN/Aadhaar numbers, and application claims.',
-      icon: Layers,
-      badge: 'Extraction Engine',
+      id: 'cross-doc',
+      title: 'Cross-Document Validation',
+      desc: 'Compare extracted information across application forms and supporting documents to surface conflicting claims.',
+      icon: GitCompare,
+      badge: 'Entity Matching',
     },
     {
-      id: 'audit-reports',
-      title: 'Auditable Findings & Stale Tracking',
-      desc: 'Transparent, evidence-linked verification logs with stale-result invalidation when documents change, ensuring complete decision integrity.',
+      id: 'compliance-assistance',
+      title: 'Regulatory Compliance Assistance',
+      desc: 'Evaluate applications against configurable regulatory checklists (e.g., SPICe+, GST REG-01, Passport Form 1).',
+      icon: Scale,
+      badge: 'Checklist Engine',
+    },
+    {
+      id: 'evidence-reporting',
+      title: 'Evidence-Linked Reporting',
+      desc: 'Present findings with document references, bounding boxes, transparent explanations, and verification statuses.',
       icon: FileSpreadsheet,
-      badge: 'Audit & Governance',
+      badge: 'Audit Trail',
+    },
+    {
+      id: 'human-review',
+      title: 'Human Review & Decision Support',
+      desc: 'Support authorized officers in reviewing flagged cases, recording decisions, and executing statutory adjudications.',
+      icon: UserCheck,
+      badge: 'Officer Governance',
+    },
+  ];
+
+  // Section 4: 8 Workflow Steps
+  const workflowSteps = [
+    {
+      step: '01',
+      title: 'Dossier Submission',
+      desc: 'Institution submits application and supporting documents through secure portal.',
+      icon: FileText,
+      phase: 'Intake',
+    },
+    {
+      step: '02',
+      title: 'Format Inspection',
+      desc: 'System inspects container validity, classifies file formats, and maps target requirements.',
+      icon: Layers,
+      phase: 'Classification',
+    },
+    {
+      step: '03',
+      title: 'Hybrid Text Extraction',
+      desc: 'Text extraction and OCR identify relevant statutory identifiers, dates, and entity names.',
+      icon: FileSearch,
+      phase: 'Extraction',
+    },
+    {
+      step: '04',
+      title: 'Forensic Examination',
+      desc: 'Document-forensics modules examine metadata revisions, structure, and manipulation cues.',
+      icon: Search,
+      phase: 'Forensics',
+    },
+    {
+      step: '05',
+      title: 'Cross-Document Checks',
+      desc: 'Multi-record correlation compares extracted claims to identify discrepancies across proofs.',
+      icon: GitCompare,
+      phase: 'Correlation',
+    },
+    {
+      step: '06',
+      title: 'Regulatory Checklist',
+      desc: 'Regulatory rules and authorized-source checks run where integrations are supported.',
+      icon: Scale,
+      phase: 'Compliance',
+    },
+    {
+      step: '07',
+      title: 'Evidence Dossier Assembly',
+      desc: 'Findings are correlated into a consolidated, evidence-linked compliance audit report.',
+      icon: FileSpreadsheet,
+      phase: 'Reporting',
+    },
+    {
+      step: '08',
+      title: 'Authorized Officer Review',
+      desc: 'Authorized officers inspect flagged anomalies, review provenance, and decide next steps.',
+      icon: UserCheck,
+      phase: 'Adjudication',
+    },
+  ];
+
+  // Section 5: 6 Key Capabilities
+  const capabilities = [
+    {
+      id: 'pdf-forensics',
+      title: 'PDF Structural Forensics',
+      desc: 'Examines PDF metadata, structural streams, object dictionaries, and available revision history to detect structural anomalies.',
+      icon: FileText,
+      techNote: 'Metadata & Stream Inspection',
+    },
+    {
+      id: 'image-manipulation',
+      title: 'Image Manipulation Analysis',
+      desc: 'Flags potential image alterations, compression irregularities, and localized modifications for targeted officer review.',
+      icon: Search,
+      techNote: 'Pixel Anomaly Flags',
+    },
+    {
+      id: 'multi-signal',
+      title: 'Multi-Signal Evidence Analysis',
+      desc: 'Correlates layout templates, extraction confidence, and text consistency to highlight suspicious inconsistencies.',
+      icon: Sparkles,
+      techNote: 'Correlation Matrix',
+    },
+    {
+      id: 'evidence-linked',
+      title: 'Evidence-Linked Verification',
+      desc: 'Connects findings directly to supporting documents, extracted field coordinates, and auditable references.',
+      icon: FileSpreadsheet,
+      techNote: 'Traceable Provenance',
+    },
+    {
+      id: 'digital-sig',
+      title: 'Digital-Signature Verification',
+      desc: 'Checks signature integrity, ByteRange hash validation, and certificate trust chains where supported in digital PDFs.',
+      icon: Lock,
+      techNote: 'PKCS#7 Integrity Check',
+    },
+    {
+      id: 'cross-doc-consistency',
+      title: 'Cross-Document Consistency',
+      desc: 'Identifies conflicting information (names, PAN, Aadhaar, dates, and registration IDs) across submitted records.',
+      icon: GitCompare,
+      techNote: 'Multi-Record Reconciliation',
+    },
+  ];
+
+  // Section 6: Trust & Governance Pillars
+  const trustPillars = [
+    {
+      title: 'Role-Based Access Control',
+      desc: 'Strict segregation between applicant self-service, institutional officer desks, and administrative governance.',
+      icon: KeyRound,
+    },
+    {
+      title: 'Protected Handling of Documents',
+      desc: 'Client-side processing options, AES-256 encrypted storage, and time-bounded signed URLs for sensitive files.',
+      icon: Lock,
+    },
+    {
+      title: 'Traceable Verification Records',
+      desc: 'Audit logs link every verification outcome to exact document snippets, timestamped rules, and candidate values.',
+      icon: FileSpreadsheet,
+    },
+    {
+      title: 'Clear Explanation of Inconsistencies',
+      desc: 'Transparent reporting clearly distinguishes unreadable scans or template gaps from substantive non-compliance.',
+      icon: Info,
+    },
+    {
+      title: 'Human Review for Regulatory Decisions',
+      desc: 'Automated signals provide decision support; authorized officers maintain sole authority over statutory approvals.',
+      icon: UserCheck,
+    },
+    {
+      title: 'Authorized-Source Verification Where Supported',
+      desc: 'Connects to authoritative reference templates and public proformas only where official integrations are active.',
+      icon: ShieldCheck,
     },
   ];
 
   return (
-    <div className="space-y-20 py-16 sm:py-24 bg-slate-50">
-      {/* Section C: How It Works */}
-      <section id="how-it-works" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 scroll-mt-20">
-        <div className="border border-slate-200 rounded-2xl bg-white p-6 sm:p-10 shadow-sm">
-          <div className="max-w-3xl mb-10">
-            <span className="text-xs font-semibold tracking-wider text-teal-800 uppercase bg-teal-50 px-2.5 py-1 rounded border border-teal-200">
-              Operational Flow
+    <div className="space-y-24 py-16 sm:py-24 bg-slate-50 text-slate-900">
+      
+      {/* =========================================================================
+          SECTION 2: THE CHALLENGE
+         ========================================================================= */}
+      <section id="challenge" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 scroll-mt-20">
+        <div className="text-center max-w-3xl mx-auto mb-12">
+          <span className="text-xs font-bold tracking-wider text-blue-900 uppercase bg-blue-50 px-3 py-1 rounded-full border border-blue-200">
+            The Institutional Challenge
+          </span>
+          <h2 className="mt-3 text-2xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">
+            Making Institutional Verification More Efficient
+          </h2>
+          <p className="mt-3 text-sm sm:text-base text-slate-600 leading-relaxed">
+            Approval desks and regulatory bodies process thousands of complex filings annually. Manual document inspection exposes institutions to operational bottlenecks, repeated re-filings, and overlooked anomalies.
+          </p>
+        </div>
+
+        {/* 5 Clean Challenge Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {challenges.map((c, idx) => {
+            const Icon = c.icon;
+            const isFullWidth = idx === 4; // 5th card spans nicely on lg
+            return (
+              <div
+                key={c.id}
+                className={`p-6 rounded-2xl bg-white border border-slate-200 shadow-xs hover:shadow-md transition-shadow flex flex-col justify-between ${
+                  isFullWidth ? 'md:col-span-2 lg:col-span-1' : ''
+                }`}
+              >
+                <div>
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="w-10 h-10 rounded-xl bg-blue-50 border border-blue-200 flex items-center justify-center text-blue-700">
+                      <Icon className="w-5 h-5" />
+                    </div>
+                    <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-500 bg-slate-100 px-2 py-0.5 rounded">
+                      {c.tag}
+                    </span>
+                  </div>
+                  <h3 className="text-base font-bold text-slate-900 mb-2">
+                    {c.title}
+                  </h3>
+                  <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
+                    {c.desc}
+                  </p>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </section>
+
+      {/* =========================================================================
+          SECTION 3: OUR SOLUTION
+         ========================================================================= */}
+      <section id="solution" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 scroll-mt-20">
+        <div className="border border-slate-200 rounded-3xl bg-white p-6 sm:p-12 shadow-sm">
+          <div className="text-center max-w-3xl mx-auto mb-12">
+            <span className="text-xs font-bold tracking-wider text-teal-900 uppercase bg-teal-50 px-3 py-1 rounded-full border border-teal-200">
+              Assisted Verification Architecture
             </span>
-            <h2 className="mt-3 text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">
-              How Pre-Validation Works
+            <h2 className="mt-3 text-2xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">
+              Intelligent Verification. Evidence-Based Decisions.
             </h2>
-            <p className="mt-2 text-sm sm:text-base text-slate-600">
-              TypeNull guides you through a disciplined, 4-stage process to identify filing errors and document discrepancies before official submission.
+            <p className="mt-3 text-sm sm:text-base text-slate-600 leading-relaxed">
+              TypeNull equips institutional verification desks with automated pre-screening, forensic anomaly signals, and cross-record reconciliation—enabling officers to make fast, defensible, and evidence-backed decisions.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {workflowSteps.map((ws) => {
-              const StepIcon = ws.icon;
+          {/* 7 Solution Points */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {solutions.map((sol, idx) => {
+              const Icon = sol.icon;
+              const isHighlight = idx === 0;
               return (
                 <div
-                  key={ws.step}
-                  className="p-5 rounded-xl bg-slate-50/80 border border-slate-200/80 hover:border-teal-300 hover:bg-white transition-all shadow-sm flex flex-col justify-between"
+                  key={sol.id}
+                  className={`p-6 rounded-2xl border transition-all flex flex-col justify-between ${
+                    isHighlight
+                      ? 'bg-gradient-to-br from-teal-50/70 via-white to-blue-50/40 border-teal-300 shadow-sm'
+                      : 'bg-slate-50/70 border-slate-200 hover:border-slate-300 hover:bg-white'
+                  }`}
                 >
                   <div>
-                    <div className="flex items-center justify-between mb-3">
-                      <span className="text-xs font-mono font-bold text-teal-800 bg-teal-100/70 px-2 py-0.5 rounded">
-                        Step {ws.step}
+                    <div className="flex items-center justify-between mb-4">
+                      <div className={`w-10 h-10 rounded-xl border flex items-center justify-center ${
+                        isHighlight
+                          ? 'bg-teal-700 text-white border-teal-700 shadow-xs'
+                          : 'bg-white text-teal-800 border-slate-200'
+                      }`}>
+                        <Icon className="w-5 h-5" />
+                      </div>
+                      <span className="text-[10px] font-semibold text-teal-900 bg-teal-100/70 px-2.5 py-0.5 rounded-full border border-teal-200">
+                        {sol.badge}
                       </span>
-                      <StepIcon className="w-5 h-5 text-teal-700" />
                     </div>
-                    <h3 className="font-bold text-slate-900 text-base mb-1.5">{ws.title}</h3>
-                    <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">{ws.desc}</p>
+                    <h3 className="text-base font-bold text-slate-900 mb-2">
+                      {sol.title}
+                    </h3>
+                    <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
+                      {sol.desc}
+                    </p>
                   </div>
                 </div>
               );
@@ -123,232 +367,261 @@ export const FeaturesOverview: React.FC = () => {
         </div>
       </section>
 
-      {/* Section D: Core Capabilities */}
+      {/* =========================================================================
+          SECTION 4: HOW IT WORKS (Visual Workflow Flowchart)
+         ========================================================================= */}
+      <section id="how-it-works" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 scroll-mt-20">
+        <div className="border border-slate-200 rounded-3xl bg-white p-6 sm:p-12 shadow-sm space-y-10">
+          <div className="text-center max-w-3xl mx-auto">
+            <span className="text-xs font-bold tracking-wider text-indigo-900 uppercase bg-indigo-50 px-3 py-1 rounded-full border border-indigo-200">
+              End-to-End Pipeline
+            </span>
+            <h2 className="mt-3 text-2xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">
+              From Application to Evidence-Based Review
+            </h2>
+            <p className="mt-3 text-sm sm:text-base text-slate-600 leading-relaxed">
+              A transparent 8-stage operational flow incorporating early pre-submission checkpoints to prevent rejected filings before official scrutiny.
+            </p>
+          </div>
+
+          {/* Pre-Submission Early Checkpoint Highlight Banner */}
+          <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-teal-50 via-sky-50 to-blue-50 border border-teal-200 shadow-2xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div className="flex items-center gap-3 min-w-0">
+              <div className="w-9 h-9 rounded-xl bg-teal-700 text-white flex items-center justify-center flex-shrink-0 shadow-xs">
+                <CheckCircle2 className="w-5 h-5" />
+              </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px] font-mono font-bold uppercase tracking-wider bg-teal-700 text-white px-2 py-0.5 rounded">
+                    Early Checkpoint
+                  </span>
+                  <p className="text-xs sm:text-sm font-bold text-slate-900">
+                    Pre-Submission Validation Active
+                  </p>
+                </div>
+                <p className="text-xs text-slate-600 mt-0.5">
+                  Submitting institutions verify mandatory checklist compliance, missing fields, and basic consistency before final dossier lock.
+                </p>
+              </div>
+            </div>
+            <Link
+              to="/applications/explore"
+              className="px-3.5 py-1.5 text-xs font-semibold text-teal-800 bg-white border border-teal-300 rounded-lg hover:bg-teal-50 transition-colors whitespace-nowrap shadow-2xs self-stretch sm:self-auto text-center"
+            >
+              Test Pre-Validation &rarr;
+            </Link>
+          </div>
+
+          {/* Compact 8-Stage Flowchart Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
+            {workflowSteps.map((ws) => {
+              const Icon = ws.icon;
+              return (
+                <div
+                  key={ws.step}
+                  className="relative p-5 rounded-2xl bg-slate-50/80 border border-slate-200/90 hover:border-blue-300 hover:bg-white transition-all shadow-xs flex flex-col justify-between group"
+                >
+                  <div>
+                    {/* Step Pill & Phase */}
+                    <div className="flex items-center justify-between mb-3.5">
+                      <span className="text-xs font-mono font-bold text-blue-900 bg-blue-100/80 px-2 py-0.5 rounded border border-blue-200">
+                        Step {ws.step}
+                      </span>
+                      <span className="text-[10px] font-mono uppercase text-slate-500 font-semibold">
+                        {ws.phase}
+                      </span>
+                    </div>
+
+                    {/* Step Icon */}
+                    <div className="w-9 h-9 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-blue-700 shadow-2xs mb-3 group-hover:bg-blue-50 transition-colors">
+                      <Icon className="w-4 h-4" />
+                    </div>
+
+                    {/* Title & Description */}
+                    <h3 className="font-bold text-slate-900 text-sm mb-1.5">
+                      {ws.title}
+                    </h3>
+                    <p className="text-xs text-slate-600 leading-relaxed">
+                      {ws.desc}
+                    </p>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* =========================================================================
+          SECTION 5: KEY CAPABILITIES
+         ========================================================================= */}
       <section id="capabilities" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 scroll-mt-20">
-        <div className="max-w-3xl mb-10">
-          <span className="text-xs font-semibold tracking-wider text-teal-800 uppercase bg-teal-50 px-2.5 py-1 rounded border border-teal-200">
-            Platform Capabilities
+        <div className="text-center max-w-3xl mx-auto mb-12">
+          <span className="text-xs font-bold tracking-wider text-blue-900 uppercase bg-blue-50 px-3 py-1 rounded-full border border-blue-200">
+            Forensic &amp; Validation Modules
           </span>
-          <h2 className="mt-3 text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">
-            Comprehensive Regulatory Pre-Validation
+          <h2 className="mt-3 text-2xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">
+            Key Capabilities
           </h2>
-          <p className="mt-2 text-sm sm:text-base text-slate-600">
-            Engineered to automate statutory checklist evaluation, cross-record discrepancy detection, and evidence-backed audit reporting.
+          <p className="mt-3 text-sm sm:text-base text-slate-600 leading-relaxed">
+            Multi-signal inspection modules engineered to surface subtle discrepancies and document anomalies without drawing premature conclusions.
           </p>
         </div>
 
+        {/* 6 Capabilities Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {coreCapabilities.map((cap) => {
+          {capabilities.map((cap) => {
             const Icon = cap.icon;
             return (
               <div
                 key={cap.id}
-                className="flex flex-col bg-white border border-slate-200 rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow"
+                className="p-6 rounded-2xl bg-white border border-slate-200 shadow-xs hover:shadow-md transition-shadow flex flex-col justify-between"
               >
-                <div className="flex items-center justify-between mb-4">
-                  <div className="w-10 h-10 rounded-lg bg-teal-50 border border-teal-200 flex items-center justify-center text-teal-800">
-                    <Icon className="w-5 h-5" />
+                <div>
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="w-10 h-10 rounded-xl bg-indigo-50 border border-indigo-200 flex items-center justify-center text-indigo-700">
+                      <Icon className="w-5 h-5" />
+                    </div>
+                    <span className="text-[10px] font-mono font-semibold text-slate-500 bg-slate-100 px-2 py-0.5 rounded">
+                      {cap.techNote}
+                    </span>
                   </div>
-                  <span className="text-xs font-medium text-slate-600 bg-slate-100 px-2.5 py-1 rounded">
-                    {cap.badge}
-                  </span>
+
+                  <h3 className="text-base font-bold text-slate-900 mb-2">
+                    {cap.title}
+                  </h3>
+
+                  <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
+                    {cap.desc}
+                  </p>
                 </div>
-
-                <h3 className="text-lg font-bold text-slate-900 mb-2">
-                  {cap.title}
-                </h3>
-
-                <p className="text-sm text-slate-600 leading-relaxed flex-grow">
-                  {cap.desc}
-                </p>
               </div>
             );
           })}
         </div>
+
+        {/* Mandatory Anomaly Detection Disclaimer */}
+        <div className="mt-8 p-4 rounded-2xl bg-slate-100/80 border border-slate-200 text-slate-600 text-xs flex items-start gap-3">
+          <Info className="w-4 h-4 text-slate-500 mt-0.5 flex-shrink-0" />
+          <p className="leading-relaxed">
+            <strong className="text-slate-800">Anomaly Detection &amp; Decision-Support Boundary:</strong> These capabilities highlight anomalies, structural inconsistencies, and revision indicators. They do not claim to conclusively prove fraud or replace statutory legal discretion. Final administrative determinations remain with authorized officials.
+          </p>
+        </div>
       </section>
 
-      {/* Section E: Target Audiences */}
-      <section id="audience" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 scroll-mt-20">
-        <div className="border border-slate-200 rounded-2xl bg-white p-6 sm:p-10 shadow-sm">
-          <div className="max-w-3xl mb-10">
-            <span className="text-xs font-semibold tracking-wider text-teal-800 uppercase bg-teal-50 px-2.5 py-1 rounded border border-teal-200">
-              User Profiles
+      {/* =========================================================================
+          SECTION 6: TRUST, SECURITY AND HUMAN OVERSIGHT
+         ========================================================================= */}
+      <section id="trust" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 scroll-mt-20">
+        <div className="border border-slate-200 rounded-3xl bg-white p-6 sm:p-12 shadow-sm space-y-10">
+          <div className="text-center max-w-3xl mx-auto">
+            <span className="text-xs font-bold tracking-wider text-teal-900 uppercase bg-teal-50 px-3 py-1 rounded-full border border-teal-200">
+              Institutional Governance
             </span>
-            <h2 className="mt-3 text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">
-              Designed for Both Applicants and Institutional Officers
+            <h2 className="mt-3 text-2xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">
+              Transparent, Secure, and Human-Guided
             </h2>
-            <p className="mt-2 text-sm sm:text-base text-slate-600">
-              TypeNull delivers dedicated interfaces and validation depth tailored to distinct compliance roles.
+            <p className="mt-3 text-sm sm:text-base text-slate-600 leading-relaxed">
+              Designed around institutional accountability: zero black-box determinations, immutable audit records, and strict data privacy safeguards.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {/* Individual Applicants */}
-            <div className="p-6 rounded-xl bg-slate-50 border border-slate-200 flex flex-col justify-between">
-              <div>
-                <div className="w-10 h-10 rounded-lg bg-teal-100/70 border border-teal-200 flex items-center justify-center text-teal-800 mb-4">
-                  <UserCheck className="w-5 h-5" />
+          {/* 6 Trust Pillars Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {trustPillars.map((p, idx) => {
+              const Icon = p.icon;
+              return (
+                <div
+                  key={idx}
+                  className="p-5 rounded-2xl bg-slate-50/80 border border-slate-200 flex items-start gap-3.5"
+                >
+                  <div className="w-8 h-8 rounded-lg bg-teal-50 border border-teal-200 flex items-center justify-center text-teal-800 flex-shrink-0 mt-0.5">
+                    <Icon className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-bold text-slate-900 mb-1">
+                      {p.title}
+                    </h3>
+                    <p className="text-xs text-slate-600 leading-relaxed">
+                      {p.desc}
+                    </p>
+                  </div>
                 </div>
-                <h3 className="text-lg font-bold text-slate-900 mb-2">
-                  Individual Applicants & Small Businesses
-                </h3>
-                <p className="text-sm text-slate-600 mb-4 leading-relaxed">
-                  Citizens and business owners preparing statutory filings who want to catch document omissions, date conflicts, and formatting mistakes before paying filing fees or risking rejection.
+              );
+            })}
+          </div>
+
+          {/* Prominent Clear Statement */}
+          <div className="p-5 rounded-2xl bg-gradient-to-r from-blue-900 to-slate-900 text-white shadow-md flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="flex items-center gap-3 text-center sm:text-left">
+              <ShieldCheck className="w-7 h-7 text-teal-400 flex-shrink-0 hidden sm:block" />
+              <div>
+                <p className="text-sm font-bold text-white">
+                  Human-in-the-Loop Regulatory Decision Making
                 </p>
-                <ul className="space-y-2 text-xs sm:text-sm text-slate-700 mb-6">
-                  <li className="flex items-start gap-2">
-                    <CheckCircle className="w-4 h-4 text-teal-700 mt-0.5 flex-shrink-0" />
-                    <span>Clear checklist requirements based on your specific situation.</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <CheckCircle className="w-4 h-4 text-teal-700 mt-0.5 flex-shrink-0" />
-                    <span>Automated OCR extracts names, dates, and identification numbers.</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <CheckCircle className="w-4 h-4 text-teal-700 mt-0.5 flex-shrink-0" />
-                    <span>Plain-language remediation advice for every detected finding.</span>
-                  </li>
-                </ul>
+                <p className="text-xs text-slate-300 mt-0.5">
+                  The platform supports authorized officials; it does not independently make final approval decisions.
+                </p>
               </div>
+            </div>
+            <Link
+              to="/guides?guide=understanding-results"
+              className="px-4 py-2 text-xs font-semibold text-slate-900 bg-teal-300 hover:bg-teal-200 rounded-xl transition-colors whitespace-nowrap shadow-xs"
+            >
+              Review Audit Protocol &rarr;
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* =========================================================================
+          SECTION 7: FINAL CALL TO ACTION
+         ========================================================================= */}
+      <section id="cta" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="rounded-3xl bg-gradient-to-br from-[#0F1E36] via-slate-900 to-teal-950 text-white p-8 sm:p-16 text-center shadow-xl relative overflow-hidden">
+          {/* Subtle background glow */}
+          <div className="absolute top-0 right-0 w-96 h-96 bg-teal-500/10 rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute bottom-0 left-0 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl pointer-events-none" />
+
+          <div className="relative max-w-3xl mx-auto space-y-6">
+            <span className="text-xs font-mono uppercase tracking-wider text-teal-400 bg-teal-950/80 px-3 py-1 rounded-full border border-teal-800">
+              Institutional Approval &bull; Verification Platform
+            </span>
+
+            <h2 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-white leading-tight">
+              Make Application Verification Smarter
+            </h2>
+
+            <p className="text-sm sm:text-base text-slate-300 max-w-xl mx-auto leading-relaxed font-normal">
+              Bring document analysis, consistency checks, and regulatory review assistance into one structured workflow.
+            </p>
+
+            <div className="pt-4 flex flex-col sm:flex-row items-center justify-center gap-4">
+              <Link
+                to="/register"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-7 py-3.5 border border-transparent text-sm font-semibold rounded-xl text-slate-950 bg-teal-400 hover:bg-teal-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-400 shadow-sm transition-all"
+              >
+                <span>Get Started</span>
+                <ArrowRight className="w-4 h-4" />
+              </Link>
+
               <Link
                 to="/applications/explore"
-                className="inline-flex items-center gap-2 text-sm font-semibold text-teal-700 hover:text-teal-900"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-7 py-3.5 border border-slate-700 text-sm font-semibold rounded-xl text-slate-200 bg-slate-800/80 hover:bg-slate-800 hover:text-white transition-colors"
               >
-                Browse Government Applications &rarr;
+                <Compass className="w-4 h-4 text-teal-400" />
+                <span>Explore the Platform</span>
               </Link>
             </div>
 
-            {/* Institutional Officers */}
-            <div className="p-6 rounded-xl bg-slate-50 border border-slate-200 flex flex-col justify-between">
-              <div>
-                <div className="w-10 h-10 rounded-lg bg-indigo-50 border border-indigo-200 flex items-center justify-center text-indigo-800 mb-4">
-                  <Building className="w-5 h-5" />
-                </div>
-                <h3 className="text-lg font-bold text-slate-900 mb-2">
-                  Institutional Officers & Compliance Desks
-                </h3>
-                <p className="text-sm text-slate-600 mb-4 leading-relaxed">
-                  Authorised personnel in enterprise onboarding, legal advisory, university admissions, or corporate secretarial roles who need to screen batches of applications systematically.
-                </p>
-                <ul className="space-y-2 text-xs sm:text-sm text-slate-700 mb-6">
-                  <li className="flex items-start gap-2">
-                    <CheckCircle className="w-4 h-4 text-indigo-700 mt-0.5 flex-shrink-0" />
-                    <span>Bulk batch intake and multi-application parallel screening.</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <CheckCircle className="w-4 h-4 text-indigo-700 mt-0.5 flex-shrink-0" />
-                    <span>Clear distinction between unreadable files and confirmed rule violations.</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <CheckCircle className="w-4 h-4 text-indigo-700 mt-0.5 flex-shrink-0" />
-                    <span>Exportable CSV audit reports and aggregate compliance metrics.</span>
-                  </li>
-                </ul>
-              </div>
-              <Link
-                to="/officer"
-                className="inline-flex items-center gap-2 text-sm font-semibold text-indigo-700 hover:text-indigo-900"
-              >
-                View Organisation Screening &rarr;
-              </Link>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Section F: Help & Getting Started */}
-      <section id="guides-preview" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-8 gap-4">
-          <div>
-            <span className="text-xs font-semibold tracking-wider text-teal-800 uppercase bg-teal-50 px-2.5 py-1 rounded border border-teal-200">
-              Documentation & Guides
-            </span>
-            <h2 className="mt-3 text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">
-              Step-by-Step User Guides
-            </h2>
-            <p className="mt-2 text-sm sm:text-base text-slate-600">
-              Learn how to navigate each workflow with comprehensive, screenshot-referenced documentation.
+            <p className="text-[11px] text-slate-400 font-mono pt-2">
+              Supports citizens, institutional applicants, and authorized verification desks.
             </p>
           </div>
-          <Link
-            to="/guides"
-            className="inline-flex items-center gap-1.5 text-sm font-semibold text-teal-700 hover:text-teal-900 bg-white border border-slate-300 rounded-lg px-4 py-2 hover:bg-slate-50 transition-colors shadow-sm self-start sm:self-auto"
-          >
-            <BookOpen className="w-4 h-4" />
-            View All Guides
-          </Link>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {PRODUCT_GUIDES.slice(0, 3).map((guide) => (
-            <div
-              key={guide.id}
-              className="bg-white border border-slate-200 rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow flex flex-col justify-between"
-            >
-              <div>
-                <div className="flex items-center justify-between text-xs font-medium text-slate-500 mb-2">
-                  <span className="bg-slate-100 text-slate-700 px-2 py-0.5 rounded font-mono">
-                    {guide.category}
-                  </span>
-                  <span>{guide.readTime}</span>
-                </div>
-                <h3 className="font-bold text-slate-900 text-base mb-1.5">{guide.title}</h3>
-                <p className="text-xs sm:text-sm text-slate-600 line-clamp-3 mb-4 leading-relaxed">
-                  {guide.summary}
-                </p>
-              </div>
-
-              <Link
-                to={`/guides?guide=${guide.id}`}
-                className="inline-flex items-center gap-1.5 text-xs font-semibold text-teal-700 hover:text-teal-900 border-t border-slate-100 pt-3"
-              >
-                Read Guide
-                <ArrowRight className="w-3.5 h-3.5" />
-              </Link>
-            </div>
-          ))}
         </div>
       </section>
 
-      {/* Section G: Trust & Statutory Limitations */}
-      <section id="trust" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 scroll-mt-20">
-        <div className="bg-amber-50/60 border border-amber-200/90 rounded-2xl p-6 sm:p-8">
-          <div className="flex items-start gap-4">
-            <div className="w-10 h-10 rounded-lg bg-amber-100 border border-amber-300 flex items-center justify-center text-amber-800 flex-shrink-0">
-              <Info className="w-5 h-5" />
-            </div>
-            <div>
-              <h3 className="text-lg font-bold text-amber-950">
-                Important Regulatory & Statutory Disclaimers
-              </h3>
-              <p className="mt-1 text-sm text-amber-900/90 leading-relaxed">
-                TypeNull is an independent pre-validation and document preparation tool designed to help applicants identify avoidable filing errors prior to official submission. Please review the platform scope:
-              </p>
-
-              <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4 text-xs sm:text-sm text-amber-900">
-                <div className="p-3 bg-white/70 rounded-lg border border-amber-200">
-                  <p className="font-semibold text-amber-950 mb-1">Pre-Validation Only</p>
-                  <p className="text-xs text-amber-900/80 leading-relaxed">
-                    TypeNull does not submit forms or replace government portals (MCA, GSTN, Passport Seva). Final submission must be completed through official channels.
-                  </p>
-                </div>
-                <div className="p-3 bg-white/70 rounded-lg border border-amber-200">
-                  <p className="font-semibold text-amber-950 mb-1">Document Dependence</p>
-                  <p className="text-xs text-amber-900/80 leading-relaxed">
-                    Pre-validation accuracy depends entirely on the legibility, completeness, and recency of user-provided attachments and claims.
-                  </p>
-                </div>
-                <div className="p-3 bg-white/70 rounded-lg border border-amber-200">
-                  <p className="font-semibold text-amber-950 mb-1">No Statutory Guarantee</p>
-                  <p className="text-xs text-amber-900/80 leading-relaxed">
-                    A clean pre-validation result does not guarantee approval by statutory authorities, who retain sole legal discretion over applications.
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
     </div>
   );
 };
+
