@@ -16,7 +16,7 @@ import { supabase, isSupabaseConfigured } from '../../lib/supabase';
  * Initial candidate services with various lifecycle states for administrative review
  */
 export const CANDIDATE_GOVERNMENT_SERVICES: GovernmentService[] = [
-  // 1. Published: SPICe+ (MCA)
+  // 1. Archived Legacy Catalogue: SPICe+ (MCA)
   {
     id: 'srv-MCA-SRV-SPICE-PLUS',
     sourceId: 'SRC-MCA-GOV',
@@ -27,7 +27,7 @@ export const CANDIDATE_GOVERNMENT_SERVICES: GovernmentService[] = [
     officialUrl: 'https://www.mca.gov.in/MinistryV2/incorporation_company.html',
     description: 'Simplified Proforma for Incorporating Company Electronically (SPICe+ Part A and Part B).',
     category: 'organisation_registration',
-    status: 'active',
+    status: 'deprecated',
     createdAt: '2024-09-01T10:00:00.000Z',
     updatedAt: '2024-10-15T12:00:00.000Z',
     applicationTypes: [
@@ -137,7 +137,7 @@ export const CANDIDATE_GOVERNMENT_SERVICES: GovernmentService[] = [
     ],
   },
 
-  // 2. Published: GST REG-01 (CBIC)
+  // 2. Archived Legacy Catalogue: GST REG-01 (CBIC)
   {
     id: 'srv-CBIC-SRV-GST-REG',
     sourceId: 'SRC-CBIC-GST',
@@ -148,7 +148,7 @@ export const CANDIDATE_GOVERNMENT_SERVICES: GovernmentService[] = [
     officialUrl: 'https://www.cbic.gov.in/resources//htdocs-cbec/gst/cgst-act.pdf',
     description: 'Statutory application for registration of taxable persons under Central Goods and Services Tax Act Section 22.',
     category: 'regulatory_application',
-    status: 'active',
+    status: 'deprecated',
     createdAt: '2024-09-05T10:00:00.000Z',
     updatedAt: '2024-10-16T14:00:00.000Z',
     applicationTypes: [
@@ -244,7 +244,7 @@ export const CANDIDATE_GOVERNMENT_SERVICES: GovernmentService[] = [
     officialUrl: 'https://www.passportindia.gov.in/AppOnlineProject/online/faqPassportAct',
     description: 'Statutory application form (Form No. 1) for Indian Passport under the Passports Act, 1967.',
     category: 'certificate_verification',
-    status: 'active',
+    status: 'deprecated',
     createdAt: '2024-09-10T10:00:00.000Z',
     updatedAt: '2024-10-18T15:00:00.000Z',
     applicationTypes: [
@@ -330,7 +330,7 @@ export const CANDIDATE_GOVERNMENT_SERVICES: GovernmentService[] = [
     officialUrl: 'https://www.mca.gov.in/MinistryV2/dir-3.html',
     description: 'Statutory filing under Section 153 of the Companies Act, 2013 for obtaining DIN.',
     category: 'regulatory_application',
-    status: 'active',
+    status: 'deprecated',
     createdAt: '2024-10-20T08:30:00.000Z',
     updatedAt: '2024-10-20T08:30:00.000Z',
     applicationTypes: [
@@ -411,7 +411,7 @@ export const CANDIDATE_GOVERNMENT_SERVICES: GovernmentService[] = [
     officialUrl: 'https://uidai.gov.in/en/my-aadhaar/about-your-aadhaar/updating-data-on-aadhaar.html',
     description: 'Demographic and Address Update through Self Service Update Portal (SSUP) or Enrolment Centre.',
     category: 'certificate_verification',
-    status: 'active',
+    status: 'deprecated',
     createdAt: '2024-10-22T14:10:00.000Z',
     updatedAt: '2024-10-22T14:10:00.000Z',
     applicationTypes: [
@@ -456,7 +456,7 @@ export const CANDIDATE_GOVERNMENT_SERVICES: GovernmentService[] = [
     officialUrl: 'https://www.indiacode.nic.in/handle/123456789/1990',
     description: 'Statutory application for registration of a trade mark under Trade Marks Act, 1999.',
     category: 'regulatory_application',
-    status: 'active',
+    status: 'deprecated',
     createdAt: '2024-10-23T11:00:00.000Z',
     updatedAt: '2024-10-23T11:00:00.000Z',
     applicationTypes: [
@@ -477,6 +477,103 @@ export const CANDIDATE_GOVERNMENT_SERVICES: GovernmentService[] = [
     ],
   },
 ];
+
+/**
+ * Primary Active Government Service for Institutional Workflows
+ * Strictly AICTE Extension of Approval (EoA)
+ */
+export const AICTE_EOA_GOVERNMENT_SERVICE: GovernmentService = {
+  id: 'srv-AICTE-SRV-EOA',
+  sourceId: 'SRC-AICTE-GOV',
+  serviceName: 'Extension of Approval (EoA) for Technical Institutions',
+  serviceCode: 'AICTE-EOA-2026',
+  department: 'All India Council for Technical Education (AICTE)',
+  jurisdiction: 'India (National)',
+  officialUrl: 'https://www.aicte-india.org/bureaus/approval',
+  description: 'Statutory annual Extension of Approval for existing approved technical institutions across diploma, degree, and postgraduate programmes.',
+  category: 'institution_registration',
+  status: 'active',
+  createdAt: '2026-10-26T00:00:00.000Z',
+  updatedAt: '2026-10-26T00:00:00.000Z',
+  applicationTypes: [
+    {
+      id: 'type-aicte-eoa-2026',
+      serviceId: 'srv-AICTE-SRV-EOA',
+      applicationName: 'Extension of Approval (EoA) Application',
+      variantCode: 'AICTE-EOA-2026',
+      applicantCategory: 'approved_technical_institution',
+      requirementsVersion: '2026-27',
+      lifecycleStatus: 'published',
+      publishedAt: '2026-10-26T00:00:00.000Z',
+      verifiedBy: 'AICTE Approval Scrutiny Bureau',
+      verifiedAt: '2026-10-26T00:00:00.000Z',
+      adminNotes: 'Verified against AICTE Approval Process Handbook (APH) regulations for Extension of Approval.',
+      requirements: [
+        {
+          id: 'req-eoa-affidavit',
+          canonicalDocumentKey: 'statutory_declaration',
+          documentName: 'Institution Compliance Affidavit (Form 1)',
+          classification: 'mandatory',
+          isMandatory: true,
+          requiredFields: ['institution_name', 'aicte_permanent_id', 'authorized_signatory'],
+          sourceEvidenceSnippet: 'Duly sworn affidavit by the Authorized Signatory on non-judicial stamp paper confirming compliance with AICTE norms.',
+          extractionConfidence: 0.95,
+          createdAt: '2026-10-26T00:00:00.000Z',
+        },
+        {
+          id: 'req-eoa-land-building',
+          canonicalDocumentKey: 'utility_bill',
+          documentName: 'Land & Built-up Area Certificate',
+          classification: 'mandatory',
+          isMandatory: true,
+          requiredFields: ['land_area_acres', 'built_up_area_sqm', 'khasra_survey_number'],
+          sourceEvidenceSnippet: 'Land title and building completion/occupancy certificate attested by local municipal or competent authority.',
+          extractionConfidence: 0.95,
+          createdAt: '2026-10-26T00:00:00.000Z',
+        },
+        {
+          id: 'req-eoa-faculty-list',
+          canonicalDocumentKey: 'statutory_declaration',
+          documentName: 'Faculty Cadre & Bio-data Statement',
+          classification: 'mandatory',
+          isMandatory: true,
+          requiredFields: ['total_faculty_count', 'principal_name', 'cadre_ratio'],
+          sourceEvidenceSnippet: 'Faculty roll verifying cadre ratio, qualification certifications, and biometric attendance records.',
+          extractionConfidence: 0.95,
+          createdAt: '2026-10-26T00:00:00.000Z',
+        },
+        {
+          id: 'req-eoa-audited-financials',
+          canonicalDocumentKey: 'incorporation_certificate',
+          documentName: 'Audited Financial Statements (Preceding Financial Year)',
+          classification: 'mandatory',
+          isMandatory: true,
+          requiredFields: ['ca_membership_number', 'financial_year', 'corpus_fund'],
+          sourceEvidenceSnippet: 'Audited balance sheet and income/expenditure account certified by a Chartered Accountant with UDIN.',
+          extractionConfidence: 0.95,
+          createdAt: '2026-10-26T00:00:00.000Z',
+        },
+      ],
+      conditionalQuestions: [
+        {
+          id: 'q-eoa-nba-accredited',
+          applicationTypeId: 'type-aicte-eoa-2026',
+          questionCode: 'has_nba_accreditation',
+          questionText: 'Are any eligible courses currently accredited by NBA?',
+          questionType: 'boolean',
+          options: ['yes', 'no'],
+          defaultValue: 'no',
+          triggerCondition: "has_nba_accreditation == 'yes'",
+          triggeredRequirementKeys: ['statutory_declaration'],
+          displayOrder: 1,
+          helpText: 'Institutions with accredited courses must submit current NBA accreditation award letters.',
+        },
+      ],
+      createdAt: '2026-10-26T00:00:00.000Z',
+      updatedAt: '2026-10-26T00:00:00.000Z',
+    },
+  ],
+};
 
 // In-memory runtime state for services & sources (synced with Supabase when configured)
 let runtimeServices = [...CANDIDATE_GOVERNMENT_SERVICES];
@@ -554,6 +651,28 @@ export async function getPublishedGovernmentServices(): Promise<GovernmentServic
     }))
     .filter((service) => service.applicationTypes.length > 0);
 }
+
+/**
+ * Returns strictly active, published services for institutional user workflows (excludes archived).
+ * In TypeNull AICTE edition, returns strictly AICTE Extension of Approval (EoA).
+ */
+export async function getActiveGovernmentServices(): Promise<GovernmentService[]> {
+  if (isSupabaseConfigured && supabase) {
+    try {
+      const { data, error } = await supabase
+        .from('government_services')
+        .select('*')
+        .eq('status', 'active');
+      if (!error && data && data.length > 0) {
+        return data as GovernmentService[];
+      }
+    } catch {
+      // Fallback to runtime active service
+    }
+  }
+  return [AICTE_EOA_GOVERNMENT_SERVICE];
+}
+
 
 /**
  * Updates the lifecycle state of a service application type (Admin action)

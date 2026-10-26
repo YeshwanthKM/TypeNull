@@ -24,7 +24,7 @@ import {
 } from '../types';
 import { useAuth } from '../contexts/AuthContext';
 import { createApplication } from '../services/applications';
-import { getPublishedGovernmentServices } from '../services/ingestion/ingestionService';
+import { getActiveGovernmentServices } from '../services/ingestion/ingestionService';
 import { evaluateConditionalChecklist } from '../services/conditionalEvaluator';
 
 export const NewApplicationPage: React.FC = () => {
@@ -32,7 +32,7 @@ export const NewApplicationPage: React.FC = () => {
   const [searchParams] = useSearchParams();
   const { user, isConfigured } = useAuth();
 
-  // Published Government Services from the Knowledge Base
+  // Published Government Services from the Knowledge Base (strictly active, non-archived)
   const [publishedServices, setPublishedServices] = useState<GovernmentService[]>([]);
   const [selectedServiceId, setSelectedServiceId] = useState<string>('');
   const [selectedVariantId, setSelectedVariantId] = useState<string>('');
@@ -55,7 +55,7 @@ export const NewApplicationPage: React.FC = () => {
 
   // Load published government services on mount and pre-select from URL params
   useEffect(() => {
-    getPublishedGovernmentServices().then((srvs) => {
+    getActiveGovernmentServices().then((srvs) => {
       setPublishedServices(srvs);
 
       const serviceParam = searchParams.get('serviceId') || searchParams.get('serviceCode');
