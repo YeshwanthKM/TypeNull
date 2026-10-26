@@ -9,42 +9,49 @@ import {
   Key,
   ExternalLink,
   BookOpen,
+  Scale,
 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 
 export const AppSidebar: React.FC = () => {
-  const { role } = useAuth();
+  const { role, profile } = useAuth();
 
   const navItems = [
     {
       to: '/dashboard',
-      label: 'Pre-Validation Dashboard',
+      label: 'Institution Dashboard',
       icon: LayoutDashboard,
-      show: role === 'applicant',
+      show: role === 'institution' || role === 'applicant',
+    },
+    {
+      to: '/rulebook',
+      label: 'AICTE Rulebook',
+      icon: Scale,
+      show: true,
     },
     {
       to: '/applications/explore',
-      label: 'Explore Applications',
+      label: 'AICTE Requirements',
       icon: Compass,
-      show: role === 'applicant',
+      show: role === 'institution' || role === 'applicant',
     },
     {
       to: '/applications/new',
-      label: 'Prepare Application',
+      label: 'Prepare EoA Application',
       icon: FilePlus,
-      show: role === 'applicant',
+      show: role === 'institution' || role === 'applicant',
     },
     {
       to: '/officer',
-      label: 'Organisation Screening',
+      label: 'AICTE Officer Desk',
       icon: Shield,
-      show: role === 'officer',
+      show: role === 'officer' || role === 'administrator',
     },
     {
       to: '/admin',
       label: 'Administration Console',
       icon: Key,
-      show: role === 'administrator',
+      show: role === 'administrator' || (role === 'officer' && Boolean(profile?.is_admin)),
     },
     {
       to: '/guides',

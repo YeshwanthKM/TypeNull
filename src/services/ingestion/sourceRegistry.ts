@@ -134,6 +134,21 @@ export const OFFICIAL_GOVERNMENT_SOURCES: GovernmentSource[] = [
     lastCheckedAt: '2026-10-24T00:00:00Z',
     createdAt: '2026-01-01T00:00:00Z',
   },
+  {
+    id: 'SRC-AICTE-GOV',
+    authority: 'All India Council for Technical Education (AICTE), Ministry of Education',
+    sourceUrl: 'https://www.aicte-india.org/',
+    sourceType: 'portal',
+    jurisdiction: 'India (Technical Education & Apex Regulatory)',
+    supportedCategories: ['institution_registration', 'regulatory_application'],
+    retrievalStatus: 'active',
+    verificationStatus: 'verified',
+    accessLimitations:
+      'Apex regulatory portal for technical education institutional approvals, Approval Process Handbook (APH), and Extension of Approval (EoA) statutory filings.',
+    lastDiscoveredAt: '2026-02-01T00:00:00Z',
+    lastCheckedAt: '2026-10-26T00:00:00Z',
+    createdAt: '2026-10-26T00:00:00Z',
+  },
 ];
 
 /**

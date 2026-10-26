@@ -16,9 +16,11 @@ export const Navbar: React.FC<NavbarProps> = ({ onGetStartedClick, onStartTourCl
   const isLandingPage = location.pathname === '/';
 
   const navItems = [
-    { label: 'AICTE Applications', href: '/#applications' },
+    { label: 'AICTE EoA', href: '/#applications' },
+    { label: 'Portals', href: '/#portals' },
     { label: 'Capabilities', href: '/#capabilities' },
     { label: 'EoA Workflow', href: '/#workflow' },
+    { label: 'Handbook', href: '/#handbook-preview' },
     { label: 'Trust & Governance', href: '/#trust' },
     { label: 'Help & Guides', href: '/guides', isRoute: true },
   ];

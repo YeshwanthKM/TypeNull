@@ -70,6 +70,25 @@ export const Hero: React.FC<HeroProps> = ({
               </a>
             </div>
 
+            {/* Portals Fast Access Sub-strip */}
+            <div className="pt-1 flex flex-wrap items-center justify-center lg:justify-start gap-2 text-xs">
+              <span className="text-slate-500 font-medium">Workspaces:</span>
+              <a
+                href="#portals"
+                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-blue-50 text-blue-900 border border-blue-200 hover:bg-blue-100 transition-colors font-semibold text-[11px]"
+              >
+                <span>Institution Portal</span>
+                &rarr;
+              </a>
+              <a
+                href="#portals"
+                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-teal-50 text-teal-900 border border-teal-200 hover:bg-teal-100 transition-colors font-semibold text-[11px]"
+              >
+                <span>AICTE Officer Desk</span>
+                &rarr;
+              </a>
+            </div>
+
             {/* Micro Highlights Bar */}
             <div className="pt-4 flex flex-wrap items-center justify-center lg:justify-start gap-y-2 gap-x-6 text-xs text-slate-500">
               <div className="flex items-center gap-1.5 font-medium">

@@ -68,13 +68,44 @@ export type ApplicationStatus =
 
 /**
  * Supabase Database Models (Authentication & Roles)
+ * Primary Application Roles: 'institution' and 'officer'.
+ * Legacy aliases 'applicant' and 'administrator' are supported for backward compatibility.
  */
-export type UserRole = 'applicant' | 'officer' | 'administrator';
+export type UserRole = 'institution' | 'officer' | 'applicant' | 'administrator';
+
+export type InstitutionVerificationStatus =
+  | 'pending_verification'
+  | 'additional_info_required'
+  | 'verified'
+  | 'rejected';
+
+export interface InstitutionVerificationAudit {
+  id: string;
+  institution_id: string;
+  reviewer_id: string;
+  action: 'approved' | 'rejected' | 'requested_info';
+  reason_or_message?: string | null;
+  from_status?: InstitutionVerificationStatus | string | null;
+  to_status?: InstitutionVerificationStatus | string | null;
+  created_at: string;
+}
 
 export interface UserProfile {
   id: string;
   full_name: string | null;
   role: UserRole;
+  institution_name?: string | null;
+  aicte_permanent_id?: string | null;
+  institution_type?: string | null;
+  address?: string | null;
+  state?: string | null;
+  contact_person_designation?: string | null;
+  contact_phone?: string | null;
+  is_admin?: boolean;
+  verification_status?: InstitutionVerificationStatus;
+  verification_reason?: string | null;
+  verified_at?: string | null;
+  verified_by?: string | null;
   created_at: string;
   updated_at: string;
 }

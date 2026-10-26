@@ -16,6 +16,7 @@ import { UserRole } from '../types';
  * NOTE: Display labels must NEVER be used as the security or authorization boundary.
  */
 export const ROLE_DISPLAY_LABELS: Record<UserRole, string> = {
+  institution: 'Institution',
   applicant: 'User',
   officer: 'Organisation',
   administrator: 'Admin',
@@ -49,6 +50,12 @@ export function getRoleBadgeStyle(role?: UserRole | string | null): {
         border: 'border-indigo-200',
       };
     case 'officer':
+      return {
+        bg: 'bg-teal-50',
+        text: 'text-teal-800',
+        border: 'border-teal-200',
+      };
+    case 'institution':
       return {
         bg: 'bg-teal-50',
         text: 'text-teal-800',
