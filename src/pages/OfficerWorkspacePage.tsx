@@ -22,6 +22,7 @@ import {
   Lock,
   FileSpreadsheet,
   ShieldCheck,
+  Scale,
 } from 'lucide-react';
 import { PageHeader } from '../components/ui/PageHeader';
 import { Button } from '../components/ui/Button';
@@ -60,6 +61,7 @@ import {
   saveScreeningBatch,
 } from '../services/validationService';
 import { InstitutionVerificationPanel } from '../components/officer/InstitutionVerificationPanel';
+import { EoaDossierScrutinyPanel } from '../components/officer/EoaDossierScrutinyPanel';
 
 interface CustomBuilderApplicant {
   id: string;
@@ -71,7 +73,7 @@ export const OfficerWorkspacePage: React.FC = () => {
   const { user, profile } = useAuth();
 
   // Active view tab
-  const [activeTab, setActiveTab] = useState<'screening' | 'results' | 'history' | 'verifications'>('screening');
+  const [activeTab, setActiveTab] = useState<'eoa_dossiers' | 'verifications' | 'screening' | 'results' | 'history'>('eoa_dossiers');
 
   // Intake Mode: Structured Multi-Application Builder vs Folder/ZIP Archive
   const [intakeMode, setIntakeMode] = useState<'builder' | 'archive'>('builder');
@@ -779,6 +781,22 @@ export const OfficerWorkspacePage: React.FC = () => {
 
       {/* Workspace Tabs Navigation */}
       <div className="flex border-b border-slate-200 gap-4 sm:gap-6 text-sm font-semibold overflow-x-auto whitespace-nowrap scrollbar-none pb-0.5">
+        <button
+          type="button"
+          onClick={() => setActiveTab('eoa_dossiers')}
+          className={`pb-3 flex items-center gap-2 border-b-2 transition-colors flex-shrink-0 ${
+            activeTab === 'eoa_dossiers'
+              ? 'border-teal-700 text-teal-800'
+              : 'border-transparent text-slate-500 hover:text-slate-800'
+          }`}
+        >
+          <Scale className="w-4 h-4" />
+          <span>AICTE EoA Scrutiny</span>
+          <span className="text-[10px] bg-teal-100 text-teal-800 font-mono px-1.5 py-0.5 rounded-full font-bold">
+            EoA 2026–27
+          </span>
+        </button>
+
         <button
           type="button"
           onClick={() => setActiveTab('verifications')}
@@ -1686,6 +1704,11 @@ export const OfficerWorkspacePage: React.FC = () => {
             )}
           </div>
         </div>
+      )}
+
+      {/* TAB 0: AICTE EOA DOSSIER SCRUTINY */}
+      {activeTab === 'eoa_dossiers' && (
+        <EoaDossierScrutinyPanel />
       )}
 
       {/* TAB 4: INSTITUTION REGISTRATION VERIFICATIONS */}

@@ -1,927 +1,426 @@
-import React, { useEffect, useState, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useEffect, useState, useCallback } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
 import {
-  Compass,
-  Search,
-  Filter,
-  Building2,
   FileText,
   CheckCircle2,
-  HelpCircle,
+  ShieldCheck,
+  Scale,
   ArrowRight,
   ExternalLink,
-  ShieldCheck,
-  RefreshCw,
-  X,
-  Layers,
-  Info,
-  Landmark,
-  Clock,
   AlertTriangle,
-  FileQuestion,
+  FileCheck,
+  Info,
+  Lock,
+  Plus,
 } from 'lucide-react';
 import { PageHeader } from '../components/ui/PageHeader';
 import { Button } from '../components/ui/Button';
 import { LoadingState } from '../components/ui/LoadingState';
-import { EmptyState } from '../components/ui/EmptyState';
-import { GovernmentService, ServiceApplicationType, ApplicationDocumentRequirement } from '../types';
-import { getGovernmentServices } from '../services/ingestion/ingestionService';
-
-interface ApplicationCardItem {
-  service: GovernmentService;
-  variant: ServiceApplicationType;
-  intendedUsers: string;
-  typicalSituation: string;
-}
+import { useAuth } from '../contexts/AuthContext';
+import { fetchUserApplications } from '../services/applications';
+import { DbApplication } from '../types';
+import { STATUTORY_EOA_DOCUMENTS } from '../services/validation/eoaValidationEngine';
 
 export const GovernmentApplicationsCataloguePage: React.FC = () => {
   const navigate = useNavigate();
+  const { user, isConfigured } = useAuth();
 
-  const [services, setServices] = useState<GovernmentService[]>([]);
+  const [applications, setApplications] = useState<DbApplication[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
+  const [selectedReqKey, setSelectedReqKey] = useState<string | null>(null);
 
-  // Search & Filter state
-  const [searchQuery, setSearchQuery] = useState<string>('');
-  const [selectedCategory, setSelectedCategory] = useState<string>('all');
-  const [selectedStatus, setSelectedStatus] = useState<'all' | 'published' | 'review' | 'discovered'>('all');
-
-  // Modal Detail State
-  const [activeDetailItem, setActiveDetailItem] = useState<ApplicationCardItem | null>(null);
-
-  const loadPublishedApplications = async () => {
-    setIsLoading(true);
-    setError(null);
-    try {
-      // Load all registered & discovered services for transparent status reporting
-      const data = await getGovernmentServices();
-      setServices(data);
-    } catch (err: any) {
-      setError(err?.message || 'Failed to retrieve government applications catalogue.');
-    } finally {
+  // Load existing institutional applications to connect card actions dynamically
+  const loadApplications = useCallback(async () => {
+    if (!user || !isConfigured) {
       setIsLoading(false);
+      return;
+    }
+    setIsLoading(true);
+    const { data } = await fetchUserApplications(user.id);
+    setApplications(data || []);
+    setIsLoading(false);
+  }, [user, isConfigured]);
+
+  useEffect(() => {
+    loadApplications();
+  }, [loadApplications]);
+
+  const latestApp = applications.length > 0 ? applications[0] : null;
+
+  // Handlers for the 4 core actions
+  const handleCheckReadiness = () => {
+    if (latestApp) {
+      navigate(`/applications/${latestApp.id}`);
+    } else {
+      navigate('/rulebook?tab=checklist');
     }
   };
 
-  useEffect(() => {
-    loadPublishedApplications();
-  }, []);
-
-  // Map services into individual application cards (each variant represents a runnable application)
-  const applicationItems: ApplicationCardItem[] = useMemo(() => {
-    const items: ApplicationCardItem[] = [];
-
-    for (const service of services) {
-      for (const variant of service.applicationTypes) {
-        // Humanize intended users
-        let intendedUsers = 'General applicants & enterprises';
-        if (variant.applicantCategory === 'corporate_promoter') {
-          intendedUsers = 'Corporate Promoters, Founders & Company Directors';
-        } else if (variant.applicantCategory === 'taxable_business') {
-          intendedUsers = 'Commercial Businesses, Traders & Service Providers';
-        } else if (variant.applicantCategory === 'individual_director') {
-          intendedUsers = 'Individual Director Applicants';
-        } else if (variant.applicantCategory === 'citizen_applicant' || variant.applicantCategory === 'general') {
-          intendedUsers = 'Individual Citizens of India';
-        } else if (variant.applicantCategory) {
-          intendedUsers = variant.applicantCategory.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
-        }
-
-        // Typical situation
-        let typicalSituation = service.description || 'Statutory filing under official government regulations.';
-        if (variant.variantCode === 'MCA-SPICE-INC32') {
-          typicalSituation =
-            'Incorporating a new Private Limited, OPC, or Public Company in India with integrated PAN, TAN, EPFO, and ESIC registrations.';
-        } else if (variant.variantCode === 'CBIC-GST-REG01') {
-          typicalSituation =
-            'Applying for mandatory or voluntary GST registration under CGST Act Section 22 upon crossing aggregate turnover thresholds or initiating inter-state supply.';
-        } else if (variant.variantCode === 'MEA-PASS-FORM1') {
-          typicalSituation =
-            'Applying for fresh issuance or renewal of an ordinary Indian passport for international travel under the Passports Act, 1967.';
-        }
-
-        items.push({
-          service,
-          variant,
-          intendedUsers,
-          typicalSituation,
-        });
-      }
+  const handleViewRequirements = () => {
+    const el = document.getElementById('statutory-requirements-breakdown');
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth' });
+    } else {
+      navigate('/rulebook?tab=checklist');
     }
+  };
 
-    return items;
-  }, [services]);
-
-  // Extract unique categories for filtering
-  const availableCategories = useMemo(() => {
-    const cats = new Set<string>();
-    for (const s of services) {
-      if (s.category) cats.add(s.category);
+  const handleValidateDocuments = () => {
+    if (latestApp) {
+      navigate(`/applications/${latestApp.id}`);
+    } else {
+      navigate('/applications/new');
     }
-    return Array.from(cats);
-  }, [services]);
+  };
 
-  // Filtered applications based on search query, category, and lifecycle status
-  const filteredItems = useMemo(() => {
-    return applicationItems.filter((item) => {
-      // Category filter
-      if (selectedCategory !== 'all' && item.service.category !== selectedCategory) {
-        return false;
-      }
-
-      // Lifecycle status filter
-      if (selectedStatus === 'published' && item.variant.lifecycleStatus !== 'published') {
-        return false;
-      }
-      if (
-        selectedStatus === 'review' &&
-        item.variant.lifecycleStatus !== 'needs_verification' &&
-        item.variant.lifecycleStatus !== 'extracted'
-      ) {
-        return false;
-      }
-      if (selectedStatus === 'discovered' && item.variant.lifecycleStatus !== 'discovered') {
-        return false;
-      }
-
-      // Search query filter
-      if (!searchQuery.trim()) return true;
-
-      const q = searchQuery.toLowerCase().trim();
-      const matchName = item.variant.applicationName.toLowerCase().includes(q);
-      const matchService = item.service.serviceName.toLowerCase().includes(q);
-      const matchDept = item.service.department.toLowerCase().includes(q);
-      const matchVariant = item.variant.variantCode.toLowerCase().includes(q);
-      const matchDesc = item.typicalSituation.toLowerCase().includes(q) || (item.service.description || '').toLowerCase().includes(q);
-      const matchUsers = item.intendedUsers.toLowerCase().includes(q);
-
-      return matchName || matchService || matchDept || matchVariant || matchDesc || matchUsers;
-    });
-  }, [applicationItems, searchQuery, selectedCategory, selectedStatus]);
-
-  const handleStartValidation = (item: ApplicationCardItem) => {
-    // Strictly prevent starting validation for non-published variants
-    if (item.variant.lifecycleStatus !== 'published') {
-      return;
+  const handleReviewCompliance = () => {
+    if (latestApp) {
+      navigate(`/applications/${latestApp.id}`);
+    } else {
+      navigate('/rulebook?tab=rules');
     }
-    setActiveDetailItem(null);
-    navigate(`/applications/new?serviceId=${encodeURIComponent(item.service.id)}&variantId=${encodeURIComponent(item.variant.id)}`);
   };
 
   return (
     <div className="space-y-8">
       {/* Page Header */}
       <PageHeader
-        title="Explore Government Applications"
-        description="Browse published Indian government services, understand mandatory document requirements, and explore situational compliance rules before starting your pre-validation dossier."
+        title="AICTE EoA Requirements"
+        description="Review the requirements for your AICTE Extension of Approval application and prepare the supporting documents for validation and scrutiny."
         breadcrumbs={[
           { label: 'Dashboard', href: '/dashboard' },
-          { label: 'Explore Applications' },
+          { label: 'AICTE EoA Requirements' },
         ]}
         action={
-          <Button
-            variant="outline"
-            onClick={() => navigate('/applications/new')}
-            leftIcon={<FileText className="w-4 h-4" />}
-          >
-            Custom Application
-          </Button>
+          <div className="flex flex-wrap items-center gap-2.5">
+            <Button
+              variant="outline"
+              onClick={() => navigate('/rulebook')}
+              leftIcon={<Scale className="w-4 h-4 text-teal-700" />}
+            >
+              AICTE Rulebook
+            </Button>
+            <Button
+              variant="primary"
+              onClick={() => navigate('/applications/new')}
+              leftIcon={<Plus className="w-4 h-4" />}
+            >
+              Prepare EoA Application
+            </Button>
+          </div>
         }
       />
 
-      {/* Search & Category Filter Toolbar */}
-      <section aria-label="Catalogue search and filters" className="bg-white p-5 rounded-xl border border-slate-200 shadow-xs space-y-4">
-        <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center justify-between">
-          <div className="relative flex-1">
-            <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search by application name, department, or statutory keyword (e.g., SPICe+, GST, Passport, MCA)..."
-              className="w-full pl-10 pr-9 py-2 text-base sm:text-sm bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-600 focus:bg-white transition-all text-slate-900 placeholder:text-slate-400"
-            />
-            {searchQuery && (
-              <button
-                type="button"
-                onClick={() => setSearchQuery('')}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-0.5 rounded"
-                aria-label="Clear search"
-              >
-                <X className="w-3.5 h-3.5" />
-              </button>
-            )}
-          </div>
-
-          <div className="flex items-center gap-2 text-xs text-slate-500 font-mono flex-shrink-0">
-            <span className="bg-slate-100 text-slate-700 px-2.5 py-1 rounded-md font-semibold">
-              {filteredItems.length} {filteredItems.length === 1 ? 'Application' : 'Applications'} Available
-            </span>
-          </div>
+      {/* Advisory & Scrutiny Notice */}
+      <div className="p-4 rounded-xl border border-teal-200 bg-teal-50/60 text-slate-800 text-xs flex items-start gap-3 shadow-xs">
+        <Info className="w-5 h-5 text-teal-700 flex-shrink-0 mt-0.5" />
+        <div className="space-y-1">
+          <p className="font-semibold text-teal-950">
+            TypeNull Institutional Application Scrutiny System
+          </p>
+          <p className="leading-relaxed text-teal-900">
+            TypeNull supports pre-submission document validation, forensic tampering detection, and internal officer scrutiny under AICTE Approval Process Handbook (APH 2024–2027) standards. Verification findings are generated strictly from uploaded evidentiary files and do not substitute for official statutory approval from AICTE.
+          </p>
         </div>
+      </div>
 
-        {/* Category Pills */}
-        <div className="flex flex-wrap items-center gap-1.5 pt-1 border-t border-slate-100">
-          <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider mr-1 flex items-center gap-1">
-            <Filter className="w-3 h-3 text-slate-400" />
-            Category:
-          </span>
-          <button
-            type="button"
-            onClick={() => setSelectedCategory('all')}
-            className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
-              selectedCategory === 'all'
-                ? 'bg-teal-700 text-white shadow-xs'
-                : 'bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-900'
-            }`}
-          >
-            All Categories
-          </button>
-          {availableCategories.map((cat) => (
-            <button
-              key={cat}
-              type="button"
-              onClick={() => setSelectedCategory(cat)}
-              className={`px-3 py-1 rounded-full text-xs font-medium transition-colors capitalize ${
-                selectedCategory === cat
-                  ? 'bg-teal-700 text-white shadow-xs'
-                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-900'
-              }`}
-            >
-              {cat.replace(/_/g, ' ')}
-            </button>
-          ))}
-        </div>
-
-        {/* Coverage & Verification Status Filter */}
-        <div className="flex flex-wrap items-center gap-1.5 pt-2 border-t border-slate-100">
-          <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider mr-1 flex items-center gap-1">
-            <ShieldCheck className="w-3 h-3 text-slate-400" />
-            Coverage:
-          </span>
-          <button
-            type="button"
-            onClick={() => setSelectedStatus('all')}
-            className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
-              selectedStatus === 'all'
-                ? 'bg-slate-800 text-white shadow-xs'
-                : 'bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-900'
-            }`}
-          >
-            All Coverages ({applicationItems.length})
-          </button>
-          <button
-            type="button"
-            onClick={() => setSelectedStatus('published')}
-            className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
-              selectedStatus === 'published'
-                ? 'bg-emerald-700 text-white shadow-xs'
-                : 'bg-emerald-50 text-emerald-800 border border-emerald-200 hover:bg-emerald-100'
-            }`}
-          >
-            Validation Ready ({applicationItems.filter((i) => i.variant.lifecycleStatus === 'published').length})
-          </button>
-          <button
-            type="button"
-            onClick={() => setSelectedStatus('review')}
-            className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
-              selectedStatus === 'review'
-                ? 'bg-amber-700 text-white shadow-xs'
-                : 'bg-amber-50 text-amber-800 border border-amber-200 hover:bg-amber-100'
-            }`}
-          >
-            Under Review &amp; Partial ({applicationItems.filter((i) => i.variant.lifecycleStatus === 'needs_verification' || i.variant.lifecycleStatus === 'extracted').length})
-          </button>
-          <button
-            type="button"
-            onClick={() => setSelectedStatus('discovered')}
-            className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
-              selectedStatus === 'discovered'
-                ? 'bg-slate-700 text-white shadow-xs'
-                : 'bg-slate-100 text-slate-700 border border-slate-200 hover:bg-slate-200'
-            }`}
-          >
-            Discovered Pipeline ({applicationItems.filter((i) => i.variant.lifecycleStatus === 'discovered').length})
-          </button>
-        </div>
-      </section>
-
-      {/* Error State */}
-      {error && (
-        <div className="p-4 rounded-xl border border-red-200 bg-red-50 text-red-900 text-xs flex items-center justify-between gap-3">
-          <div>
-            <p className="font-semibold text-red-950">Error Loading Applications</p>
-            <p className="text-red-800">{error}</p>
+      {/* Active Application Context Banner if user already has an application */}
+      {isLoading ? (
+        <LoadingState message="Loading AICTE application dossier status..." rows={1} />
+      ) : latestApp ? (
+        <div className="p-4 rounded-xl border border-slate-200 bg-white shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-lg bg-teal-50 border border-teal-200 flex items-center justify-center text-teal-700">
+              <FileCheck className="w-5 h-5" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="font-bold text-slate-900 text-sm">{latestApp.title}</span>
+                <span className="font-mono text-[10px] bg-slate-100 text-slate-700 px-2 py-0.5 rounded font-semibold capitalize">
+                  {latestApp.status.replace(/_/g, ' ')}
+                </span>
+              </div>
+              <p className="text-xs text-slate-500 mt-0.5">
+                {latestApp.organisation_name} &bull; {latestApp.category || 'AICTE EoA'} &bull; Cycle 2026–2027
+              </p>
+            </div>
           </div>
           <Button
             variant="outline"
             size="sm"
-            onClick={loadPublishedApplications}
-            leftIcon={<RefreshCw className="w-3.5 h-3.5" />}
+            onClick={() => navigate(`/applications/${latestApp.id}`)}
+            rightIcon={<ArrowRight className="w-3.5 h-3.5" />}
           >
-            Retry
+            Open Active Dossier
           </Button>
         </div>
-      )}
+      ) : null}
 
-      {/* Catalogue Cards Grid */}
-      {isLoading ? (
-        <LoadingState message="Retrieving published government applications catalogue from verified registry..." rows={4} />
-      ) : filteredItems.length === 0 ? (
-        <div className="rounded-xl border border-slate-200 bg-white p-8 shadow-xs">
-          <EmptyState
-            icon={Compass}
-            title={searchQuery ? 'No Matching Applications Found' : 'No Published Applications Available'}
-            description={
-              searchQuery
-                ? `No published government applications matched "${searchQuery}". Try adjusting your keywords or clearing the category filter.`
-                : 'There are currently no published government applications available in the registry. Check back shortly as new statutory applications are reviewed.'
-            }
-            action={
-              searchQuery ? (
-                <Button
-                  variant="outline"
-                  onClick={() => {
-                    setSearchQuery('');
-                    setSelectedCategory('all');
-                  }}
-                  leftIcon={<RefreshCw className="w-3.5 h-3.5" />}
-                >
-                  Reset Search &amp; Filters
-                </Button>
-              ) : undefined
-            }
-          />
+      {/* SECTION: 4 Core Scrutiny & Validation Cards */}
+      <section aria-labelledby="core-workflow-cards" className="space-y-3">
+        <div className="flex items-center justify-between">
+          <h2 id="core-workflow-cards" className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
+            EoA Scrutiny &amp; Validation Modules
+          </h2>
+          <span className="text-[11px] font-mono text-teal-800 bg-teal-50 border border-teal-200 px-2.5 py-0.5 rounded-full font-semibold">
+            APH 2024–2027 Cycle
+          </span>
         </div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredItems.map((item) => {
-            const { service, variant, intendedUsers, typicalSituation } = item;
 
-            // Requirements statistics
-            const reqs = variant.requirements || [];
-            const mandatoryCount = reqs.filter((r) => r.classification === 'mandatory').length;
-            const conditionalCount = reqs.filter((r) => r.classification === 'conditional').length;
-            const alternativeCount = reqs.filter((r) => r.classification === 'alternative').length;
-            const questionsCount = (variant.conditionalQuestions || []).length;
-
-            return (
-              <div
-                key={`${service.id}-${variant.id}`}
-                className="flex flex-col bg-white rounded-xl border border-slate-200 shadow-xs hover:shadow-md transition-shadow duration-200 overflow-hidden"
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          {/* CARD 1: Application Readiness */}
+          <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-xs flex flex-col justify-between hover:border-teal-300 hover:shadow-sm transition-all">
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="p-2.5 rounded-lg bg-teal-50 text-teal-700 border border-teal-100">
+                  <CheckCircle2 className="w-5 h-5" />
+                </span>
+                <span className="text-[10px] font-mono font-semibold px-2 py-0.5 rounded-full bg-slate-100 text-slate-700">
+                  Readiness
+                </span>
+              </div>
+              <div>
+                <h3 className="font-bold text-slate-900 text-sm">Application Readiness</h3>
+                <p className="text-xs text-slate-600 mt-1.5 leading-relaxed">
+                  Review application completeness and identify missing or incomplete information before submitting documents for scrutiny.
+                </p>
+              </div>
+            </div>
+            <div className="pt-4 mt-2 border-t border-slate-100">
+              <Button
+                variant="primary"
+                size="sm"
+                className="w-full justify-center"
+                onClick={handleCheckReadiness}
+                rightIcon={<ArrowRight className="w-3.5 h-3.5" />}
               >
-                {/* Authority & Category Bar */}
-                <div className="p-5 pb-3 border-b border-slate-100 flex items-start justify-between gap-2 bg-slate-50/70">
-                  <div className="flex items-center gap-2 text-slate-700 min-w-0">
-                    <Landmark className="w-4 h-4 text-teal-700 flex-shrink-0" />
-                    <span className="text-xs font-semibold text-slate-800 truncate" title={service.department}>
-                      {service.department}
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-1.5 flex-shrink-0">
-                    <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-slate-100 text-slate-700 border border-slate-200 font-semibold">
-                      {variant.variantCode}
-                    </span>
-                    {variant.lifecycleStatus === 'published' ? (
-                      <span className="inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded bg-emerald-50 text-emerald-800 border border-emerald-200">
-                        <ShieldCheck className="w-3 h-3 text-emerald-600" />
-                        Ready
-                      </span>
-                    ) : variant.lifecycleStatus === 'needs_verification' ? (
-                      <span className="inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded bg-amber-50 text-amber-800 border border-amber-200">
-                        <Clock className="w-3 h-3 text-amber-600" />
-                        In Review
-                      </span>
-                    ) : variant.lifecycleStatus === 'extracted' ? (
-                      <span className="inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded bg-blue-50 text-blue-800 border border-blue-200">
-                        <Layers className="w-3 h-3 text-blue-600" />
-                        Partial
-                      </span>
-                    ) : (
-                      <span className="inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded bg-slate-100 text-slate-700 border border-slate-300">
-                        <FileQuestion className="w-3 h-3 text-slate-500" />
-                        Discovered
-                      </span>
-                    )}
-                  </div>
-                </div>
-
-                {/* Card Body */}
-                <div className="p-5 flex-1 flex flex-col space-y-4">
-                  {/* Title & Description */}
-                  <div>
-                    <h3 className="text-base font-bold text-slate-900 leading-snug hover:text-teal-800 transition-colors">
-                      {variant.applicationName}
-                    </h3>
-                    <p className="text-xs text-slate-600 mt-2 line-clamp-3 leading-relaxed">
-                      {typicalSituation}
-                    </p>
-                  </div>
-
-                  {/* Coverage limitation notice for non-published items */}
-                  {variant.lifecycleStatus !== 'published' && (
-                    <div className="text-[11px] p-2.5 rounded-lg bg-amber-50/70 border border-amber-200 text-amber-900 leading-relaxed space-y-0.5">
-                      <p className="font-semibold flex items-center gap-1">
-                        <AlertTriangle className="w-3 h-3 text-amber-700 flex-shrink-0" />
-                        {variant.lifecycleStatus === 'needs_verification'
-                          ? 'Awaiting Administrative Review'
-                          : variant.lifecycleStatus === 'extracted'
-                          ? 'Partial Requirements Extraction'
-                          : 'Discovered Form Entry'}
-                      </p>
-                      <p className="text-[10px] text-amber-800">
-                        {variant.lifecycleStatus === 'needs_verification'
-                          ? 'Extracted candidate rules require official review before validation can be enabled.'
-                          : variant.lifecycleStatus === 'extracted'
-                          ? 'Demographic rules extracted; full identity schedule verification pending.'
-                          : 'Statutory gazette entry identified; requirements extraction in progress.'}
-                      </p>
-                    </div>
-                  )}
-
-                  {/* Intended Audience */}
-                  <div className="pt-2 border-t border-slate-100 text-xs">
-                    <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider block mb-1">
-                      Target Applicant
-                    </span>
-                    <p className="font-medium text-slate-800 flex items-center gap-1.5">
-                      <Building2 className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
-                      <span className="truncate">{intendedUsers}</span>
-                    </p>
-                  </div>
-
-                  {/* Requirements Preview Badges */}
-                  <div className="pt-2 border-t border-slate-100">
-                    <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider block mb-2">
-                      Document Checklist Preview
-                    </span>
-                    <div className="flex flex-wrap gap-1.5 text-[11px]">
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-emerald-50 text-emerald-800 border border-emerald-200 font-medium">
-                        <CheckCircle2 className="w-3 h-3 text-emerald-600" />
-                        {mandatoryCount} Mandatory
-                      </span>
-                      {conditionalCount > 0 && (
-                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-amber-50 text-amber-800 border border-amber-200 font-medium">
-                          <HelpCircle className="w-3 h-3 text-amber-600" />
-                          {conditionalCount} Conditional
-                        </span>
-                      )}
-                      {alternativeCount > 0 && (
-                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-blue-50 text-blue-800 border border-blue-200 font-medium">
-                          <Layers className="w-3 h-3 text-blue-600" />
-                          {alternativeCount} Alternative
-                        </span>
-                      )}
-                      {questionsCount > 0 && (
-                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-slate-100 text-slate-700 font-medium font-mono">
-                          {questionsCount} Questions
-                        </span>
-                      )}
-                    </div>
-
-                    {/* Brief snippet of mandatory document names */}
-                    {reqs.length > 0 && (
-                      <p className="text-[11px] text-slate-500 mt-2 truncate">
-                        Includes: {reqs.slice(0, 3).map((r) => r.documentName).join(', ')}
-                        {reqs.length > 3 ? '...' : ''}
-                      </p>
-                    )}
-                  </div>
-                </div>
-
-                {/* Card Action Buttons */}
-                <div className="p-4 bg-slate-50 border-t border-slate-100 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="w-full sm:w-auto justify-center"
-                    onClick={() => setActiveDetailItem(item)}
-                    leftIcon={<Info className="w-3.5 h-3.5" />}
-                  >
-                    View Details
-                  </Button>
-                  {variant.lifecycleStatus === 'published' ? (
-                    <Button
-                      variant="primary"
-                      size="sm"
-                      className="w-full sm:w-auto justify-center"
-                      onClick={() => handleStartValidation(item)}
-                      rightIcon={<ArrowRight className="w-3.5 h-3.5" />}
-                    >
-                      Start Validation
-                    </Button>
-                  ) : (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      disabled
-                      className="w-full sm:w-auto justify-center opacity-60 cursor-not-allowed bg-slate-100 text-slate-500 border-slate-200"
-                      title={(() => {
-                        const explanations: Record<string, string> = {
-                          published: "Service is fully published and ready for validation.",
-                          needs_verification: "Service needs verification before validation can occur.",
-                          extracted: "Service's source documents have been extracted but not yet verified.",
-                          discovered: "Service has been discovered but not yet processed.",
-                          superseded: "Service has been superseded by a newer version.",
-                        };
-                        const defaultMsg = "Service is not currently available for validation.";
-                        return explanations[variant.lifecycleStatus] ?? defaultMsg;
-                      })()}
-                    >
-                      Validation Unavailable ({variant.lifecycleStatus})
-                    </Button>
-                  )}
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      )}
-
-      {/* Application Detail Modal / Drawer */}
-      {activeDetailItem && (
-        <ApplicationDetailModal
-          item={activeDetailItem}
-          onClose={() => setActiveDetailItem(null)}
-          onStartValidation={() => handleStartValidation(activeDetailItem)}
-        />
-      )}
-    </div>
-  );
-};
-
-interface ApplicationDetailModalProps {
-  item: ApplicationCardItem;
-  onClose: () => void;
-  onStartValidation: () => void;
-}
-
-const ApplicationDetailModal: React.FC<ApplicationDetailModalProps> = ({
-  item,
-  onClose,
-  onStartValidation,
-}) => {
-  const { service, variant, intendedUsers, typicalSituation } = item;
-
-  useEffect(() => {
-    document.body.style.overflow = 'hidden';
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose();
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => {
-      document.body.style.overflow = '';
-      window.removeEventListener('keydown', handleKeyDown);
-    };
-  }, [onClose]);
-
-  const mandatoryReqs = (variant.requirements || []).filter((r) => r.classification === 'mandatory');
-  const conditionalReqs = (variant.requirements || []).filter((r) => r.classification === 'conditional');
-  const alternativeReqs = (variant.requirements || []).filter((r) => r.classification === 'alternative');
-  const optionalReqs = (variant.requirements || []).filter((r) => r.classification === 'optional');
-  const questions = variant.conditionalQuestions || [];
-
-  return (
-    <div
-      className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="app-detail-title"
-    >
-      <div className="relative bg-white rounded-2xl max-w-3xl w-full p-4 sm:p-6 md:p-8 shadow-2xl border border-slate-200 max-h-[90vh] flex flex-col overflow-hidden">
-        {/* Modal Header */}
-        <div className="flex items-start justify-between pb-4 border-b border-slate-200">
-          <div className="space-y-1">
-            <div className="flex items-center gap-2 flex-wrap">
-              <span className="text-xs font-semibold px-2 py-0.5 rounded bg-slate-100 text-slate-700 border border-slate-200 font-mono">
-                {variant.variantCode}
-              </span>
-              <span className="text-xs text-slate-500 font-mono">
-                Version {variant.requirementsVersion || '2024.1'}
-              </span>
-              {variant.lifecycleStatus === 'published' ? (
-                <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
-                  <ShieldCheck className="w-3 h-3 text-emerald-600" />
-                  Published &amp; Verified
-                </span>
-              ) : variant.lifecycleStatus === 'needs_verification' ? (
-                <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-amber-800 bg-amber-50 px-2 py-0.5 rounded border border-amber-200">
-                  <Clock className="w-3 h-3 text-amber-600" />
-                  Under Review (Validation Disabled)
-                </span>
-              ) : variant.lifecycleStatus === 'extracted' ? (
-                <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-blue-800 bg-blue-50 px-2 py-0.5 rounded border border-blue-200">
-                  <Layers className="w-3 h-3 text-blue-600" />
-                  Partial Extraction (Validation Disabled)
-                </span>
-              ) : (
-                <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-slate-700 bg-slate-100 px-2 py-0.5 rounded border border-slate-300">
-                  <FileQuestion className="w-3 h-3 text-slate-500" />
-                  Discovered Only (Validation Disabled)
-                </span>
-              )}
+                Check Readiness
+              </Button>
             </div>
-            <h2 id="app-detail-title" className="text-xl font-bold text-slate-900">
-              {variant.applicationName}
+          </div>
+
+          {/* CARD 2: Document Requirements */}
+          <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-xs flex flex-col justify-between hover:border-teal-300 hover:shadow-sm transition-all">
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="p-2.5 rounded-lg bg-blue-50 text-blue-700 border border-blue-100">
+                  <FileText className="w-5 h-5" />
+                </span>
+                <span className="text-[10px] font-mono font-semibold px-2 py-0.5 rounded-full bg-blue-50 text-blue-800 border border-blue-200">
+                  Statutory Proofs
+                </span>
+              </div>
+              <div>
+                <h3 className="font-bold text-slate-900 text-sm">Document Requirements</h3>
+                <p className="text-xs text-slate-600 mt-1.5 leading-relaxed">
+                  Review the supporting documents relevant to the current AICTE EoA scrutiny workflow.
+                </p>
+              </div>
+            </div>
+            <div className="pt-4 mt-2 border-t border-slate-100">
+              <Button
+                variant="outline"
+                size="sm"
+                className="w-full justify-center"
+                onClick={handleViewRequirements}
+                rightIcon={<ArrowRight className="w-3.5 h-3.5" />}
+              >
+                View Requirements
+              </Button>
+            </div>
+          </div>
+
+          {/* CARD 3: Document Authentication */}
+          <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-xs flex flex-col justify-between hover:border-teal-300 hover:shadow-sm transition-all">
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="p-2.5 rounded-lg bg-indigo-50 text-indigo-700 border border-indigo-100">
+                  <ShieldCheck className="w-5 h-5" />
+                </span>
+                <span className="text-[10px] font-mono font-semibold px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-800 border border-indigo-200">
+                  Forensics &amp; Crypto
+                </span>
+              </div>
+              <div>
+                <h3 className="font-bold text-slate-900 text-sm">Document Authentication</h3>
+                <p className="text-xs text-slate-600 mt-1.5 leading-relaxed">
+                  Submit and review supporting documents for structural integrity, digital signature verification, certificate trust status, and potential manipulation indicators.
+                </p>
+              </div>
+            </div>
+            <div className="pt-4 mt-2 border-t border-slate-100">
+              <Button
+                variant="outline"
+                size="sm"
+                className="w-full justify-center"
+                onClick={handleValidateDocuments}
+                rightIcon={<ArrowRight className="w-3.5 h-3.5" />}
+              >
+                Validate Documents
+              </Button>
+            </div>
+          </div>
+
+          {/* CARD 4: Application Compliance */}
+          <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-xs flex flex-col justify-between hover:border-teal-300 hover:shadow-sm transition-all">
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="p-2.5 rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-100">
+                  <Scale className="w-5 h-5" />
+                </span>
+                <span className="text-[10px] font-mono font-semibold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200">
+                  AICTE Rules
+                </span>
+              </div>
+              <div>
+                <h3 className="font-bold text-slate-900 text-sm">Application Compliance</h3>
+                <p className="text-xs text-slate-600 mt-1.5 leading-relaxed">
+                  Check applicable validation rules and cross-document consistency to identify potential regulatory deficiencies requiring attention.
+                </p>
+              </div>
+            </div>
+            <div className="pt-4 mt-2 border-t border-slate-100">
+              <Button
+                variant="outline"
+                size="sm"
+                className="w-full justify-center"
+                onClick={handleReviewCompliance}
+                rightIcon={<ArrowRight className="w-3.5 h-3.5" />}
+              >
+                Review Compliance
+              </Button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* SECTION: Verified AICTE EoA Document Requirements Breakdown */}
+      <section id="statutory-requirements-breakdown" aria-labelledby="breakdown-heading" className="space-y-4 pt-2">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-200 pb-3">
+          <div>
+            <h2 id="breakdown-heading" className="text-base font-bold text-slate-900">
+              Verified AICTE EoA Document Requirements
             </h2>
-            <p className="text-xs font-medium text-slate-600 flex items-center gap-1.5">
-              <Landmark className="w-3.5 h-3.5 text-teal-700" />
-              <span>{service.department}</span>
-              <span className="text-slate-300">&bull;</span>
-              <span>{service.jurisdiction}</span>
+            <p className="text-xs text-slate-500 mt-0.5">
+              Statutory evidentiary proofs prescribed in the AICTE Approval Process Handbook (APH 2024–2027) for Extension of Approval.
             </p>
           </div>
-
-          <button
-            type="button"
-            onClick={onClose}
-            className="text-slate-400 hover:text-slate-600 focus:outline-none focus:ring-2 focus:ring-teal-600 rounded-lg p-1.5"
-            aria-label="Close dialog"
+          <Link
+            to="/rulebook?tab=checklist"
+            className="inline-flex items-center gap-1.5 text-xs font-semibold text-teal-700 hover:text-teal-900"
           >
-            <X className="w-5 h-5" />
-          </button>
+            <span>Full Statutory Checklist</span>
+            <ExternalLink className="w-3.5 h-3.5" />
+          </Link>
         </div>
 
-        {/* Modal Body Scrollable Content */}
-        <div className="flex-1 overflow-y-auto py-5 space-y-6 pr-1">
-          {/* Statutory Verification Notice for Non-Published Applications */}
-          {variant.lifecycleStatus !== 'published' && (
-            <div className="p-4 rounded-xl border border-amber-200 bg-amber-50 text-amber-950 text-xs flex items-start gap-3">
-              <AlertTriangle className="w-5 h-5 text-amber-700 flex-shrink-0 mt-0.5" />
-              <div className="space-y-1">
-                <p className="font-semibold text-amber-950">
-                  Pre-Validation Restricted (Statutory Review Pending)
-                </p>
-                <p className="text-amber-800 leading-relaxed">
-                  This statutory application is currently in{' '}
-                  <code className="font-mono bg-amber-100 px-1 py-0.5 rounded font-bold">
-                    {variant.lifecycleStatus.replace('_', ' ')}
-                  </code>{' '}
-                  status. To protect applicants from inaccurate compliance determinations, TypeNull enforces a strict regulatory safeguard: dossiers can only be created and pre-validated against fully published and verified requirement profiles.
-                </p>
-              </div>
-            </div>
-          )}
-
-          {/* Statutory Purpose & Typical Situation */}
-          <div className="space-y-3 bg-slate-50 p-4 rounded-xl border border-slate-200">
-            <h3 className="text-xs font-semibold text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
-              <Info className="w-3.5 h-3.5 text-teal-700" />
-              Purpose &amp; Intended Applicability
-            </h3>
-            <p className="text-xs text-slate-700 leading-relaxed">
-              {typicalSituation}
-            </p>
-            <div className="pt-2 border-t border-slate-200 text-xs flex flex-wrap gap-y-2 justify-between items-center text-slate-600">
-              <div>
-                <span className="font-semibold text-slate-800">Target Applicant: </span>
-                {intendedUsers}
-              </div>
-              {service.officialUrl && (
-                <a
-                  href={service.officialUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1 text-teal-700 hover:text-teal-900 font-medium hover:underline text-xs"
-                >
-                  Official Government Portal
-                  <ExternalLink className="w-3 h-3" />
-                </a>
-              )}
-            </div>
-          </div>
-
-          {/* Pre-Validation Scope & System Capabilities */}
-          <div className="space-y-3">
-            <h3 className="text-xs font-semibold text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
-              <ShieldCheck className="w-4 h-4 text-teal-700" />
-              Pre-Validation Scope &amp; System Capabilities
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
-              <div className="p-3.5 rounded-xl border border-emerald-200 bg-emerald-50/60 space-y-1.5">
-                <p className="font-semibold text-emerald-950 flex items-center gap-1.5">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-700 flex-shrink-0" />
-                  What TypeNull Can Check
-                </p>
-                <ul className="text-emerald-900 text-[11px] space-y-1 list-disc list-inside">
-                  <li>Mandatory and conditional document checklist compliance</li>
-                  <li>Official identifier format syntax (CIN, GSTIN, PAN)</li>
-                  <li>Cross-document name and identifier alignment</li>
-                  <li>Credential validity and non-expired status</li>
-                </ul>
-              </div>
-              <div className="p-3.5 rounded-xl border border-slate-200 bg-slate-50 space-y-1.5">
-                <p className="font-semibold text-slate-800 flex items-center gap-1.5">
-                  <Info className="w-3.5 h-3.5 text-slate-500 flex-shrink-0" />
-                  What TypeNull Cannot Check
-                </p>
-                <ul className="text-slate-600 text-[11px] space-y-1 list-disc list-inside">
-                  <li>Does not replace official filing on government portals</li>
-                  <li>Does not guarantee statutory approval by authorities</li>
-                  <li>Does not perform biometric or criminal background checks</li>
-                  <li>Does not verify physical stamp paper or embossed notary seals</li>
-                </ul>
-              </div>
-            </div>
-          </div>
-
-          {/* Statutory Review & Provenance Note */}
-          {variant.adminNotes && (
-            <div className="text-xs text-slate-600 bg-teal-50/50 p-3 rounded-lg border border-teal-100 flex items-start gap-2">
-              <ShieldCheck className="w-4 h-4 text-teal-700 flex-shrink-0 mt-0.5" />
-              <div>
-                <span className="font-semibold text-teal-950">Statutory Governance: </span>
-                <span>{variant.adminNotes}</span>
-                {variant.verifiedBy && (
-                  <span className="block text-[11px] text-teal-800 mt-0.5 font-mono">
-                    Verified By: {variant.verifiedBy}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {STATUTORY_EOA_DOCUMENTS.map((doc, idx) => (
+            <div
+              key={doc.key}
+              className={`p-4 rounded-xl border bg-white shadow-xs space-y-2.5 transition-all ${
+                selectedReqKey === doc.key ? 'border-teal-500 ring-1 ring-teal-500' : 'border-slate-200 hover:border-slate-300'
+              }`}
+              onClick={() => setSelectedReqKey(selectedReqKey === doc.key ? null : doc.key)}
+            >
+              <div className="flex items-start justify-between gap-2">
+                <div className="flex items-center gap-2">
+                  <span className="w-6 h-6 rounded-full bg-slate-100 text-slate-700 text-xs font-bold flex items-center justify-center">
+                    {idx + 1}
                   </span>
-                )}
+                  <h3 className="text-sm font-bold text-slate-900">{doc.name}</h3>
+                </div>
+                <span className="text-[10px] font-mono font-semibold px-2 py-0.5 rounded-full bg-rose-50 text-rose-800 border border-rose-200">
+                  Mandatory
+                </span>
               </div>
-            </div>
-          )}
 
-          {/* Mandatory Documents Section */}
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <h3 className="text-xs font-semibold text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
-                <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                Mandatory Required Documents ({mandatoryReqs.length})
-              </h3>
-              <span className="text-[11px] text-slate-500 font-mono">Statutory Requirements</span>
-            </div>
-
-            {mandatoryReqs.length === 0 ? (
-              <p className="text-xs text-slate-500 italic">No mandatory documents specified.</p>
-            ) : (
-              <div className="divide-y divide-slate-100 border border-slate-200 rounded-xl overflow-hidden bg-white">
-                {mandatoryReqs.map((req, idx) => (
-                  <DocumentRequirementRow key={req.id || idx} req={req} type="mandatory" />
-                ))}
-              </div>
-            )}
-          </div>
-
-          {/* Alternative Document Groups */}
-          {alternativeReqs.length > 0 && (
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <h3 className="text-xs font-semibold text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
-                  <Layers className="w-4 h-4 text-blue-600" />
-                  Accepted Alternative Documents ({alternativeReqs.length})
-                </h3>
-                <span className="text-[11px] text-slate-500 font-mono">Any One Accepted</span>
-              </div>
-              <div className="divide-y divide-slate-100 border border-slate-200 rounded-xl overflow-hidden bg-white">
-                {alternativeReqs.map((req, idx) => (
-                  <DocumentRequirementRow key={req.id || idx} req={req} type="alternative" />
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Conditional Documents Section */}
-          {conditionalReqs.length > 0 && (
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <h3 className="text-xs font-semibold text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
-                  <HelpCircle className="w-4 h-4 text-amber-600" />
-                  Situational Conditional Requirements ({conditionalReqs.length})
-                </h3>
-                <span className="text-[11px] text-slate-500 font-mono">Triggered by Specific Answers</span>
-              </div>
-              <div className="divide-y divide-slate-100 border border-slate-200 rounded-xl overflow-hidden bg-white">
-                {conditionalReqs.map((req, idx) => (
-                  <DocumentRequirementRow key={req.id || idx} req={req} type="conditional" />
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Optional Documents */}
-          {optionalReqs.length > 0 && (
-            <div className="space-y-3">
-              <h3 className="text-xs font-semibold text-slate-900 uppercase tracking-wider">
-                Optional Supporting Documents ({optionalReqs.length})
-              </h3>
-              <div className="divide-y divide-slate-100 border border-slate-200 rounded-xl overflow-hidden bg-white">
-                {optionalReqs.map((req, idx) => (
-                  <DocumentRequirementRow key={req.id || idx} req={req} type="optional" />
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Dynamic Questionnaire Preview */}
-          {questions.length > 0 && (
-            <div className="space-y-3 pt-2 border-t border-slate-200">
-              <h3 className="text-xs font-semibold text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
-                <HelpCircle className="w-4 h-4 text-teal-700" />
-                Pre-Validation Questionnaire ({questions.length} Questions)
-              </h3>
               <p className="text-xs text-slate-600 leading-relaxed">
-                When you initiate validation, the system will prompt you with the following situational questions to automatically customize your required document list:
+                {doc.description}
               </p>
-              <div className="space-y-2">
-                {questions.map((q, idx) => (
-                  <div key={q.id || idx} className="p-3 bg-slate-50 rounded-lg border border-slate-200 text-xs">
-                    <p className="font-semibold text-slate-900">
-                      {idx + 1}. {q.questionText}
-                    </p>
-                    {q.helpText && (
-                      <p className="text-[11px] text-slate-500 mt-1">
-                        Note: {q.helpText}
-                      </p>
-                    )}
-                  </div>
-                ))}
+
+              <div className="pt-2 border-t border-slate-100 flex flex-wrap items-center justify-between gap-2 text-[11px]">
+                <span className="font-mono text-slate-500 bg-slate-50 px-2 py-0.5 rounded border border-slate-200">
+                  {doc.ruleId}
+                </span>
+                <span className="text-slate-500 font-medium truncate max-w-xs">
+                  {doc.ruleCitation}
+                </span>
               </div>
             </div>
-          )}
-        </div>
+          ))}
 
-        {/* Modal Footer Actions */}
-        <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-2 sm:gap-3 pt-4 border-t border-slate-200">
-          <Button variant="outline" className="w-full sm:w-auto justify-center" onClick={onClose}>
-            Close
-          </Button>
-          {variant.lifecycleStatus === 'published' ? (
-            <Button
-              variant="primary"
-              className="w-full sm:w-auto justify-center"
-              onClick={onStartValidation}
-              rightIcon={<ArrowRight className="w-4 h-4" />}
-            >
-              Start Pre-Validation
-            </Button>
-          ) : (
-            <Button
-              variant="outline"
-              disabled
-              className="w-full sm:w-auto justify-center opacity-60 cursor-not-allowed bg-slate-100 text-slate-500 border-slate-200 text-xs"
-            >
-              Pre-Validation Unavailable (Awaiting Review)
-            </Button>
-          )}
-        </div>
-      </div>
-    </div>
-  );
-};
+          {/* Conditional NBA Accreditation Requirement */}
+          <div className="p-4 rounded-xl border border-dashed border-teal-300 bg-teal-50/30 shadow-xs space-y-2.5">
+            <div className="flex items-start justify-between gap-2">
+              <div className="flex items-center gap-2">
+                <span className="w-6 h-6 rounded-full bg-teal-100 text-teal-800 text-xs font-bold flex items-center justify-center">
+                  5
+                </span>
+                <h3 className="text-sm font-bold text-slate-900">NBA Accreditation Award Letter</h3>
+              </div>
+              <span className="text-[10px] font-mono font-semibold px-2 py-0.5 rounded-full bg-teal-100 text-teal-800 border border-teal-200">
+                Conditional
+              </span>
+            </div>
 
-const DocumentRequirementRow: React.FC<{
-  req: ApplicationDocumentRequirement;
-  type: 'mandatory' | 'conditional' | 'alternative' | 'optional';
-}> = ({ req, type }) => {
-  return (
-    <div className="p-3.5 space-y-1.5">
-      <div className="flex items-start justify-between gap-2">
-        <span className="text-xs font-semibold text-slate-900">{req.documentName}</span>
-        <span
-          className={`text-[10px] font-mono px-2 py-0.5 rounded font-semibold uppercase ${
-            type === 'mandatory'
-              ? 'bg-emerald-50 text-emerald-800 border border-emerald-200'
-              : type === 'conditional'
-              ? 'bg-amber-50 text-amber-800 border border-amber-200'
-              : type === 'alternative'
-              ? 'bg-blue-50 text-blue-800 border border-blue-200'
-              : 'bg-slate-100 text-slate-700'
-          }`}
-        >
-          {type}
-        </span>
-      </div>
+            <p className="text-xs text-slate-600 leading-relaxed">
+              Official accreditation certificate issued by the National Board of Accreditation. Mandatory only when claiming multi-year Extension of Approval benefits under Chapter II.
+            </p>
 
-      {req.sourceEvidenceSnippet && (
-        <p className="text-[11px] text-slate-600 italic leading-normal">
-          &ldquo;{req.sourceEvidenceSnippet}&rdquo;
-        </p>
-      )}
-
-      {type === 'alternative' && req.acceptedAlternatives && req.acceptedAlternatives.length > 0 && (
-        <p className="text-[11px] text-blue-700 font-medium">
-          Accepted alternatives: {req.acceptedAlternatives.join(' / ')}
-        </p>
-      )}
-
-      {type === 'conditional' && req.conditionExpression && (
-        <p className="text-[11px] text-amber-800 font-mono">
-          Activated when: {req.conditionExpression}
-        </p>
-      )}
-
-      {req.requiredFields && req.requiredFields.length > 0 && (
-        <div className="flex items-center gap-1.5 pt-1 text-[10px] text-slate-500">
-          <span className="font-semibold text-slate-600">Verified fields:</span>
-          <div className="flex flex-wrap gap-1">
-            {req.requiredFields.map((f) => (
-              <code key={f} className="px-1.5 py-0.2 bg-slate-100 rounded text-slate-700 font-mono">
-                {f}
-              </code>
-            ))}
+            <div className="pt-2 border-t border-teal-200/50 flex flex-wrap items-center justify-between gap-2 text-[11px]">
+              <span className="font-mono text-slate-500 bg-white px-2 py-0.5 rounded border border-slate-200">
+                AICTE-RULE-NBA-ACCRED
+              </span>
+              <span className="text-slate-500 font-medium">
+                APH 2024–2027 Chapter II Clause 2.4
+              </span>
+            </div>
           </div>
         </div>
-      )}
+      </section>
+
+      {/* SECTION: Evidence-Based Scrutiny & Supported Formats Notice */}
+      <section aria-labelledby="evidence-standards-heading" className="p-5 rounded-xl border border-slate-200 bg-white shadow-xs space-y-3">
+        <div className="flex items-center gap-2.5">
+          <ShieldCheck className="w-5 h-5 text-teal-700" />
+          <h2 id="evidence-standards-heading" className="text-sm font-bold text-slate-900">
+            Document Evidence &amp; Verification Standards
+          </h2>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs text-slate-600 pt-1">
+          <div className="p-3.5 rounded-lg bg-slate-50 border border-slate-200 space-y-1.5">
+            <p className="font-semibold text-slate-900 flex items-center gap-1.5">
+              <FileCheck className="w-4 h-4 text-teal-700" />
+              Supported File Formats
+            </p>
+            <p className="leading-relaxed text-slate-600 text-[11px]">
+              High-resolution searchable or raster PDFs and common image formats (PNG, JPEG). Scanned files undergo automated contrast and text stream recovery.
+            </p>
+          </div>
+
+          <div className="p-3.5 rounded-lg bg-slate-50 border border-slate-200 space-y-1.5">
+            <p className="font-semibold text-slate-900 flex items-center gap-1.5">
+              <Lock className="w-4 h-4 text-teal-700" />
+              Cryptographic Signatures
+            </p>
+            <p className="leading-relaxed text-slate-600 text-[11px]">
+              Verifies PKCS#7 / CMS digital signatures (RSA &amp; ECDSA P-256) embedded in PDFs. Validates X.509 certificate chains to recognized trust anchors.
+            </p>
+          </div>
+
+          <div className="p-3.5 rounded-lg bg-slate-50 border border-slate-200 space-y-1.5">
+            <p className="font-semibold text-slate-900 flex items-center gap-1.5">
+              <AlertTriangle className="w-4 h-4 text-amber-600" />
+              Forensic Analysis
+            </p>
+            <p className="leading-relaxed text-slate-600 text-[11px]">
+              Inspects files for incremental update modifications post-signing, structural PDF discrepancies, and pixel-level tampering indicators.
+            </p>
+          </div>
+        </div>
+      </section>
     </div>
   );
 };

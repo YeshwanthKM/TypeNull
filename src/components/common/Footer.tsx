@@ -41,7 +41,7 @@ export const Footer: React.FC = () => {
             <ul className="space-y-2 text-xs text-slate-600">
               <li>
                 <Link to="/applications/explore" className="hover:text-teal-700 transition-colors">
-                  Government Applications Catalogue
+                  AICTE EoA Requirements
                 </Link>
               </li>
               <li>

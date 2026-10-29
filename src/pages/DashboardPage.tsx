@@ -233,7 +233,7 @@ export const DashboardPage: React.FC = () => {
                     onClick={() => navigate('/applications/explore')}
                     leftIcon={<Compass className="w-4 h-4 text-teal-700" />}
                   >
-                    Explore Applications
+                    AICTE EoA Requirements
                   </Button>
                   <Button
                     variant="primary"

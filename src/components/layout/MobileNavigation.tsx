@@ -218,7 +218,7 @@ export const MobileNavigation: React.FC<MobileNavigationProps> = ({ isOpen, onCl
               }
             >
               <Compass className="w-5 h-5 mb-0.5" />
-              <span>Explore</span>
+              <span>Requirements</span>
             </NavLink>
 
             <NavLink
