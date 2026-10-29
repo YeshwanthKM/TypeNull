@@ -159,7 +159,7 @@ export interface DbApplication {
   registration_number: string | null;
   jurisdiction: string;
   description: string | null;
-  status: 'draft' | 'submitted' | 'under_review';
+  status: 'draft' | 'submitted' | 'under_review' | 'approved' | 'rejected' | 'pending_documents';
   assigned_organisation_id?: string | null;
   created_at: string;
   updated_at: string;

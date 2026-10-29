@@ -24,11 +24,13 @@ import { DocumentPreviewModal } from '../components/documents/DocumentPreviewMod
 import { DocumentExtractionModal } from '../components/extraction/DocumentExtractionModal';
 import { ExtractedDossierSection } from '../components/extraction/ExtractedDossierSection';
 import { PreValidationSection } from '../components/validation/PreValidationSection';
+import { EoaWorkflowProgressBar } from '../components/validation/EoaWorkflowProgressBar';
 import { DocumentAuthenticitySection } from '../components/documents/DocumentAuthenticitySection';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
-import { fetchApplicationById } from '../services/applications';
+import { fetchApplicationById, submitApplicationForInternalReview } from '../services/applications';
 import { fetchApplicationDocuments } from '../services/documents';
+import { runEoaValidationEngine, EoaValidationSummary } from '../services/validation/eoaValidationEngine';
 import {
   DbApplication,
   ApplicationDocument,
@@ -70,11 +72,6 @@ export const ApplicationDetailsPlaceholder: React.FC = () => {
       return;
     }
 
-    if (!isConfigured) {
-      setIsLoadingApp(false);
-      return;
-    }
-
     setIsLoadingApp(true);
     setError(null);
 
@@ -90,7 +87,7 @@ export const ApplicationDetailsPlaceholder: React.FC = () => {
     } else {
       setApplication(data);
     }
-  }, [id, isConfigured]);
+  }, [id]);
 
   // Extractions & Fields state for Validation Engine
   const [extractions, setExtractions] = useState<DocumentExtractionRecord[]>([]);
@@ -98,7 +95,7 @@ export const ApplicationDetailsPlaceholder: React.FC = () => {
 
   // Load application documents
   const loadDocuments = useCallback(async () => {
-    if (!id || !isConfigured) {
+    if (!id) {
       setIsLoadingDocs(false);
       return;
     }
@@ -110,7 +107,7 @@ export const ApplicationDetailsPlaceholder: React.FC = () => {
     if (!docErr) {
       setDocuments(data);
     }
-  }, [id, isConfigured]);
+  }, [id]);
 
   // Load extractions and fields for validation engine
   const loadExtractionsAndFields = useCallback(async () => {
@@ -138,6 +135,26 @@ export const ApplicationDetailsPlaceholder: React.FC = () => {
     loadDocuments();
     loadExtractionsAndFields();
   }, [loadApplication, loadDocuments, loadExtractionsAndFields]);
+
+  // Comprehensive AICTE EoA validation summary
+  const eoaSummary: EoaValidationSummary | null = React.useMemo(() => {
+    if (!application) return null;
+    return runEoaValidationEngine({
+      application,
+      documents,
+      extractions,
+      fields,
+    });
+  }, [application, documents, extractions, fields]);
+
+  const [isSubmittingReview, setIsSubmittingReview] = useState(false);
+  const handleSubmitForReview = async () => {
+    if (!id) return;
+    setIsSubmittingReview(true);
+    await submitApplicationForInternalReview(id);
+    await loadApplication();
+    setIsSubmittingReview(false);
+  };
 
   // Handler when new document upload completes
   const handleDocumentUploaded = (newDoc: ApplicationDocument) => {
@@ -324,6 +341,19 @@ export const ApplicationDetailsPlaceholder: React.FC = () => {
               </p>
             </div>
           </div>
+
+          {/* AICTE EoA Workflow Progress & Internal Submission Boundary */}
+          {eoaSummary && (
+            <EoaWorkflowProgressBar
+              currentStage={eoaSummary.workflowStage}
+              blockingIssuesCount={eoaSummary.blockingIssues}
+              warningsCount={eoaSummary.warningChecks}
+              passedChecksCount={eoaSummary.passedChecks}
+              isSubmissionReady={eoaSummary.isSubmissionReady}
+              onSubmitForReview={handleSubmitForReview}
+              isSubmitting={isSubmittingReview}
+            />
+          )}
 
           {/* Document Management Section */}
           <div className="p-4 sm:p-6 rounded-xl border border-slate-200 bg-white shadow-sm space-y-4">
